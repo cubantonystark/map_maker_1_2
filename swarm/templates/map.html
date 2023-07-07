@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Satellite Positions</title>
+    <style>
+       #capture {
+           height: 360px;
+           width: 480px;
+           overflow: hidden;
+           float: left;
+           background-color: #ECECFB;
+           border: thin solid #333;
+           border-left: none;
+        }
+        #map {
+            height: 400px;
+            width: 100%;
+        }
+        #status-container-test {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 5px;
+            font-family: "Courier New", monospace;
+            font-size: 20px;
+
+        }
+        #status-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 5px;
+            font-family: "Courier New", monospace;
+            font-size: 20px;
+            height: 40px;
+
+        }
+        #status-container-bat {
+            display: flex;
+            justify-content: left;
+            align-items: center;
+            margin-top: 5px;
+            font-family: "Courier New", monospace;
+            font-size: 20px;
+            height: 40px;
+
+        }
+
+        #status-container2, #status-container3, #status-container4, #status-container5, #status-container6, #status-container-uas {
+            display: flex;
+            height: 40px;
+            justify-content: left;
+            align-items: center;
+            margin-top: 5px;
+            font-family: "Courier New", monospace;
+            font-size: 20px;
+        }
+        #magnetometer-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 5px;
+            font-family: "Courier New", monospace;
+            font-size: 20px;
+            height: 40px;
+
+        }
+        #calibration-container {
+            display: flex;
+            justify-content: left;
+            align-items: center;
+            margin-top: 5px;
+            font-family: "Courier New", monospace;
+            font-size: 20px;
+            height: 40px;
+
+        }
+        .label-drone {
+            color: white;
+            font-family: "Courier New", monospace;
+            font-size: 20px;
+
+        }
+        .status-circle-bat {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin: 0 10px;
+        }
+        .status-circle-uas {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin: 0 10px;
+        }
+        .status-circle,  .uas1-status-circle, .uas2-status-circle, .uas3-status-circle, .uas4-status-circle, .uas5-status-circle, .uas6-status-circle, .uas7-status-circle, .uas8-status-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin: 0 10px;
+        }
+        .status-circle2 {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin: 0 10px;
+        }
+
+        .magnetometer-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin: 0 10px;
+        }
+        .calibration-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin: 0 10px;
+        }
+        .status-red {
+            background-color: red;
+        }
+
+        .status-yellow {
+            background-color: yellow;
+        }
+        .logo {
+            float: left;
+            margin: 5px;
+            height: 25px;
+            align: left;
+        }
+        .status-green {
+            background-color: green;
+        }
+        .float-parent-element {
+            width: 100%;
+        }
+        .float-child-element {
+            float: left;
+            width: 33.3333%;
+        }
+        .float-child-element2 {
+            float: right;
+            margin: 5px;
+            width: 15%;
+        }
+        .float-child-element3 {
+            float: left;
+            margin: 5px;
+            width: 20%;
+            align: left;
+        }
+        .red {
+            background-color: black;
+            color: white;
+            margin-left: 0%;
+            height: 36px;
+            font-family: "Courier New", monospace;
+            font-size: 32px;
+            text-align: left;
+            padding: 5px;
+
+
+        }
+        .yellow {
+            margin-left: 0%;
+            height: 36px;
+            background-color: black;
+            text-align: right;
+            font-family: "Courier New", monospace;
+            font-size: 32px;
+            color: white;
+            padding: 5px;
+
+        }
+        .checklist {
+            margin-left: 0%;
+            height: 30px;
+            background-color: white;
+            text-align: right;
+            font-family: "Courier New", monospace;
+            font-size: 20px;
+            color = white;
+
+        }
+        .controlButtons {
+            background-color: white;
+            margin-left: 0%;
+            height: 10px;
+            width: 100%;
+            font-family: "Courier New", monospace;
+            font-size: 16px;
+            text-align: left;
+        }
+        .status-green {
+            background-color: green;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        .clock {
+            font-family: "Courier New", monospace;
+            font-size: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .weather {
+            margin: 5px;
+            padding: 20px;
+            color: black;
+            text-transform: capitalize;
+            stroke: 1;
+            font-family: "Arial";
+            font-size: 16px;
+            text-align: left;
+            background-color: white;
+            outline-style: solid;
+            outline-color: #4D4D4D;
+        }
+        .weather_description {
+            text-transform: uppercase;
+        }
+        .buttonLabel {
+            font-family: "Courier New", monospace;
+            font-size: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .date {
+            font-family: "Courier New", monospace;
+            font-size: 32px;
+            height: 36px;
+            background-color: black;
+            padding: 5px;
+            text-align: right;
+            font-family: "Courier New", monospace;
+            color: white;
+        }
+        #status-container, #magnetometer-container, #calibration-container {
+            display: flex;
+            justify-content: left;
+            margin-top: 5px;
+            font-family: "Courier New", monospace;
+            font-size: 20px;
+        }
+        #status-container-test {
+            display: flex;
+            justify-content: left;
+            align-items: center;
+            margin-top: 50px;
+            font-family: "Courier New", monospace;
+            font-size: 20px;
+        }
+        .ready-text {
+            color: white;
+            font-family: "Courier New", monospace;
+            font-size: 20px;
+            text-align: center;
+            background-color: green;
+        }
+        .status-circle, .status-circle2, .magnetometer-circle, .calibration-circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin: 0 10px;
+        }
+
+        .status-red {
+            background-color: red;
+        }
+        .button2 {
+          color:black;
+          display: block;
+          font-family: "Courier New", monospace;
+          font-size: 16px;
+          font-weight: bold;
+          text-align: center;
+          margin: 5px;
+          width: 100%;
+          height: 30px;
+          padding: 2px;
+          background: transparent;
+          border: 3px solid black;
+          cursor: pointer;
+        }
+        .button3 {
+          color:white;
+          display: block;
+          font-family: "Courier New", monospace;
+          font-size: 16px;
+          font-weight: bold;
+          text-align: center;
+          margin: 5px;
+          width: 100%;
+          height: 30px;
+          background: red;
+          border: 3px solid black;
+          cursor: pointer;
+        }
+        .button4 {
+          color:black;
+          display: block;
+          font-family: "Courier New", monospace;
+          font-size: 20px;
+          font-weight: bold;
+          text-align: center;
+          height: 30px;
+          margin: 5px;
+          width: 100%;
+          background: black;
+          border: 3px solid black;
+          cursor: pointer;
+        }
+        .status-yellow {
+            background-color: yellow;
+        }
+
+        .status-green {
+            background-color: green;
+        }
+        .forecast-item {
+        display: inline-block;
+        text-align: center;
+        width: 100px;
+        margin-right: 10px;
+      }
+
+      .forecast-icon img {
+        width: 50px;
+      }
+      .popup_red {
+          color: white;
+          width: 200px;
+          height: 100px;
+          font-family: "Courier New", monospace;
+          font-size: 16px;
+          background-color: red;
+          font-weight: bold;
+          border: 1px solid black;
+          border-radius: 4px;
+          padding: 10px;
+          text-align: center;
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          display: none;
+      }
+      .popup {
+          width: 200px;
+          height: 100px;
+          font-family: "Courier New", monospace;
+          font-size: 16px;
+          background-color: green;
+          font-weight: bold;
+          border: 1px solid black;
+          border-radius: 4px;
+          padding: 10px;
+          text-align: center;
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          display: none;
+      }
+        .button-33 {
+          background-color: #F44336;
+          border-radius: 0px;
+          color: white;
+          margin-bottom: 10px;
+          cursor: pointer;
+          font-weight: bold;
+          padding: 10px 15px;
+          text-align: center;
+          transition: 200ms;
+          width: 100%;
+          box-sizing: border-box;
+          border: 0;
+          font-size: 16px;
+          user-select: none;
+          -webkit-user-select: none;
+          touch-action: manipulation;
+        }
+
+        .button-33:not(:disabled):hover,
+        .button-33:not(:disabled):focus {
+          outline: 0;
+          background: red;
+          box-shadow: 0 0 0 2px rgba(0,0,0,.2), 0 3px 8px 0 rgba(0,0,0,.15);
+        }
+
+        .button-33:disabled {
+          filter: saturate(0.2) opacity(0.5);
+          -webkit-filter: saturate(0.2) opacity(0.5);
+          cursor: not-allowed;
+        }
+
+
+        .button-32 {
+          background-color: #4D4D4D;
+          border-radius: 0px;
+          color: white;
+          margin-bottom: 10px;
+          cursor: pointer;
+          font-weight: bold;
+          padding: 10px 15px;
+          text-align: center;
+          transition: 200ms;
+          width: 100%;
+          box-sizing: border-box;
+          border: 0;
+          font-size: 16px;
+          user-select: none;
+          -webkit-user-select: none;
+          touch-action: manipulation;
+        }
+
+        .button-32:not(:disabled):hover,
+        .button-32:not(:disabled):focus {
+          outline: 0;
+          background: green;
+          box-shadow: 0 0 0 2px rgba(0,0,0,.2), 0 3px 8px 0 rgba(0,0,0,.15);
+        }
+
+        .button-32:disabled {
+          filter: saturate(0.2) opacity(0.5);
+          -webkit-filter: saturate(0.2) opacity(0.5);
+          cursor: not-allowed;
+        }
+        body{
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+<div class="float-parent-element">
+     <!--   <img class="logo" src='/logo' alt="Logo">-->
+        <div class="float-child-element">
+            <div class="red">ARTAK SWARM CONTROL INTERFACE</div>
+        </div>
+        <div class="float-child-element">
+            <div class="yellow" id="clock-container"></div>
+        </div>
+        <div class="float-child-element">
+            <div class="date" id="date-container"></div>
+        </div>
+    </div><br>
+    <div id="map"></div>
+    <div class="ready-text" id="ready-text-container"></div>
+    <div class="float-parent-element">
+        <div class="float-child-element3">
+                <div  class="label-drone">&nbsp;&nbsp;&nbsp;GCS&nbsp;BAT&nbsp;MAG&nbsp;CAL&nbsp;GPS&nbsp;</div>
+            <div id="status-container">
+                <h2 class="label-drone">W&nbsp;&nbsp;</h2>
+                <div class="uas1-status-circle" id="status-circle-1"></div>
+                <div class="uas1-status-circle" id="status-circle-2"></div>
+                <div class="uas1-status-circle" id="status-circle-3"></div>
+                <div class="uas1-status-circle" id="status-circle-4"></div>
+                <div class="uas1-status-circle" id="status-circle-5"></div>
+                <div class="uas1-status-circle" id="status-circle-6"></div>
+            </div>
+            <div id="status-container-uas">
+                <h2 class="label-drone">T&nbsp;&nbsp;</h2>
+                <div class="uas2-status-circle" id="status-circle-uas-1"></div>
+                <div class="uas2-status-circle" id="status-circle-uas-2"></div>
+                <div class="uas2-status-circle" id="status-circle-uas-3"></div>
+                <div class="uas2-status-circle" id="status-circle-uas-4"></div>
+                <div class="uas2-status-circle" id="status-circle-uas-5"></div>
+                <div class="uas2-status-circle" id="status-circle-uas-6"></div>
+            </div>
+            <div id="status-container-bat">
+                <h2 class="label-drone">Q&nbsp;&nbsp;</h2>
+                <div class="uas3-status-circle" id="status-circle-bat-1"></div>
+                <div class="uas3-status-circle" id="status-circle-bat-2"></div>
+                <div class="uas3-status-circle" id="status-circle-bat-3"></div>
+                <div class="uas3-status-circle" id="status-circle-bat-4"></div>
+                <div class="uas3-status-circle" id="status-circle-bat-5"></div>
+                <div class="uas3-status-circle" id="status-circle-bat-6"></div>
+            </div>
+            <div id="status-container2">
+                <h2 class="label-drone">X&nbsp;&nbsp;</h2>
+                <div class="uas4-status-circle" id="status-circle-11"></div>
+                <div class="uas4-status-circle" id="status-circle-12"></div>
+                <div class="uas4-status-circle" id="status-circle-13"></div>
+                <div class="uas4-status-circle" id="status-circle-14"></div>
+                <div class="uas4-status-circle" id="status-circle-15"></div>
+                <div class="uas4-status-circle" id="status-circle-16"></div>
+            </div>
+            <div id="status-container3">
+                <h2 class="label-drone">Z&nbsp;&nbsp;</h2>
+                <div class="uas5-status-circle" id="status-circle-51"></div>
+                <div class="uas5-status-circle" id="status-circle-52"></div>
+                <div class="uas5-status-circle" id="status-circle-53"></div>
+                <div class="uas5-status-circle" id="status-circle-54"></div>
+                <div class="uas5-status-circle" id="status-circle-55"></div>
+                <div class="uas5-status-circle" id="status-circle-56"></div>
+            </div>
+            <div id="status-container4">
+                <h2 class="label-drone">S&nbsp;&nbsp;</h2>
+                <div class="uas6-status-circle" id="status-circle-61"></div>
+                <div class="uas6-status-circle" id="status-circle-62"></div>
+                <div class="uas6-status-circle" id="status-circle-63"></div>
+                <div class="uas6-status-circle" id="status-circle-64"></div>
+                <div class="uas6-status-circle" id="status-circle-65"></div>
+                <div class="uas6-status-circle" id="status-circle-66"></div>
+            </div>
+            <div id="status-container6">
+                <h2 class="label-drone">U&nbsp;&nbsp;</h2>
+                <div class="uas8-status-circle" id="status-circle-81"></div>
+                <div class="uas8-status-circle" id="status-circle-82"></div>
+                <div class="uas8-status-circle" id="status-circle-83"></div>
+                <div class="uas8-status-circle" id="status-circle-84"></div>
+                <div class="uas8-status-circle" id="status-circle-85"></div>
+                <div class="uas8-status-circle" id="status-circle-86"></div>
+            </div>
+            <div id="status-container5">
+                <h2 class="label-drone">Y&nbsp;&nbsp;</h2>
+                <div class="uas7-status-circle" id="status-circle-71"></div>
+                <div class="uas7-status-circle" id="status-circle-72"></div>
+                <div class="uas7-status-circle" id="status-circle-73"></div>
+                <div class="uas7-status-circle" id="status-circle-74"></div>
+                <div class="uas7-status-circle" id="status-circle-75"></div>
+                <div class="uas7-status-circle" id="status-circle-76"></div>
+            </div>
+        </div>
+        <div class="float-child-element2">
+            <div class="weather">
+              <div class="weather_description" id="current-weather"></div>
+              <div id="current-description"></div>
+              <div id="current-wind_speed"></div>
+              <div id="current-wind_direction"></div>
+              <div id="current-temperature"></div>
+              <div id="current-visibility"></div><br>
+              <div class="h2">Change Weather Map</div>
+
+                <div>
+                <select id="radarLayerDropdown" onchange="handleDropdownChange()">
+                  <option value="WND">Wind at Ground</option>
+                  <option value="WS10">Wind at 10 Meters</option>
+                  <option value="PR0">Precipitation Intensity</option>
+                  <option value="PA0">Precipitation Accumulation</option>
+                </select>
+              </div>
+            </div>
+        </div>
+        <div class="float-child-element2">
+            <div>
+                <div><button class="button-33" type="button"  onclick="showPopup('popup-disconnect')">Disconnect from All UAS</button></div>
+                <div><button class="button-33" type="button" >Erase All UAS Storage</button></div>
+                <div><button class="button-33"  type="button" >Factory Reset All UAS</button></div>
+                <div><button class="button-33" type="button" >Abort Mission RTB</button></div>
+            </div>
+        </div>
+        </div>
+        <div class="float-child-element2">
+            <div>
+                <div><button class="button-32" type="button" onclick="showPopup('popup-connect')">Connect to Swarm</button></div>
+                <div><button class="button-32" type="button" onclick="showPopup('popup-takeoff_land')">Test Takeoff/Land</button></div>
+                <div><button class="button-32" type="button" onclick="showPopup('popup-retrieve_images')">Retrieve Images</button></div
+                <div><button class="button-32" type="button" >Map Current Sector</button></div>
+                <div><button class="button-32" type="button" onclick="showPopup('popup-north_test_orbits')">Map Sector North LQ</button></div>
+                <div><button class="button-32" type="button" onclick="showPopup('popup-north_test_orbits_hq')">Map Sector North HQ</button></div>
+                <div><button class="button-32" type="button" >Map Sector South</button></div>
+                <div><button class="button-32" type="button" >Map Sector West</button></div>
+            </div>
+        </div>
+        <div class="float-child-element2">
+            <div>
+            </div>
+        </div>
+    </div>
+    <table bgcolor="white">
+        <tr>
+            <th>Calibration</th>
+            <th>GPS</th>
+            <th>Takeoff Capable</th>
+            <th>All</th>
+            <th>Battery</th>
+            <th>Battery Cycle Count</th>
+            <th>Battery Voltage</th>
+            <th>Battery Health</th>
+            <th>Home Position</th>
+            <th>Magnetics</th>
+            <th>Current Position</th>
+            <th>Satellites</th>
+            <th>WiFi Band</th>
+            <th>WiFi Channel</th>
+            <th>WiFi Frequency Selection Type</th>
+            <th>WiFi RSSI</th>
+        </tr>
+        <tr id="responseTableContainer192.168.86.138"></tr>
+        <tr id="responseTableContainer192.168.86.134"></tr>
+        <tr id="responseTableContainer192.168.86.131"></tr>
+        <tr id="responseTableContainer192.168.86.135"></tr>
+        <tr id="responseTableContainer192.168.86.133"></tr>
+        <tr id="responseTableContainer192.168.86.136"></tr>
+        <tr id="responseTableContainer192.168.86.137"></tr>
+        <tr id="responseTableContainer192.168.86.139"></tr>
+        <tr id="responseTableContainer"></tr>
+    </table>
+
+    <h1>Live Launchpad Vehicle Cam</h1>
+<!--    <div><iframe src="http://192.168.1.22:8000/stream" height='580' width="700" title="Live Launchpad Vehicle Cam">Live Launchpad Vehicle Cam</iframe></div>-->
+    <div id="hourly-forecast"></div>
+    <button id="sendRequestButton">Send Request</button>
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_-VkGlbiyPUKlfdPZ2KhgwTad90GlJE4&libraries=places"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <div id="popup-connect" class="popup">
+        <p>Connect to All  Drones in Swarm?</p>
+        <button onclick="closePopup('popup-connect')">Close</button>
+        <button onclick="sendHttpRequest('connect_all')">Yes</button>
+    </div>
+    <div id="popup-takeoff_land" class="popup">
+        <p>Initialize Test Maneuver: Takeoff, Hover, Land </p>
+        <button onclick="closePopup('popup-takeoff_land')">Close</button>
+        <button onclick="sendHttpRequest('takeoff_and_land_test')">Yes</button>
+    </div>
+    <div id="popup-north_test_orbits" class="popup">
+        <p>Initialize Test Mission: Orbit Map Section North KQ</p>
+        <button onclick="closePopup('popup-north_test_orbits')">Close</button>
+        <button onclick="sendHttpRequest('north_test_orbits')">Yes</button>
+    </div>
+    <div id="popup-north_test_orbits_hq" class="popup">
+        <p>Initialize Test Mission: Orbit Map Section North HQ</p>
+        <button onclick="closePopup('popup-north_test_orbits_hq')">Close</button>
+        <button onclick="sendHttpRequest('north_test_orbits_hq')">Yes</button>
+    </div>
+    <div id="popup-retrieve_images" class="popup">
+        <p>Initialize Image Retrieval</p>
+        <button onclick="closePopup('popup-retrieve_images')">Close</button>
+        <button onclick="sendHttpRequest('retrieve_images')">Yes</button>
+    </div>
+    <div id="popup-disconnect" class="popup">
+        <p>Disconnect from all UAS?</p>
+        <button onclick="closePopup('popup-disconnect')">Close</button>
+        <button onclick="sendHttpRequest('disconnect_all')">Yes</button>
+    </div>
+
+    <script>
+            var map;
+            var issMarker;
+            var noaa17Marker;
+            var statusCircles;
+            var statusCircles2;
+            var radarLayer;
+            var currentLayerType = 'PA0'; // Default radar layer type
+            var map;
+            var squareCoordinates = [];
+            var aoi_center_lat;
+            var aoi_center_lon;
+
+            function initMap() {
+                var imageUrl = 'https://www.eolianvr.com/wp-content/uploads/2021/01/Eolian-Logo-2021.png';
+                var imageWidth = 50;
+                var imageHeight = 50;
+                var markers = [];
+
+                var tampa = { lat: 27.9506, lng: -82.4572 }; // Coordinates for Tampa, FL
+
+                map = new google.maps.Map(document.getElementById('map'), {
+                  zoom: 10,
+                  center: tampa,
+                  mapTypeId: 'satellite'
+                });
+
+
+                // Attach click event listener to the button
+                var sendRequestButton = document.getElementById('sendRequestButton');
+                sendRequestButton.addEventListener('click', handleButtonClick);
+
+                addClickListenerToMap(map);
+
+                //setRadarLayer(currentLayerType, tampa.lat, tampa.lng); // Set initial radar layer
+
+                const image = "https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png";
+                issMarker = new google.maps.Marker({
+                    map: map,
+                    title: 'International Space Station',
+                });
+                droneLMarker = new google.maps.Marker({
+                    map: map,
+                    title: 'Drone L',
+                });
+                droneRMarker = new google.maps.Marker({
+                    map: map,
+                    title: 'Drone R'
+                });
+                droneQMarker = new google.maps.Marker({
+                    map: map,
+                    title: 'Drone Q'
+                });
+                droneOMarker = new google.maps.Marker({
+                    map: map,
+                    title: 'Drone O'
+                });
+                droneTMarker = new google.maps.Marker({
+                    map: map,
+                    title: 'Drone T'
+                });
+                droneSMarker = new google.maps.Marker({
+                    map: map,
+                    title: 'Drone S'
+                });
+                droneVMarker = new google.maps.Marker({
+                    map: map,
+                    title: 'Drone V'
+                });
+                droneUMarker = new google.maps.Marker({
+                    map: map,
+                    title: 'Drone U'
+                });
+                map.addListener('center_changed', function() {
+                  // Update current weather and forecast when the map is recentered
+                  var center = map.getCenter();
+                  getCurrentWeather(center.lat(), center.lng());
+                  <!---->getHourlyForecast(center.lat(), center.lng());
+                });
+
+                noaa17Marker = new google.maps.Marker({
+                    map: map,
+                    title: 'Ground Control Station',
+                    icon: image,
+                });
+                var center = map.getCenter();
+                getCurrentWeather(center.lat(), center.lng())
+                getSatellitePositions();
+                checkAllStatus();
+                updateClock();
+                checkAllCirclesGreen();
+
+          }
+          function handleButtonClick() {
+            if (aio_center_lat === 0) {
+              alert('Square coordinates not available.');
+              return;
+            }
+            var latitude = aio_center_lat;
+            var longitude = aio_center_lon;
+
+            var endpoint = '/map_this';
+            var requestUrl = endpoint + '?lat=' + latitude + '&lon=' + longitude;
+
+            // Sending GET request
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', requestUrl, true);
+            xhr.onreadystatechange = function () {
+              if (xhr.readyState === 4 && xhr.status === 200) {
+                // Request successful, do something with the response
+                var response = xhr.responseText;
+                console.log('Response:', response);
+              }
+            };
+            xhr.send();
+          }
+            function addClickListenerToMap(map) {
+              var square = new google.maps.Polygon({
+                map: map,
+                visible: false,
+                strokeWeight: 2,
+                strokeColor: '#FF0000',
+                fillOpacity: 0.35,
+                paths: null
+              });
+
+              google.maps.event.addListener(map, 'click', function(event) {
+                var clickedLatLng = event.latLng;
+
+                var paths = calculateRectanglePaths(clickedLatLng, 750, 1500); // 750hx1500w meters (0.5km)
+                square.setPaths(paths);
+                square.setVisible(true);
+
+                var lat = clickedLatLng.lat();
+                var lng = clickedLatLng.lng();
+                aio_center_lat = lat;
+                aio_center_lon = lng;
+                console.log('Clicked point - Latitude: ' + lat + ', Longitude: ' + lng);
+              });
+            }
+
+            function calculateRectanglePaths(center, height, width) {
+              var halfHeight = height / 2;
+              var halfWidth = width / 2;
+
+              var northEast = google.maps.geometry.spherical.computeOffset(center, halfWidth, 90);
+              northEast = google.maps.geometry.spherical.computeOffset(northEast, halfHeight, 0);
+
+              var northWest = google.maps.geometry.spherical.computeOffset(center, halfWidth, 270);
+              northWest = google.maps.geometry.spherical.computeOffset(northWest, halfHeight, 0);
+
+              var southWest = google.maps.geometry.spherical.computeOffset(center, halfWidth, 270);
+              southWest = google.maps.geometry.spherical.computeOffset(southWest, halfHeight, 180);
+
+              var southEast = google.maps.geometry.spherical.computeOffset(center, halfWidth, 90);
+              southEast = google.maps.geometry.spherical.computeOffset(southEast, halfHeight, 180);
+
+              return [northEast, northWest, southWest, southEast];
+            }
+
+          function createMarker(coordinates) {
+            var marker = new google.maps.Marker({
+              position: coordinates,
+              map: map
+            });
+            return marker;
+          }
+          function CustomMarker(map, imageUrl, imageWidth, imageHeight, position) {
+            this.map = map;
+            this.imageUrl = imageUrl;
+            this.imageWidth = imageWidth;
+            this.imageHeight = imageHeight;
+            this.position = position;
+            this.marker = null;
+            this.init();
+          }
+          function handleDropdownChange() {
+            var dropdown = document.getElementById("radarLayerDropdown");
+            var selectedValue = dropdown.value;
+            setRadarLayer(selectedValue);
+          }
+          function showPopup(popup) {
+            console.log(popup)
+            var thepopup = document.getElementById(popup)
+            thepopup.style.display = "block";
+            setTimeout(closeAllPopups, 5000); // Close the pop-up after 5 seconds
+          }
+          function closePopup(popup) {
+            var popup = document.getElementById(popup);
+            popup.style.display = "none";
+          }
+          function closeAllPopups() {
+            var popup = document.querySelectorAll('.popup');
+            popup.forEach(function(thepopup, index) {
+                popup[index].style.display = "none"
+            })
+          }
+          function sendHttpRequest(endpoint) {
+              var xhr = new XMLHttpRequest();
+              xhr.open("GET", endpoint, true);
+              xhr.send();
+              closeAllPopups();
+          }
+          function setRadarLayer(layerType, lat, lng) {
+            if (radarLayer) {
+              map.overlayMapTypes.removeAt(0);
+            }
+            radarLayer = new google.maps.ImageMapType({
+              getTileUrl: function(coord, zoom) {
+                return 'http://maps.openweathermap.org/maps/2.0/weather/' + layerType + '/' + zoom + '/' + coord.x + '/' + coord.y + '/?opacity=1&fill_bound=true&appid=3b02035d6e84642b9fd2ba036e585e79';
+              },
+              tileSize: new google.maps.Size(256, 256),
+              opacity: 0.7,
+              name: 'Radar'
+            });
+
+            map.overlayMapTypes.insertAt(0, radarLayer);
+            currentLayerType = layerType; // Update current layer type
+          }
+
+          function getCurrentWeather(lat, lng) {
+            console.log("Current Weather Function Triggered")
+            var apiKey = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with your OpenWeatherMap API key
+            var apiUrl = 'https://pro.openweathermap.org/data/3.0/onecall?lat=' + lat + '&lon=' + lng + '&appid=' + '3b02035d6e84642b9fd2ba036e585e79';
+            $.getJSON(apiUrl, function(data) {
+              var currentWeather = data['current'];
+              console.log(currentWeather);
+              var currentTemperatureInCelsius = currentWeather['temp'] - 273.15; // Convert from Kelvin to Celsius
+              var temperatureInFahrenheit = Math.round(currentTemperatureInCelsius * 9/5) + 32;
+
+              console.log(temperatureInFahrenheit)
+              var weatherDescription = currentWeather['weather'][0]['description'];
+              console.log(weatherDescription)
+              var iconCode = currentWeather['weather'][0].icon;
+              var iconUrl = 'http://openweathermap.org/img/w/' + iconCode + '.png';
+              var visibility = currentWeather['visibility'];
+              var wind_speed = currentWeather['wind_speed'];
+              var wind_deg = currentWeather['wind_deg'];
+              console.log(visibility, " ", wind_speed, " ", wind_deg)
+              $('#current-weather').html('<img src="' + iconUrl + '">');
+              $('#current-temperature').text("Temperature = " + temperatureInFahrenheit + '°F');
+              $('#current-description').text(weatherDescription);
+              $('#current-wind_speed').text("Wind Speed = " + wind_speed);
+              $('#current-wind_direction').text("Wind Direction = " + wind_deg);
+              $('#current-visibility').text("Visibility = " + visibility);
+            });
+          }
+
+
+          function getHourlyForecast(lat, lng) {
+            var apiKey = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with your OpenWeatherMap API key
+            var apiUrl = 'https://api.openweathermap.org/data/3.0/onecall?lat=' + lat + '&lon=' + lng + '&appid=' + '3b02035d6e84642b9fd2ba036e585e79';
+
+            $.getJSON(apiUrl, function(data) {
+              var forecast = data.list;
+
+              var forecastHtml = '';
+              for (var i = 0; i < 4; i++) {
+                var forecastTime = new Date(forecast[i].dt * 1000); // Convert timestamp to milliseconds
+                var forecastTemperature = Math.round(forecast[i].main.temp - 273.15); // Convert from Kelvin to Celsius
+                var weatherDescription = forecast[i].weather[0].description;
+                var iconCode = forecast[i].weather[0].icon;
+                var iconUrl = 'http://openweathermap.org/img/w/' + iconCode + '.png';
+
+                forecastHtml += '<div class="forecast-item">';
+                forecastHtml += '<div class="forecast-time">' + forecastTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + '</div>';
+                forecastHtml += '<div class="forecast-icon"><img src="' + iconUrl + '"></div>';
+                forecastHtml += '<div class="forecast-temperature">' + forecastTemperature + '°C</div>';
+                forecastHtml += '</div>';
+              }
+
+              $('#hourly-forecast').html(forecastHtml);
+            });
+          }
+        function getSatellitePositions() {
+            fetch('/get_positions')
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    var issPosition = data.iss_position;
+                    var noaa17Position = data.noaa17_position;
+
+                    var issNewPosition = new google.maps.LatLng(issPosition.latitude, issPosition.longitude);
+                    issMarker.setPosition(issNewPosition);
+
+                    var noaa17NewPosition = new google.maps.LatLng(noaa17Position.latitude, noaa17Position.longitude);
+                    noaa17Marker.setPosition(noaa17NewPosition);
+
+                    document.getElementById('issLatitude').textContent = issPosition.latitude;
+                    document.getElementById('issLongitude').textContent = issPosition.longitude;
+
+                    document.getElementById('noaa17Latitude').textContent = noaa17Position.latitude;
+                    document.getElementById('noaa17Longitude').textContent = noaa17Position.longitude;
+                })
+                .catch(function(error) {
+                    console.log('Error:', error);
+                })
+                .finally(function() {
+                    setTimeout(getSatellitePositions, 5000);
+                });
+        }
+        function checkAllStatus() {
+            var port = 8000;
+            var ipAddr = ['192.168.86.138', '192.168.86.135', '192.168.86.134', '192.168.86.131',  '192.168.86.133', '192.168.86.136', '192.168.86.137',  '192.168.86.139'];
+            console.log("ip");
+            ipAddr.forEach(function(ipAddr, index) {
+                console.log(ipAddr)
+                var response = checkAllSensors(ipAddr, port)
+                    .then(function(response) {
+                        if (response == '1') {
+                            console.log(response + "The Response is 1. Pre-flight Check: PASS");
+                        } else {
+                            console.log(response + "The Response is 0. Pre-flight Check: FAIL");
+                        };
+                    })
+                    .catch(function(error) {
+                        console.log("asdfasdf" + response)
+                    })
+            });
+            setTimeout(checkAllStatus, 5000);
+        }
+        function checkAllSensors(ipAddress, port) {
+          return new Promise(function(resolve, reject) {
+            fetch(`http://${ipAddress}:${port}/mag`)
+              .then(function(response) {
+                return response.json(); // Assuming the response is in JSON format
+              })
+              .then(function(parsedData) {
+
+
+                var batstatus = parsedData.response.bat;
+                var magstatus = parsedData.response.mag;
+                var calstatus = parsedData.response.Calibration;
+                var gpsstatus = parsedData.response.GPS;
+                var uasstatus = parsedData.response;
+                console.log("ip is " + ipAddress)
+                if (ipAddress === '192.168.86.135') {
+                      circles = document.querySelectorAll('.uas2-status-circle');
+                    } else if (ipAddress === '192.168.86.134') {
+                      circles = document.querySelectorAll('.uas3-status-circle');
+                    } else if (ipAddress === '192.168.86.131') {
+                      circles = document.querySelectorAll('.uas4-status-circle');
+                    } else if (ipAddress === '192.168.86.133') {
+                      circles = document.querySelectorAll('.uas5-status-circle');
+                    } else if (ipAddress === '192.168.86.136') {
+                      circles = document.querySelectorAll('.uas6-status-circle');
+                    } else if (ipAddress === '192.168.86.137') {
+                      circles = document.querySelectorAll('.uas7-status-circle');
+                    } else if (ipAddress === '192.168.86.139') {
+                      circles = document.querySelectorAll('.uas8-status-circle');
+                    } else if (ipAddress === '192.168.86.138') {
+                      circles = document.querySelectorAll('.uas1-status-circle');
+                    }
+
+
+                if (batstatus) {
+                  updateStatusCircle(circles[0], "status");
+                  console.log("uasstatus = 1", status);
+                } else {
+                  console.log("uasstatus Data = 0");
+                  updateStatusCircle(circles[0]);
+                }
+
+                if (batstatus == "1") {
+                  updateStatusCircle(circles[1], "status");
+                } else {
+                  updateStatusCircle(circles[1]);
+                }
+
+                if (magstatus == "1") {
+                  updateStatusCircle(circles[2], "status");
+                  console.log("magstatus Data = 1", status);
+                } else {
+                  console.log("magstatus Data = 0");
+                  updateStatusCircle(circles[2]);
+                }
+
+                if (calstatus == "1") {
+                  updateStatusCircle(circles[3], "status");
+                  console.log("calstatus = 1", status);
+                } else {
+                  console.log("calstatus = 0");
+                  updateStatusCircle(circles[3]);
+                }
+                if (gpsstatus == "1") {
+                  updateStatusCircle(circles[4], "status");
+                  console.log("calstatus = 1", status);
+                } else {
+                  console.log("calstatus = 0");
+                  updateStatusCircle(circles[4]);
+                }
+                var responseTable = createResponseTable(parsedData.response, ipAddress);
+                document.getElementById("responseTableContainer" + ipAddress).innerHTML = responseTable;
+
+              })
+              .catch(function(error) {
+                reject(error);
+                console.log("big error")
+              });
+          });
+        }
+        function createResponseTable(responseData, ipAddress) {
+          var tableHTML = "<table>";
+          console.log("table ip " + ipAddress);
+          // Create the header row with the keys as column headers
+          var headerRowHTML = "<tr>";
+<!--          for (var key in responseData) {-->
+<!--            if (responseData.hasOwnProperty(key)) {-->
+<!--              headerRowHTML += "<th>" + key + "</th>";-->
+<!--            }-->
+<!--          }-->
+          headerRowHTML += "</tr>";
+
+          tableHTML += headerRowHTML;
+
+          // Create the data rows with the values as cells
+          var valuesRowHTML = "<tr>";
+          for (var key in responseData) {
+            if (responseData.hasOwnProperty(key)) {
+              var value = responseData[key];
+              valuesRowHTML += "<td>" + value + "</td>";
+              console.log(key + " " + value)
+              if (key == "home"){
+                console.log("home detected _________________")
+                const myArray = value.split(",");
+                console.log(myArray[0] + " " +  myArray[1]);
+                var uasPosition = new google.maps.LatLng(myArray[0], myArray[1]);
+                if (ipAddress == "192.168.86.138"){
+                    droneLMarker.setPosition(uasPosition);
+                }
+                if (ipAddress == "192.168.86.134"){
+                    droneRMarker.setPosition(uasPosition);
+                }
+                if (ipAddress == "192.168.86.131"){
+                    droneQMarker.setPosition(uasPosition);
+                }
+                if (ipAddress == "192.168.86.135"){
+                    droneOMarker.setPosition(uasPosition);
+                }
+                if (ipAddress == "192.168.86.133"){
+                    droneTMarker.setPosition(uasPosition);
+                }
+                if (ipAddress == "192.168.86.136"){
+                    droneSMarker.setPosition(uasPosition);
+                }
+                if (ipAddress == "192.168.86.136"){
+                    droneVMarker.setPosition(uasPosition);
+                }
+                if (ipAddress == "192.168.86.136"){
+                    droneUMarker.setPosition(uasPosition);
+                }
+              }
+            }
+          }
+          valuesRowHTML += "</tr>";
+
+          tableHTML += valuesRowHTML;
+
+          tableHTML += "</table>";
+
+          return tableHTML;
+        }
+        function updateStatusCircle(circle, status) {
+            console.log("sasdfasdf", status)
+
+
+            if (status) {
+                circle.classList.remove('status-red', 'status-yellow');
+                circle.classList.add('status-green');
+            }
+            else {
+                circle.classList.remove('status-green', 'status-yellow');
+                circle.classList.add('status-red');
+            }
+        }
+
+        function updateStatusCircle2(circle, status) {
+            console.log("status2", status)
+            if (status) {
+                circle.classList.remove('status-red', 'status-yellow');
+                circle.classList.add('status-green');
+            }
+            else {
+                circle.classList.remove('status-green', 'status-yellow');
+                circle.classList.add('status-red');
+            }
+        }
+
+        function updateClock() {
+            var clockContainer = document.getElementById('clock-container');
+            var dateContainer = document.getElementById('date-container');
+
+        var clockInterval = setInterval(function() {
+            var date = new Date();
+            var hours = date.getUTCHours() - 4; // Adjust for Eastern Standard Time (EST)
+            var minutes = date.getUTCMinutes();
+            var seconds = date.getUTCSeconds();
+            var timeString = formatTime(hours) + ':' + formatTime(minutes) + ':' + formatTime(seconds) + ' EST';
+            clockContainer.textContent = timeString;
+
+            var dateString = formatTime(date.getMonth() + 1) + '/' + formatTime(date.getDate()) + '/' + date.getFullYear();
+            dateContainer.textContent = dateString;
+            }, 1000);
+
+            function formatTime(time) {
+                return time < 10 ? '0' + time : time; // Add leading zero if the time component is less than 10
+            }
+        }
+        function formatTime(value) {
+            return value < 10 ? '0' + value : value;
+        }
+        function checkAllCirclesGreen() {
+            var circles = document.querySelectorAll('.uas1-status-circle');
+            var allGreen = true;
+
+            circles.forEach(function(circle) {
+                if (!circle.classList.contains('status-green')) {
+                    allGreen = false;
+                    return;
+                }
+            });
+
+            var readyTextContainer = document.getElementById('ready-text-container');
+            if (allGreen) {
+                readyTextContainer.textContent = 'MAYFLY01 IS READY TO FLY.';
+            } else {
+                readyTextContainer.textContent = '';
+            }
+
+            setTimeout(checkAllCirclesGreen, 1000);
+        }
+        initMap();
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_-VkGlbiyPUKlfdPZ2KhgwTad90GlJE4&callback=initMap"></script>
+</body>
+</html>

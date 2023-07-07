@@ -1,0 +1,163 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Weather Radar - Tampa, FL</title>
+    <style>
+      #map {
+        height: 400px;
+        width: 100%;
+      }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_-VkGlbiyPUKlfdPZ2KhgwTad90GlJE4"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+      var map;
+      var radarLayer;
+      var currentLayerType = 'wind_new'; // Default radar layer type
+
+      function initMap() {
+        var tampa = { lat: 27.9506, lng: -82.4572 }; // Coordinates for Tampa, FL
+        map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 10,
+          center: tampa
+        });
+
+        setRadarLayer(currentLayerType, tampa.lat, tampa.lng); // Set initial radar layer
+
+        // Additional styling
+        var styledMapType = new google.maps.StyledMapType(
+          [
+            {
+              featureType: 'all',
+              stylers: [
+                { saturation: -100 },
+                { lightness: 30 },
+                { visibility: 'on' }
+              ]
+            }
+          ],
+          { name: 'Styled' }
+        );
+
+        map.mapTypes.set('styled_map', styledMapType);
+        map.setMapTypeId('styled_map');
+
+        map.addListener('center_changed', function() {
+          // Update current weather and forecast when the map is recentered
+          var center = map.getCenter();
+          getCurrentWeather(center.lat(), center.lng());
+          <!---->getHourlyForecast(center.lat(), center.lng());
+        });
+
+        // Get current weather and forecast for initial map position
+        var initialCenter = map.getCenter();
+        getCurrentWeather(initialCenter.lat(), initialCenter.lng());
+        <!---->getHourlyForecast(initialCenter.lat(), initialCenter.lng());
+      }
+
+      function setRadarLayer(layerType, lat, lng) {
+        if (radarLayer) {
+          map.overlayMapTypes.removeAt(0);
+        }
+
+        radarLayer = new google.maps.ImageMapType({
+          getTileUrl: function(coord, zoom) {
+            return 'http://maps.openweathermap.org/maps/2.0/weather/' + layerType + '/' + zoom + '/' + coord.x + '/' + coord.y + '/?appid=3b02035d6e84642b9fd2ba036e585e79';
+          },
+          tileSize: new google.maps.Size(256, 256),
+          opacity: 0.5,
+          name: 'Radar'
+        });
+
+        map.overlayMapTypes.insertAt(0, radarLayer);
+        currentLayerType = layerType; // Update current layer type
+      }
+
+      function getCurrentWeather(lat, lng) {
+        console.log("Current Weather Function Triggered")
+        var apiKey = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with your OpenWeatherMap API key
+        var apiUrl = 'https://api.openweathermap.org/data/3.0/onecall?lat=' + lat + '&lon=' + lng + '&appid=' + '3b02035d6e84642b9fd2ba036e585e79';
+        $.getJSON(apiUrl, function(data) {
+          var currentWeather = data['current'];
+          console.log(currentWeather);
+          var currentTemperatureInCelsius = currentWeather['temp'] - 273.15; // Convert from Kelvin to Celsius
+          var temperatureInFahrenheit = Math.round(currentTemperatureInCelsius * 9/5) + 32;
+
+          console.log(temperatureInFahrenheit)
+          var weatherDescription = currentWeather['weather'][0]['description'];
+          console.log(weatherDescription)
+          var iconCode = currentWeather['weather'][0].icon;
+          var iconUrl = 'http://openweathermap.org/img/w/' + iconCode + '.png';
+          var visibility = currentWeather['visibility'];
+          var wind_speed = currentWeather['wind_speed'];
+          var wind_deg = currentWeather['wind_deg'];
+          console.log(visibility, " ", wind_speed, " ", wind_deg)
+          $('#current-weather').html('<img src="' + iconUrl + '">');
+          $('#current-temperature').text("Temperature = " + temperatureInFahrenheit + '°F');
+          $('#current-description').text("Conditions = " + weatherDescription);
+          $('#current-wind_speed').text("Wind Speed = " + wind_speed);
+          $('#current-wind_direction').text("Wind Direction = " + wind_deg);
+          $('#current-visibility').text("Visibility = " + visibility);
+        });
+      }
+
+
+      function getHourlyForecast(lat, lng) {
+        var apiKey = 'YOUR_OPENWEATHERMAP_API_KEY'; // Replace with your OpenWeatherMap API key
+        var apiUrl = 'https://api.openweathermap.org/data/3.0/onecall?lat=' + lat + '&lon=' + lng + '&appid=' + '3b02035d6e84642b9fd2ba036e585e79';
+
+        $.getJSON(apiUrl, function(data) {
+          var forecast = data.list;
+
+          var forecastHtml = '';
+          for (var i = 0; i < 4; i++) {
+            var forecastTime = new Date(forecast[i].dt * 1000); // Convert timestamp to milliseconds
+            var forecastTemperature = Math.round(forecast[i].main.temp - 273.15); // Convert from Kelvin to Celsius
+            var weatherDescription = forecast[i].weather[0].description;
+            var iconCode = forecast[i].weather[0].icon;
+            var iconUrl = 'http://openweathermap.org/img/w/' + iconCode + '.png';
+
+            forecastHtml += '<div class="forecast-item">';
+            forecastHtml += '<div class="forecast-time">' + forecastTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + '</div>';
+            forecastHtml += '<div class="forecast-icon"><img src="' + iconUrl + '"></div>';
+            forecastHtml += '<div class="forecast-temperature">' + forecastTemperature + '°C</div>';
+            forecastHtml += '</div>';
+          }
+
+          $('#hourly-forecast').html(forecastHtml);
+        });
+      }
+    </script>
+    <style>
+      .forecast-item {
+        display: inline-block;
+        text-align: center;
+        width: 100px;
+        margin-right: 10px;
+      }
+
+      .forecast-icon img {
+        width: 50px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Weather Radar - Tampa, FL</h1>
+    <div id="hourly-forecast"></div>
+    <div id="map"></div>
+    <button onclick="setRadarLayer('WND')">Wind</button>
+    <button onclick="setRadarLayer('wind_new')">Wind</button>
+    <button onclick="setRadarLayer('precipitation')">Precipitation</button>
+    <div>
+      <div id="current-weather"></div>
+      <div id="current-description"></div>
+      <div id="current-wind_speed"></div>
+      <div id="current-wind_direction"></div>
+      <div id="current-temperature"></div>
+      <div id="current-visibility"></div>
+    </div>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_-VkGlbiyPUKlfdPZ2KhgwTad90GlJE4&callback=initMap"></script>
+  </body>
+</html>
