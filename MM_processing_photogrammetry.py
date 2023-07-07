@@ -48,7 +48,7 @@ class processing_photogrammetry():
     def __init__(self, file_name, logger, _cesium=False, mm_project=MapmakerProject()):
 
         self.projecDirPath = projectDir + file_name + str(random.randint(1,1000))
-        self.photosDirPath = os.path.join(os.getcwd()+'ARTAK_MM/DATA/Raw_Images/UNZIPPED/', file_name)
+        self.photosDirPath = os.path.join(os.getcwd()+'/ARTAK_MM/DATA/Raw_Images/UNZIPPED/', file_name)
         self.logger = logger
         self.logger.info("Initialized PG")
         self.cesium = _cesium
