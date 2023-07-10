@@ -11,7 +11,7 @@ o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel.Error)
 import pymeshlab
 from datetime import date, datetime
 from PIL import Image
-import os, platform, shutil, zipfile, logging, sys
+import os, platform, shutil, zipfile, logging, sys, glob
 from tkinter import Tk
 from tkinter import filedialog
 
@@ -127,7 +127,7 @@ class meshing():
             
         print('\r')
         
-        logging.info('Loading PointCloud.\r')
+        #logging.info('Loading PointCloud.\r')
 
         message = 'Loading PointCloud. '+str(fullpath)
 
@@ -149,7 +149,7 @@ class meshing():
 
         #This will output the Point count
 
-        logging.info(str(pcd)+"\r")
+        #logging.info(str(pcd)+"\r")
 
         message = str(pcd)
 
@@ -161,7 +161,7 @@ class meshing():
 
         #We need to downsample the PointCloud to make it less dense and easier to work with
 
-        logging.info("Downsampling.\r")
+        #logging.info("Downsampling.\r")
 
         message = 'Downsampling.'
 
@@ -169,7 +169,7 @@ class meshing():
 
         downpcd = pcd.voxel_down_sample(voxel_size = 0.01)
 
-        logging.info(str(downpcd)+"\r")
+        #logging.info(str(downpcd)+"\r")
 
         message = str(downpcd)
 
@@ -189,7 +189,7 @@ class meshing():
 
         #Since some PointClouds don't include normals information (needed for texture and color extraction) we will have to calculate it.
 
-        logging.info("Computing Normals.\r")
+        #logging.info("Computing Normals.\r")
 
         message = 'Computing Normals.'
 
@@ -197,7 +197,7 @@ class meshing():
 
         downpcd.estimate_normals(search_param = o3d.geometry.KDTreeSearchParamHybrid(radius = 0.1, max_nn = 30))
 
-        logging.info('Generating Mesh.\r')
+        #logging.info('Generating Mesh.\r')
 
         message = 'Generating Mesh.'
 
@@ -205,7 +205,7 @@ class meshing():
 
         mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(downpcd, depth = mesh_depth, width = 0, scale = 1.1, linear_fit = False)[0]
 
-        #logging.info(mesh)		
+        ##logging.info(mesh)		
 
         generated_mesh = mesh_output_folder+separator+filename.replace('ply', 'obj').replace('pts', 'obj')
 
@@ -221,7 +221,7 @@ class meshing():
 
             pass
 
-        logging.info("Exporting Mesh.\r")
+        #logging.info("Exporting Mesh.\r")
 
         o3d.io.write_triangle_mesh(generated_mesh,
                                     mesh,
@@ -242,7 +242,7 @@ class meshing():
             
             mesh_depth = 11
             
-            logging.info("Mesh is not memory friedly. Retrying with safer parameters.\r")
+            #logging.info("Mesh is not memory friedly. Retrying with safer parameters.\r")
     
             message = 'Mesh is not memory friedly. Retrying with safer parameters.'            
             
@@ -262,7 +262,7 @@ class meshing():
 
             ms = pymeshlab.MeshSet()
 
-            logging.info("Loading and Analyzing Mesh.\r")
+            #logging.info("Loading and Analyzing Mesh.\r")
 
             message = 'Loading and Analyzing Mesh.'
 
@@ -292,7 +292,7 @@ class meshing():
             
                     p = pymeshlab.Percentage(50)
             
-                logging.info('Refining.\r')
+                #logging.info('Refining.\r')
             
                 message = 'Refining'
             
@@ -343,7 +343,7 @@ class meshing():
                 ms.apply_filter('meshing_remove_connected_component_by_diameter',
                                             mincomponentdiag = p)     
    
-                logging.info("Exporting Mesh.")
+                #logging.info("Exporting Mesh.")
             
                 message = 'Exporting Mesh.'
             
@@ -366,7 +366,7 @@ class meshing():
                     
                     ms.load_new_mesh(generated_mesh)
                     
-                    logging.info('Mesh not optimal. Retargeting parameters (1).\r')
+                    #logging.info('Mesh not optimal. Retargeting parameters (1).\r')
                 
                     message = 'Mesh not optimal. Retargeting parameters (1).'
                 
@@ -380,7 +380,7 @@ class meshing():
                 
                     p = pymeshlab.Percentage(25)
                 
-                    logging.info('Refining.\r')
+                    #logging.info('Refining.\r')
                 
                     message = 'Refining'
                 
@@ -430,7 +430,7 @@ class meshing():
                     ms.apply_filter('meshing_remove_connected_component_by_diameter',
                                                 mincomponentdiag = p)  
                     
-                    logging.info("Exporting Mesh.")
+                    #logging.info("Exporting Mesh.")
                 
                     message = 'Exporting Mesh.'
                 
@@ -451,7 +451,7 @@ class meshing():
                     
                     ms.load_new_mesh(generated_mesh)
                     
-                    logging.info('Mesh not optimal. Retargeting parameters (2).\r')
+                    #logging.info('Mesh not optimal. Retargeting parameters (2).\r')
                 
                     message = 'Mesh not optimal. Retargeting parameters (2).'
                 
@@ -465,7 +465,7 @@ class meshing():
                 
                     p = pymeshlab.Percentage(25)
                 
-                    logging.info('Refining.\r')
+                    #logging.info('Refining.\r')
                 
                     message = 'Refining'
                 
@@ -514,7 +514,7 @@ class meshing():
                     ms.apply_filter('meshing_remove_connected_component_by_diameter',
                                                 mincomponentdiag = p)  
                     
-                    logging.info("Exporting Mesh.")
+                    #logging.info("Exporting Mesh.")
                 
                     message = 'Exporting Mesh.'
                 
@@ -536,7 +536,7 @@ class meshing():
             v_number = m.vertex_number()
             f_number = m.face_number()
         
-            logging.info("Initial VC: "+str(v_number)+". Initial FC: "+str(f_number)+".\r")
+            #logging.info("Initial VC: "+str(v_number)+". Initial FC: "+str(f_number)+".\r")
         
             message = 'Initial VC: '+str(v_number)+'. Initial FC: '+str(f_number)+"."   
             
@@ -557,7 +557,7 @@ class meshing():
 
         except MemoryError:
 
-            logging.info('Error. Not enough Memory to run the process. Quitting.\r')
+            #logging.info('Error. Not enough Memory to run the process. Quitting.\r')
 
             message = 'Error. Not enough Memory to run the process. Quitting.'
 
@@ -583,7 +583,7 @@ class meshing():
             
             target_faces = int(f_number / 1.125)
             
-            logging.info("Target: "+str(int(target_faces))+" F. Iter. "+str(c)+".\r")
+            #logging.info("Target: "+str(int(target_faces))+" F. Iter. "+str(c)+".\r")
 
             message = "Target: "+str(int(target_faces))+" F. Iter. "+str(c)+"."
 
@@ -602,7 +602,7 @@ class meshing():
             
             ratio = (abs(target_faces / f_number) - 1.1)* 10 #Efficiency ratio. resulting amt faces vs target amt of faces
         
-            logging.info("Achieved: "+str(f_number)+" F. Ratio ==> "+"%.2f" % abs(ratio)+":1.00.\r")
+            #logging.info("Achieved: "+str(f_number)+" F. Ratio ==> "+"%.2f" % abs(ratio)+":1.00.\r")
         
             message = 'Achieved: '+str(f_number)+' F. Ratio ==> '+'%.2f' % abs(ratio)+':1.00.'
         
@@ -615,7 +615,7 @@ class meshing():
         f_number = m.face_number()
         v_number = m.vertex_number()
             
-        logging.info("End VC: "+str(v_number)+". End FC: "+str(f_number)+".\r")
+        #logging.info("End VC: "+str(v_number)+". End FC: "+str(f_number)+".\r")
 
         message = 'End VC: '+str(v_number)+'. End FC: '+str(f_number)+"."
 
@@ -644,7 +644,7 @@ class meshing():
         
         ms = pymeshlab.MeshSet()
         
-        logging.info("Loading and Analyzing Mesh.\r")
+        #logging.info("Loading and Analyzing Mesh.\r")
 
         message = 'Loading and Analyzing Mesh.'
 
@@ -652,7 +652,7 @@ class meshing():
 
         ms.load_new_mesh(newpath)        
         
-        logging.info("Extracting Texture and Materials.\n")
+        #logging.info("Extracting Texture and Materials.\n")
 
         message = 'Extracting Texture and Materials.'
 
@@ -662,7 +662,7 @@ class meshing():
 
         if swap_axis == 1:
 
-            logging.info("Correcting Axis.\r")
+            #logging.info("Correcting Axis.\r")
 
             message = 'Correcting Axis.'
 
@@ -728,13 +728,23 @@ class meshing():
 
         print('\n')
 
-        logging.info('Process complete.\r')
+        #logging.info('Process complete.\r')
 
         message = 'Process complete.'
 
+        self.write_to_log(path, separator, message)
+        
         self.write_to_log(path, separator, message)	
         
+        files = [f for f in glob.glob(with_texture_output_folder+"/*.zip")]
+        
+        for file in files:
+            
+            shutil.move(file, "ARTAK_MM/DATA/PointClouds/HighRes")   
+        
         try:
+            
+            shutil.rmtree(with_texture_output_folder)
             
             shutil.rmtree(mesh_output_folder)
     
