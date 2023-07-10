@@ -101,7 +101,7 @@ class meshing():
 
         simplified_output_folder = "ARTAK_MM/DATA/PointClouds/LowRes"+separator+pc_folder+separator+"simplified_lr"
 
-        with_texture_output_folder = "ARTAK_MM/DATA/PointClouds?LowRes"+separator+pc_folder+separator+"final_lr"
+        with_texture_output_folder = "ARTAK_MM/DATA/PointClouds/LowRes"+separator+pc_folder+separator+"final_lr"
         
         log_folder = "ARTAK_MM/LOGS/"
 
