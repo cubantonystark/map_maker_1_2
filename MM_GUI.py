@@ -215,7 +215,25 @@ class App(customtkinter.CTk):
                                                                    variable=self.auto_process_sd_var,
                                                                    value=False)
         self.no_auto_process_button.grid(row=6, column=2, padx=20, pady=10)
+        
+        ###Create PC buttons
+        
+        self.home_frame_button_4 = customtkinter.CTkLabel(self.fourth_frame, text="Mesh from PointCloud")
+        self.home_frame_button_4.grid(row=7, column=0, padx=20, pady=10)
+        self.button_frame = customtkinter.CTkFrame(self)
+        self.radio_var1_pc = customtkinter.StringVar()
+        self.radio_var1_pc.set("leg")
 
+        self.obj_radio_button = customtkinter.CTkRadioButton(self.fourth_frame, text="New (Cesium)", variable=self.radio_var1_pc,
+                                                             value="ces")
+        self.obj_radio_button.grid(row=7, column=1, padx=20, pady=10)
+
+        self.tiles_radio_button2 = customtkinter.CTkRadioButton(self.fourth_frame, text="Legacy (Hololens)", variable=self.radio_var1_pc,
+                                                                value="leg")
+        self.tiles_radio_button2.grid(row=7, column=2, padx=20, pady=10)  
+        
+        ###
+        
         self.home_frame_server = customtkinter.CTkLabel(self.fourth_frame, text="Select ARTAK Server:")
         self.home_frame_server.grid(row=0, column=0, padx=20, pady=10)
 
@@ -231,7 +249,6 @@ class App(customtkinter.CTk):
                                                                value="https://esp.cluster.local")
         self.local_radio_button.grid(row=0, column=2, padx=20, pady=10)
 
-##
         self.home_frame_button_4 = customtkinter.CTkLabel(self.fourth_frame, text="Select Map Type:")
         self.home_frame_button_4.grid(row=4, column=0, padx=20, pady=10)
         self.button_frame = customtkinter.CTkFrame(self)
@@ -266,11 +283,17 @@ class App(customtkinter.CTk):
         self.browse_button = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.browse_directory)
         self.browse_button.grid(row=6, column=1, padx=20, pady=10)
         
-        self.browse_label_pc = customtkinter.CTkLabel(self.home_frame, text="Load PointCloud")
+        self.browse_label_pc = customtkinter.CTkLabel(self.home_frame, text="Generate LowRes PointCloud")
         self.browse_label_pc.grid(row=8, column=0, padx=20, pady=10)
 
-        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.get_pc_path)
-        self.browse_button_pc.grid(row=8, column=1, padx=20, pady=10)        
+        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.gen_lr_pc)
+        self.browse_button_pc.grid(row=8, column=1, padx=20, pady=10)    
+        
+        self.browse_label_pc = customtkinter.CTkLabel(self.home_frame, text="Generate HighRes PointCloud")
+        self.browse_label_pc.grid(row=9, column=0, padx=20, pady=10)
+
+        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.gen_hr_pc)
+        self.browse_button_pc.grid(row=9, column=1, padx=20, pady=10)         
 
         # create second frame
         self.second_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
@@ -306,6 +329,7 @@ class App(customtkinter.CTk):
                                                                 values=["Light", "Dark", "System"],
                                                                 command=self.change_appearance_mode_event)
         self.appearance_mode_menu.grid(row=10, column=1, padx=20, pady=20, sticky="nsew", columnspan=2)
+        
         # select default frame
         self.select_frame_by_name("home")
         self.list_of_projects = []
@@ -319,15 +343,19 @@ class App(customtkinter.CTk):
         self.local_server_ip = ""
         self.local_server_label = customtkinter.CTkLabel(self.fourth_frame, text="Local Server IP Address")
         self.local_server_ip = customtkinter.CTkEntry(self.fourth_frame, placeholder_text="http://192.168.10.200")
-        self.local_server_label.grid(row=7, column=0, padx=20, pady=10, sticky="ew")
-        self.local_server_ip.grid(row=7, column=1, padx=20, pady=10, sticky="ew")
+        self.local_server_label.grid(row=8, column=0, padx=20, pady=10, sticky="ew")
+        self.local_server_ip.grid(row=8, column=1, padx=20, pady=10, sticky="ew")
 
     def add_radio_button_set(self, button_label, button_option1, button_option2):
         print ("WIP")
         
-    def get_pc_path(self):
+    def gen_lr_pc(self):
         
         subprocess.Popen(["python", "MM_pc2lr.py"])
+        
+    def gen_hr_pc(self):
+        
+        subprocess.Popen(["python", "MM_pc2hr.py"])    
             
     def browse_directory(self):
         path = filedialog.askdirectory()
