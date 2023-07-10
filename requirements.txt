@@ -4,3 +4,5 @@ customtkinter
 tk
 tkhtmlview
 pymeshlab
+open3d
+utm
