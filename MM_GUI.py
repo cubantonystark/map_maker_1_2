@@ -56,7 +56,7 @@ subprocess.Popen(["python", "MM_loop_check_files.py"])
 r = random.Random()
 session_id = r.randint(1, 10000000)
 session_logger = MM_logger.initialize_logger("SessionLog" + str(session_id))
-print = session_logger.info
+#print = session_logger.info
 
 
 class SdCardInsertionEvent(tk.Event):
@@ -223,7 +223,7 @@ class App(customtkinter.CTk):
         self.button_frame = customtkinter.CTkFrame(self)
         self.radio_var1_pc = customtkinter.StringVar()
         self.radio_var1_pc.set("leg")
-
+        
         self.obj_radio_button = customtkinter.CTkRadioButton(self.fourth_frame, text="New (Cesium)", variable=self.radio_var1_pc,
                                                              value="ces")
         self.obj_radio_button.grid(row=7, column=1, padx=20, pady=10)
@@ -283,17 +283,11 @@ class App(customtkinter.CTk):
         self.browse_button = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.browse_directory)
         self.browse_button.grid(row=6, column=1, padx=20, pady=10)
         
-        self.browse_label_pc = customtkinter.CTkLabel(self.home_frame, text="Generate LowRes PointCloud")
+        self.browse_label_pc = customtkinter.CTkLabel(self.home_frame, text="Process PointCloud")
         self.browse_label_pc.grid(row=8, column=0, padx=20, pady=10)
 
-        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.gen_lr_pc)
-        self.browse_button_pc.grid(row=8, column=1, padx=20, pady=10)    
-        
-        self.browse_label_pc = customtkinter.CTkLabel(self.home_frame, text="Generate HighRes PointCloud")
-        self.browse_label_pc.grid(row=9, column=0, padx=20, pady=10)
-
-        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.gen_hr_pc)
-        self.browse_button_pc.grid(row=9, column=1, padx=20, pady=10)         
+        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.gen_pc)
+        self.browse_button_pc.grid(row=8, column=1, padx=20, pady=10)          
 
         # create second frame
         self.second_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
@@ -349,13 +343,18 @@ class App(customtkinter.CTk):
     def add_radio_button_set(self, button_label, button_option1, button_option2):
         print ("WIP")
         
-    def gen_lr_pc(self):
+    def gen_pc(self):
+    
         
-        subprocess.Popen(["python", "MM_pc2lr.py"])
+        value = self.radio_var1_pc.get()
         
-    def gen_hr_pc(self):
+        if 'leg' in value:
         
-        subprocess.Popen(["python", "MM_pc2hr.py"])    
+            subprocess.Popen(["python", "MM_pc2lr.py"])
+        
+        else:
+            
+            subprocess.Popen(["python", "MM_pc2hr.py"])    
             
     def browse_directory(self):
         path = filedialog.askdirectory()
