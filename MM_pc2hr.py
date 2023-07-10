@@ -11,7 +11,7 @@ o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel.Error)
 import pymeshlab
 from datetime import date, datetime
 from PIL import Image
-import os, platform, shutil, zipfile, logging, argparse, sys
+import os, platform, shutil, zipfile, logging, sys
 from tkinter import Tk
 from tkinter import filedialog
 
@@ -83,11 +83,11 @@ class meshing():
 
         #Derive destination folders from source path
 
-        mesh_output_folder = "ARTAK_MM/DATA/PointClouds/HighRes"+separator+pc_folder+separator+"mesh_lr"
+        mesh_output_folder = "ARTAK_MM/DATA/PointClouds/HighRes"+separator+pc_folder+separator+"mesh_hr"
 
-        simplified_output_folder = "ARTAK_MM/DATA/PointClouds/HighRes"+separator+pc_folder+separator+"simplified_lr"
+        simplified_output_folder = "ARTAK_MM/DATA/PointClouds/HighRes"+separator+pc_folder+separator+"simplified_hr"
 
-        with_texture_output_folder = "ARTAK_MM/DATA/PointClouds/HighRes"+separator+pc_folder+separator+"final_lr"
+        with_texture_output_folder = "ARTAK_MM/DATA/PointClouds/HighRes"+separator+pc_folder+separator+"final_hr"
         
         log_folder = "ARTAK_MM/LOGS/"
 
