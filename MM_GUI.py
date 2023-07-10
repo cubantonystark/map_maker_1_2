@@ -12,7 +12,7 @@ We will create the work folders on first run. This code serves as a check in cas
 accidentaly deleted.
 '''
 dirs1 = ['ARTAK_MM/DATA/Raw_Images/UNZIPPED', 'ARTAK_MM/DATA/Raw_Images/ZIP/Completed', 'ARTAK_MM/DATA/Raw_Images/ZIP/New', 'ARTAK_MM/DATA/Raw_Images/ZIP/Unzipping_in_progress', 
-         'ARTAK_MM/LOGS', 'ARTAK_MM/POST/Photogrammetry']
+         'ARTAK_MM/LOGS', 'ARTAK_MM/POST/Photogrammetry', 'ARTAK_MM/DATA/PointClouds']
 
 for dir in dirs1:
     
@@ -216,12 +216,6 @@ class App(customtkinter.CTk):
                                                                    value=False)
         self.no_auto_process_button.grid(row=6, column=2, padx=20, pady=10)
 
-
-
-
-
-
-
         self.home_frame_server = customtkinter.CTkLabel(self.fourth_frame, text="Select ARTAK Server:")
         self.home_frame_server.grid(row=0, column=0, padx=20, pady=10)
 
@@ -271,7 +265,12 @@ class App(customtkinter.CTk):
 
         self.browse_button = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.browse_directory)
         self.browse_button.grid(row=6, column=1, padx=20, pady=10)
+        
+        self.browse_label_pc = customtkinter.CTkLabel(self.home_frame, text="Load PointCloud")
+        self.browse_label_pc.grid(row=8, column=0, padx=20, pady=10)
 
+        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.get_pc_path)
+        self.browse_button_pc.grid(row=8, column=1, padx=20, pady=10)        
 
         # create second frame
         self.second_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
@@ -325,8 +324,11 @@ class App(customtkinter.CTk):
 
     def add_radio_button_set(self, button_label, button_option1, button_option2):
         print ("WIP")
-
-
+        
+    def get_pc_path(self):
+        
+        subprocess.Popen(["python", "MM_pc2lr.py"])
+            
     def browse_directory(self):
         path = filedialog.askdirectory()
 
@@ -411,7 +413,7 @@ class App(customtkinter.CTk):
             if map_type == "OBJ":
                 for each_folder in folder_name_list:
                     file_count = len(os.listdir(path))
-                    logger = MM_logger.initialize_logger("MMProjectLog" + each_folder)
+                    logger = MM_logger.initialize_logger("MMProjectLog_" + each_folder)
                     if self.local_server_ip.get() != "":
                         artak_server = self.local_server_ip.get()
                     new_project = MapmakerProject(name=each_folder, time_first_image=each_folder,
@@ -426,7 +428,9 @@ class App(customtkinter.CTk):
 
                     # send the message that a project has been started
                     self.on_project_started(path=path, mm_project=new_project)
+                    
             if map_type == "TILES":
+                
                 for each_folder in folder_name_list:
                     file_count = len(os.listdir(path))
                     logger = MM_logger.initialize_logger(each_folder)
@@ -441,6 +445,7 @@ class App(customtkinter.CTk):
 
                     # send the message that a project has been started
                     self.on_project_started(path=path, mm_project=new_project)
+                    
         except KeyError as e:
             error_message = f"Error accessing files on {path}: {e}"
             self.output_text.insert(tk.END, error_message + "\n")
