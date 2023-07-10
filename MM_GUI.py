@@ -56,7 +56,7 @@ subprocess.Popen(["python", "MM_loop_check_files.py"])
 r = random.Random()
 session_id = r.randint(1, 10000000)
 session_logger = MM_logger.initialize_logger("SessionLog" + str(session_id))
-#print = session_logger.info
+print = session_logger.info
 
 
 class SdCardInsertionEvent(tk.Event):
