@@ -1,17 +1,17 @@
 '''
 Mesh generation from PointClouds.
-Optimized for Hololens. Version 1.1.
+Optimized for Cesium Tiling. Version 1.1.
 For Enya, John and Willy.
 (C) 2022 - 2023, Reynel Rodriguez
 All rights reserved.
-Compile with pyinstaller --onefile low_res.py  --collect-all=pymeshlab
+Compile with pyinstaller --onefile cesium.py  --collect-all=pymeshlab --collect-all=open3d
 '''
 import open3d as o3d
 o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel.Error)
 import pymeshlab
 from datetime import date, datetime
 from PIL import Image
-import os, platform, shutil, zipfile, logging, argparse, utm, sys
+import os, platform, shutil, zipfile, logging, argparse, sys
 from tkinter import Tk
 from tkinter import filedialog
 
@@ -28,7 +28,7 @@ class meshing():
 
     def get_PointCloud(self):
 
-        global swap_axis, path, filename, mesh_output_folder, simplified_output_folder, with_texture_output_folder, obj_file, separator, c, log_name, lat, lon, utm_easting, utm_northing, zone, log_folder
+        global swap_axis, path, filename, mesh_output_folder, simplified_output_folder, with_texture_output_folder, obj_file, separator, c, log_name, lat, lon, utm_easting, utm_northing, zone, log_name, log_folder
 
         file_size_pre_edit = 0
         file_size_post_edit = 0
@@ -52,28 +52,14 @@ class meshing():
         #Define o3d data object to handle PointCloud
 
         ply_point_cloud = o3d.data.PLYPointCloud()
-        
+
         root = Tk()
         
         root.withdraw()
         
         fullpath = filedialog.askopenfile(filetypes=(("PointClouds", "*.ply;*.pts;"),("All files", "*.*")))
         
-        fullpath = str(fullpath)
-        
-        lat = "0"
-        
-        lon = "0"
-
-        #We will encode the lat and lon into utm compliant coordinates for the xyz file and retrieve the utm zone for the prj file
-
-        utm_easting, utm_northing, zone, zone_letter = utm.from_latlon(float(lat), float(lon))
-
-        utm_easting = "%.2f" % utm_easting
-
-        utm_northing = "%.2f" % utm_northing
-
-        zone = str(zone)+zone_letter
+        fullpath = str(fullpath)  
 
         #Separate source path from filename
 
@@ -97,11 +83,11 @@ class meshing():
 
         #Derive destination folders from source path
 
-        mesh_output_folder = "ARTAK_MM/DATA/PointClouds/LowRes"+separator+pc_folder+separator+"mesh_lr"
+        mesh_output_folder = "ARTAK_MM/DATA/PointClouds/HighRes"+separator+pc_folder+separator+"mesh_lr"
 
-        simplified_output_folder = "ARTAK_MM/DATA/PointClouds/LowRes"+separator+pc_folder+separator+"simplified_lr"
+        simplified_output_folder = "ARTAK_MM/DATA/PointClouds/HighRes"+separator+pc_folder+separator+"simplified_lr"
 
-        with_texture_output_folder = "ARTAK_MM/DATA/PointClouds?LowRes"+separator+pc_folder+separator+"final_lr"
+        with_texture_output_folder = "ARTAK_MM/DATA/PointClouds/HighRes"+separator+pc_folder+separator+"final_lr"
         
         log_folder = "ARTAK_MM/LOGS/"
 
@@ -117,20 +103,7 @@ class meshing():
 
         if not os.path.exists(with_texture_output_folder):
 
-            os.makedirs(with_texture_output_folder)
-            
-        #Create xyz and prj based on lat and lon provided
-        
-        prj_1 = 'PROJCS["WGS 84 / UTM zone '
-        prj_2 = '",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",-81],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH],AUTHORITY["EPSG","32617"]]'
-    
-        with open(with_texture_output_folder+separator+logfilename+'.xyz', 'w') as xyz:
-    
-            xyz.write(str(utm_easting+" "+str(utm_northing)+" "+"101.000"))
-    
-        with open(with_texture_output_folder+separator+logfilename+'.prj', 'w') as prj:
-    
-            prj.write(str(prj_1)+str(zone)+str(prj_2))	        	
+            os.makedirs(with_texture_output_folder)       	
 
         if ".obj" in filename:
 
@@ -574,7 +547,7 @@ class meshing():
             
             newpath = simplified_output_folder+separator+filename.replace('ply', 'obj').replace('pts', 'obj')
 
-            if f_number > 900000: #Decimate over 900000 faces (approx. 90Mb)
+            if f_number > 6500000: #Decimate over 6500000 faces (approx.650Mb)
 
                 self.decimation(ms, newpath, f_number)
 
@@ -602,7 +575,7 @@ class meshing():
         
         c = 1
     
-        while f_number > 900000:
+        while f_number > 6500000:
             
             m = ms.current_mesh()
             
@@ -708,7 +681,7 @@ class meshing():
         
         ms.apply_filter('compute_texcoord_parametrization_triangle_trivial_per_wedge',
                         sidedim = 0,
-                        textdim = 4096,
+                        textdim = 10240,
                         border = 2,
                         method = 'Space-optimizing')
 
@@ -729,8 +702,8 @@ class meshing():
         
         ms.apply_filter('compute_texmap_from_color',
                         textname = newfile,
-                        textw = 8192, 
-                        texth = 8192,
+                        textw = 16384, 
+                        texth = 16384,
                         overwrite = False,
                         pullpush = True)
         
