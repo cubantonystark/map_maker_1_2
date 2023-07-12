@@ -38,6 +38,7 @@ from tkinter import filedialog
 import subprocess
 from MM_objects import MapmakerProject
 import customtkinter
+import tkinter.tix
 import tkinter as tk
 import jobqueue_monitor_sample
 from tkhtmlview import HTMLLabel
@@ -57,7 +58,6 @@ r = random.Random()
 session_id = r.randint(1, 10000000)
 session_logger = MM_logger.initialize_logger("SessionLog" + str(session_id))
 print = session_logger.info
-
 
 class SdCardInsertionEvent(tk.Event):
     def __init__(self, drive_letter):
@@ -95,7 +95,7 @@ class ScrollableLabelButtonFrame(customtkinter.CTkScrollableFrame):
         button.grid(row=len(self.button_list), column=1, pady=(0, 10), padx=5)
         self.label_list.append(label)
         self.button_list.append(button)
-
+                       
     def remove_item(self, item):
         for label, button in zip(self.label_list, self.button_list):
             if item == label.cget("text"):
@@ -287,8 +287,11 @@ class App(customtkinter.CTk):
         self.browse_label_pc.grid(row=8, column=0, padx=20, pady=10)
 
         self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.gen_pc)
-        self.browse_button_pc.grid(row=8, column=1, padx=20, pady=10)          
-
+        self.browse_button_pc.grid(row=8, column=1, padx=20, pady=10)
+        
+        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Open Folder", command = self.open_pc_folder)
+        self.browse_button_pc.grid(row=8, column=2, padx=20, pady=10)        
+        
         # create second frame
         self.second_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.second_frame.grid_rowconfigure(0, weight=1)  # configure grid system
@@ -342,6 +345,13 @@ class App(customtkinter.CTk):
 
     def add_radio_button_set(self, button_label, button_option1, button_option2):
         print ("WIP")
+        
+    def open_pc_folder(self):
+        
+        cmd = os.getcwd()+"/ARTAK_MM/DATA/PointClouds"
+        os.startfile(cmd)
+        
+        #os.system(cmd)
         
     def gen_pc(self):
     
@@ -532,7 +542,7 @@ class App(customtkinter.CTk):
                                 print(os.path.join(preprocessed_folder, obj_file))
                             self.list_of_objs.append(preprocessed_folder)
                 for each_item in self.list_of_objs:  # add items with images
-                    self.scrollable_label_button_frame.add_item(file=each_item, button_command=each_item)
+                    self.scrollable_label_button_frame.add_item(file=each_item, button_command=each_item)               
                 previous_file_count = current_file_count
             time.sleep(5)
 
