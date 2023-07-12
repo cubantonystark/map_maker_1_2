@@ -13,7 +13,7 @@ from datetime import date, datetime
 from PIL import Image
 import os, platform, shutil, zipfile, logging, utm, sys, glob
 from tkinter import Tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 
 Image.MAX_IMAGE_PIXELS = None
 
@@ -28,7 +28,7 @@ class meshing():
 
     def get_PointCloud(self):
 
-        global swap_axis, path, filename, mesh_output_folder, simplified_output_folder, with_texture_output_folder, obj_file, separator, c, log_name, lat, lon, utm_easting, utm_northing, zone, log_folder
+        global swap_axis, path, filename, mesh_output_folder, simplified_output_folder, with_texture_output_folder, obj_file, separator, c, log_name, lat, lon, utm_easting, utm_northing, zone, log_folder, pc_folder
 
         file_size_pre_edit = 0
         file_size_post_edit = 0
@@ -766,18 +766,16 @@ class meshing():
         for file in files:
             
             shutil.move(file, "ARTAK_MM/DATA/PointClouds/LowRes")     
-        
+            
         try:
             
-            shutil.rmtree(with_texture_output_folder)
-            
-            shutil.rmtree(mesh_output_folder)
-    
-            shutil.rmtree(simplified_output_folder)
+            shutil.rmtree("ARTAK_MM/DATA/PointClouds/LowRes"+separator+pc_folder)
             
         except FileNotFoundError:
             
-            pass  
+            pass    
+        
+        messagebox.showinfo('Process complete', 'Process Complete.\n\nARTAK ready file has been saved in: ARTAK_MM/DATA/PointClouds/LowRes')
         
         sys.exit()
 
@@ -804,16 +802,6 @@ class meshing():
                 except FileNotFoundError:
                     
                     pass                
-                    
-        try:
-
-            for ext in extensions:
-
-                os.remove(with_texture_output_folder+separator+filename.replace('.obj', '').replace('.ply', '').replace('.pts', '')+ext)
-            
-        except FileNotFoundError:
-            
-            pass 
         
         return
 
