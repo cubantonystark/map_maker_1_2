@@ -1,7 +1,6 @@
 import random
 import sys
 from datetime import datetime
-
 import customtkinter
 import os
 from PIL import Image
@@ -38,7 +37,6 @@ from tkinter import filedialog
 import subprocess
 from MM_objects import MapmakerProject
 import customtkinter
-import tkinter.tix
 import tkinter as tk
 import jobqueue_monitor_sample
 from tkhtmlview import HTMLLabel
@@ -289,7 +287,7 @@ class App(customtkinter.CTk):
         self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.gen_pc)
         self.browse_button_pc.grid(row=8, column=1, padx=20, pady=10)
         
-        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Open Folder", command = self.open_pc_folder)
+        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="PointClouds", command = self.open_pc_folder)
         self.browse_button_pc.grid(row=8, column=2, padx=20, pady=10)        
         
         # create second frame
@@ -341,7 +339,7 @@ class App(customtkinter.CTk):
         self.local_server_label = customtkinter.CTkLabel(self.fourth_frame, text="Local Server IP Address")
         self.local_server_ip = customtkinter.CTkEntry(self.fourth_frame, placeholder_text="http://192.168.10.200")
         self.local_server_label.grid(row=8, column=0, padx=20, pady=10, sticky="ew")
-        self.local_server_ip.grid(row=8, column=1, padx=20, pady=10, sticky="ew")
+        self.local_server_ip.grid(row=8, column=1, padx=20, pady=10, sticky="ew") 
 
     def add_radio_button_set(self, button_label, button_option1, button_option2):
         print ("WIP")
