@@ -55,6 +55,8 @@ class meshing():
 
         root = Tk()
         
+        root.iconbitmap(default = 'gui_images/ARTAK_103.ico')
+        
         root.withdraw()
         
         fullpath = filedialog.askopenfile(filetypes=(("PointClouds", "*.ply;*.pts;"),("All files", "*.*")))
@@ -79,13 +81,13 @@ class meshing():
         
         pc_folder = logfilename
         
-        log_name = filename.replace('.ply', '').replace('.pts', '').replace('.obj', '')+"_"+str(d)+"_"+str(ct)+".log"
+        log_name = "hr_"+filename.replace('.ply', '').replace('.pts', '').replace('.obj', '')+"_"+str(d)+"_"+str(ct)+".log"
 
         #Derive destination folders from source path
         
-        post_dest_folder = "ARTAK_MM/POST/Photogrammetry"+separator+pc_folder+separator+"Productions/Production_1/Data/Model/Preprocessed"
+        post_dest_folder = "ARTAK_MM/POST/Photogrammetry"+separator+"hr_"+pc_folder+separator+"Productions/Production_1/Data/Model/Preprocessed"
         
-        model_dest_folder = "ARTAK_MM/POST/Photogrammetry"+separator+pc_folder+separator+"Productions/Production_1/Data/Model"
+        model_dest_folder = "ARTAK_MM/POST/Photogrammetry"+separator+"hr_"+pc_folder+separator+"Productions/Production_1/Data/Model"
 
         mesh_output_folder = "ARTAK_MM/DATA/PointClouds/HighRes"+separator+pc_folder+separator+"mesh_hr"
 
@@ -750,8 +752,6 @@ class meshing():
             
             shutil.copy(file, model_dest_folder)
             
-            shutil.move(file, "ARTAK_MM/DATA/PointClouds/HighRes/")
-            
         try:
             
             shutil.rmtree("ARTAK_MM/DATA/PointClouds/HighRes"+separator+pc_folder)
@@ -760,7 +760,7 @@ class meshing():
             
             pass 
         
-        messagebox.showinfo('Process complete', 'Process Complete.\n\nARTAK ready file has been saved in: ARTAK_MM/DATA/PointClouds/HighRes')
+        messagebox.showinfo('ARTAK 3D Map Maker', 'Process Complete.')
         
         print('\n')
 
@@ -776,7 +776,7 @@ class meshing():
 
         compression = zipfile.ZIP_DEFLATED
         
-        zip_file = with_texture_output_folder+separator+filename.replace('.obj', '').replace('.ply', '').replace('.pts', '')+'.zip'
+        zip_file = with_texture_output_folder+separator+"hr_"+filename.replace('.obj', '').replace('.ply', '').replace('.pts', '')+'.zip'
 
         with zipfile.ZipFile(zip_file, mode = "w") as zf:
 
