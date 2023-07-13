@@ -55,7 +55,7 @@ class meshing():
 
         root = Tk()
         
-        root.iconbitmap(default = 'gui_images/ARTAK_103.ico')
+        root.iconbitmap(default = 'gui_images/ARTAK_103_drk.ico')
         
         root.withdraw()
         
@@ -664,7 +664,7 @@ class meshing():
         
         #logging.info("Extracting Texture and Materials.\n")
 
-        message = 'Extracting Texture and Materials.'
+        message = 'Generating Texture and Materials.'
 
         self.write_to_log(path, separator, message)	
 
