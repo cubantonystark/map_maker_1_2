@@ -287,8 +287,8 @@ class App(customtkinter.CTk):
         self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.gen_pc)
         self.browse_button_pc.grid(row=8, column=1, padx=20, pady=10)
         
-        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="PointClouds", command = self.open_pc_folder)
-        self.browse_button_pc.grid(row=8, column=2, padx=20, pady=10)        
+        #self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="PointClouds", command = self.open_pc_folder)
+        #self.browse_button_pc.grid(row=8, column=2, padx=20, pady=10)        
         
         # create second frame
         self.second_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
