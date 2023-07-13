@@ -28,7 +28,7 @@ class meshing():
 
     def get_PointCloud(self):
 
-        global swap_axis, path, filename, mesh_output_folder, simplified_output_folder, with_texture_output_folder, obj_file, separator, c, log_name, lat, lon, utm_easting, utm_northing, zone, log_name, log_folder, pc_folder
+        global swap_axis, path, filename, mesh_output_folder, simplified_output_folder, with_texture_output_folder, obj_file, separator, c, log_name, lat, lon, utm_easting, utm_northing, zone, log_name, log_folder, pc_folder, post_dest_folder, model_dest_folder
 
         file_size_pre_edit = 0
         file_size_post_edit = 0
@@ -82,6 +82,10 @@ class meshing():
         log_name = filename.replace('.ply', '').replace('.pts', '').replace('.obj', '')+"_"+str(d)+"_"+str(ct)+".log"
 
         #Derive destination folders from source path
+        
+        post_dest_folder = "ARTAK_MM/POST/Photogrammetry"+separator+pc_folder+separator+"Productions/Production_1/Data/Model/Preprocessed"
+        
+        model_dest_folder = "ARTAK_MM/POST/Photogrammetry"+separator+pc_folder+separator+"Productions/Production_1/Data/Model"
 
         mesh_output_folder = "ARTAK_MM/DATA/PointClouds/HighRes"+separator+pc_folder+separator+"mesh_hr"
 
@@ -99,11 +103,15 @@ class meshing():
 
         if not os.path.exists(simplified_output_folder):
 
-            os.makedirs(simplified_output_folder)
+            os.makedirs(simplified_output_folder, mode = 777)
 
         if not os.path.exists(with_texture_output_folder):
 
-            os.makedirs(with_texture_output_folder)       	
+            os.makedirs(with_texture_output_folder, mode = 777)     
+            
+        if not os.path.exists(post_dest_folder):
+    
+            os.makedirs(post_dest_folder, mode = 777)          
 
         if ".obj" in filename:
 
@@ -722,15 +730,15 @@ class meshing():
         img = img.convert("P", palette=Image.WEB, colors=256)
         img.save(newpath_texturized.replace('.obj','.png'), optimize=True)
         
-        #Once done, we will cleanup
+        #copy the obj to the post folder
+        
+        shutil.copy(newpath_texturized, post_dest_folder+"/Model.obj")
+        
+        #Let's compress
         
         self.compress_into_zip(with_texture_output_folder, newpath)
-
-        print('\n')
-
-        #logging.info('Process complete.\r')
-
-        message = 'Process complete.'
+        
+        #Once done, we will cleanup
 
         self.write_to_log(path, separator, message)
         
@@ -740,7 +748,9 @@ class meshing():
         
         for file in files:
             
-            shutil.move(file, "ARTAK_MM/DATA/PointClouds/HighRes")     
+            shutil.copy(file, model_dest_folder)
+            
+            shutil.move(file, "ARTAK_MM/DATA/PointClouds/HighRes/")
             
         try:
             
@@ -751,6 +761,12 @@ class meshing():
             pass 
         
         messagebox.showinfo('Process complete', 'Process Complete.\n\nARTAK ready file has been saved in: ARTAK_MM/DATA/PointClouds/HighRes')
+        
+        print('\n')
+
+        #logging.info('Process complete.\r')
+
+        message = 'Process complete.'        
         
         sys.exit()
 
