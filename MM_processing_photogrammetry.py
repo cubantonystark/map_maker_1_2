@@ -22,10 +22,10 @@ import os
 import time
 import array as arr
 
-import ccmasterkernel
+import itwincapturemodeler
 import random
 
-import pymeshlab
+#import pymeshlab
 import requests
 from numpy import array
 
@@ -33,7 +33,7 @@ import MM_logger
 import xml.etree.ElementTree as ET
 from MM_objects import MapmakerProject
 
-
+ccmasterkernel = itwincapturemodeler
 # Note: replace paths with your references, or install SDK sample data in C:/CC_SDK_DATA
 photosDirPath = os.getcwd()+'/ARTAK_MM/DATA/Raw_Images/UNZIPPED'
 projectDir = os.getcwd()+'/ARTAK_MM/POST/Photogrammetry/'
@@ -327,7 +327,7 @@ class processing_photogrammetry():
             driverOptions.put_bool('DoublePrecision', True)
             driverOptions.put_int('TextureCompressionQuality', 100)
             #driverOptions.put_int('TextureColorSource', ccmasterkernel.CameraModelBand.CameraModelBand_thermal)
-            driverOptions.put_string('SRS', 'EPSG:32617')
+            #driverOptions.put_string('SRS', 'EPSG:32617')
             driverOptions.writeXML(os.path.join(project.getProductionsDirPath(), "options.xml"))
 
         production.setDriverOptions(driverOptions)
@@ -413,12 +413,12 @@ class processing_photogrammetry():
         # set the output file name based on the input file name
         output_file = os.path.join(output_folder, os.path.splitext(os.path.basename(input_file))[0] + ".obj")
 
-        # create a MeshSet object and load the input OBJ file
-        ms = pymeshlab.MeshSet()
-        ms.load_new_mesh(input_file)
-        # save the MeshSet object to the output file
-        ms.save_current_mesh(output_file)
-
+        # # create a MeshSet object and load the input OBJ file
+        # ms = pymeshlab.MeshSet()
+        # ms.load_new_mesh(input_file)
+        # # save the MeshSet object to the output file
+        # ms.save_current_mesh(output_file)
+        shutil.copy(input_file, output_file)
         # print a message when the process is complete
         self.logger.info("Output file saved to:" + output_file)
         self.logger.info("Filename:" + self.filename[:len(self.filename)-4])
