@@ -1,5 +1,11 @@
+import win32gui, win32con
+'''
+This snippet hides the console in non compiled scripts. Done for aesthetics
+'''
+this_program = win32gui.GetForegroundWindow()
+win32gui.ShowWindow(this_program , win32con.SW_HIDE)
+
 import random
-import sys
 from datetime import datetime
 import customtkinter
 import os
