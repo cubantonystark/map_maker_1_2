@@ -6,7 +6,7 @@ This snippet hides the console in non compiled scripts. Done for aesthetics
 this_program = win32gui.GetForegroundWindow()
 win32gui.ShowWindow(this_program , win32con.SW_HIDE)
 
-import random
+import random, psutil
 from datetime import datetime
 import customtkinter
 import os
@@ -20,6 +20,12 @@ accidentaly deleted.
 dirs1 = ['ARTAK_MM/DATA/Raw_Images/UNZIPPED', 'ARTAK_MM/DATA/Raw_Images/ZIP/Completed', 'ARTAK_MM/DATA/Raw_Images/ZIP/New', 'ARTAK_MM/DATA/Raw_Images/ZIP/Unzipping_in_progress', 
          'ARTAK_MM/LOGS', 'ARTAK_MM/POST/Photogrammetry', 'ARTAK_MM/DATA/PointClouds']
 
+#cleanup any straggler status file in case of disgraceful exit of either recon script
+
+if os.path.exists("ARTAK_MM/LOGS/status.log"):
+    
+    os.remove("ARTAK_MM/LOGS/status.log")
+    
 for dir in dirs1:
     
     if not os.path.exists(dir):
@@ -62,7 +68,7 @@ subprocess.Popen(["python", "MM_loop_check_files.py"])
 r = random.Random()
 session_id = r.randint(1, 10000000)
 session_logger = MM_logger.initialize_logger("SessionLog" + str(session_id))
-#print = session_logger.info
+print = session_logger.info
 
 class SdCardInsertionEvent(tk.Event):
     def __init__(self, drive_letter):
@@ -117,9 +123,10 @@ class ScrollableLabelButtonFrame(customtkinter.CTkScrollableFrame):
 
 
 class App(customtkinter.CTk):
+        
     def __init__(self):
         super().__init__()
-
+        
         self.session_logger = session_logger
         self.iconbitmap(default = 'gui_images/ARTAK_103.ico')
         self.title("ARTAK Map Maker, by Eolian")
@@ -291,11 +298,8 @@ class App(customtkinter.CTk):
         self.browse_label_pc = customtkinter.CTkLabel(self.home_frame, text="Process PointCloud")
         self.browse_label_pc.grid(row=8, column=0, padx=20, pady=10)
 
-        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.gen_pc)
-        self.browse_button_pc.grid(row=8, column=1, padx=20, pady=10)
-        
-        #self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="PointClouds", command = self.open_pc_folder)
-        #self.browse_button_pc.grid(row=8, column=2, padx=20, pady=10)        
+        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.gen_pc, state = "normal")
+        self.browse_button_pc.grid(row=8, column=1, padx=20, pady=10)  
         
         # create second frame
         self.second_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
@@ -347,7 +351,7 @@ class App(customtkinter.CTk):
         self.local_server_ip = customtkinter.CTkEntry(self.fourth_frame, placeholder_text="http://192.168.10.200")
         self.local_server_label.grid(row=8, column=0, padx=20, pady=10, sticky="ew")
         self.local_server_ip.grid(row=8, column=1, padx=20, pady=10, sticky="ew") 
-
+    
     def add_radio_button_set(self, button_label, button_option1, button_option2):
         print ("WIP")
         
@@ -356,11 +360,10 @@ class App(customtkinter.CTk):
         cmd = os.getcwd()+"/ARTAK_MM/DATA/PointClouds"
         os.startfile(cmd)
         
-        #os.system(cmd)
-        
     def gen_pc(self):
-    
         
+        global hr_proc, lr_proc
+    
         value = self.radio_var1_pc.get()
         
         if 'leg' in value:
@@ -369,8 +372,24 @@ class App(customtkinter.CTk):
         
         else:
             
-            subprocess.Popen(["python", "MM_pc2hr.py"])    
+            subprocess.Popen(["python", "MM_pc2hr.py"])  
             
+    def display_activity_on_pc_recon(self):
+        
+        #will check if recon is running. should it be runing, the 'Browse' button is disabled'
+        
+        while True:
+
+            if os.path.exists("ARTAK_MM/LOGS/status.log"):
+                
+                self.browse_button_pc.configure(state = 'disabled')
+                
+            else:
+                
+                self.browse_button_pc.configure(state = 'normal')
+            
+            time.sleep(3)
+                 
     def browse_directory(self):
         path = filedialog.askdirectory()
 
@@ -739,7 +758,6 @@ def detect_sd_card():
 
     return drive_list
 
-
 def get_image_files(folder):
     image_extensions = ['.jpg', '.jpeg', '.png', '.gif']  # Add more extensions if needed
     image_files = []
@@ -750,7 +768,6 @@ def get_image_files(folder):
                 image_files.append(os.path.join(root, file))
 
     return image_files
-
 
 def button_click_event():
     dialog = customtkinter.CTkInputDialog(text="Type in a number:", title="Test")
@@ -763,5 +780,6 @@ if __name__ == "__main__":
     threading.Thread(target=app.job_queue_monitor).start()
     threading.Thread(target=app.mm_project_monitor).start()
     threading.Thread(target=app.find_preprocessed_folders_with_obj).start()
+    threading.Thread(target=app.display_activity_on_pc_recon).start()
     app.run_executable()
     app.mainloop()
