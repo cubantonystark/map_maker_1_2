@@ -199,8 +199,6 @@ class App(customtkinter.CTk):
                                                       command=self.frame_4_button_event)
         self.frame_4_button.grid(row=4, column=0, sticky="ew")
 
-
-
         # create home frame
         self.home_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.home_frame.grid_columnconfigure(0, weight=1)
@@ -387,7 +385,6 @@ class App(customtkinter.CTk):
                 self.browse_button_pc.configure(state = 'disabled')
                 
                 self.progressbar_pc.grid(row=8, column=2, padx=20, pady=10, sticky="ew")
-                self.progressbar_pc.configure(mode="determinate", progress_color="blue")
                 self.progressbar_pc.set(0)
                 self.progressbar_pc.start()            
                 
