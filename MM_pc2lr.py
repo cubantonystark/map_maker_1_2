@@ -162,6 +162,10 @@ class meshing():
         
         preview = 0
         
+        with open("ARTAK_MM/LOGS/status.log", "w") as status:
+            
+            pass        
+        
         #logging.info('Loading PointCloud.\r')
 
         message = 'Loading PointCloud. '+str(fullpath)
@@ -830,7 +834,9 @@ class meshing():
 
         message = 'Reconstruction Complete.'   
         
-        self.write_to_log(path, separator, message)	
+        self.write_to_log(path, separator, message)
+        
+        os.remove("ARTAK_MM/LOGS/status.log")
         
         sys.exit()        
     
