@@ -95,7 +95,7 @@ class meshing():
         
         pc_folder = logfilename
         
-        log_name = "hr_"+filename.replace('.ply', '').replace('.pts', '').replace('.obj', '')+"_"+str(d)+"_"+str(ct)+".log"
+        log_name = "lr_"+filename.replace('.ply', '').replace('.pts', '').replace('.obj', '')+"_"+str(d)+"_"+str(ct)+".log"
 
         #Derive destination folders from source path
         
@@ -161,8 +161,6 @@ class meshing():
             swap_axis = 0
         
         preview = 0
-            
-        print('\r')
         
         #logging.info('Loading PointCloud.\r')
 
@@ -486,88 +484,131 @@ class meshing():
                 
                 except pymeshlab.pmeshlab.PyMeshLabException:
                     
-                    ms.load_new_mesh(generated_mesh)
-                    
-                    #logging.info('Mesh not optimal. Retargeting parameters (2).\r')
-                
-                    message = 'Mesh not optimal. Retargeting parameters (2).'
-                
-                    self.write_to_log(path, separator, message)                      
-                    
-                    boundingbox =  ms.current_mesh().bounding_box()
-                    
-                    diag = boundingbox.diagonal()
-                
-                    t_hold = diag / 200
-                
-                    p = pymeshlab.Percentage(25)
-                
-                    #logging.info('Refining.\r')
-                
-                    message = 'Refining'
-                
-                    self.write_to_log(path, separator, message)    
-                
-                    #We will select faces that are long based on the bounding box calculation and then remove them
-                
-                    ms.apply_filter('compute_selection_by_edge_length',
-                                                threshold = t_hold)
-                
-                    ms.apply_filter('meshing_remove_selected_faces')
-                
-                    #The selection process and removal of long faces will reate floaters, we will remove isolated faces
-                
-                    ms.apply_filter('meshing_remove_connected_component_by_diameter',
-                                                mincomponentdiag = p)
-                    
-                    if ".ply" in filename:
+                    try:
                         
-                        file_size = int(os.path.getsize(generated_mesh))
-                    
-                        if file_size <= 500000000:                        
+                        ms.load_new_mesh(generated_mesh)
                         
-                            t_hold = 0.9
-                            p = pymeshlab.Percentage(10)
+                        #logging.info('Mesh not optimal. Retargeting parameters (2).\r')
+                    
+                        message = 'Mesh not optimal. Retargeting parameters (2).'
+                    
+                        self.write_to_log(path, separator, message)                      
+                        
+                        boundingbox =  ms.current_mesh().bounding_box()
+                        
+                        diag = boundingbox.diagonal()
+                    
+                        t_hold = diag / 200
+                    
+                        p = pymeshlab.Percentage(25)
+                    
+                        #logging.info('Refining.\r')
+                    
+                        message = 'Refining'
+                    
+                        self.write_to_log(path, separator, message)    
+                    
+                        #We will select faces that are long based on the bounding box calculation and then remove them
+                    
+                        ms.apply_filter('compute_selection_by_edge_length',
+                                                    threshold = t_hold)
+                    
+                        ms.apply_filter('meshing_remove_selected_faces')
+                    
+                        #The selection process and removal of long faces will reate floaters, we will remove isolated faces
+                    
+                        ms.apply_filter('meshing_remove_connected_component_by_diameter',
+                                                    mincomponentdiag = p)
+                        
+                        if ".ply" in filename:
                             
+                            file_size = int(os.path.getsize(generated_mesh))
+                        
+                            if file_size <= 500000000:                        
+                            
+                                t_hold = 0.9
+                                p = pymeshlab.Percentage(10)
+                                
+                            else:
+                                
+                                t_hold = 0.9
+                                p = pymeshlab.Percentage(25)                            
+                        
                         else:
                             
-                            t_hold = 0.9
-                            p = pymeshlab.Percentage(25)                            
+                            t_hold = 0.08
+                            p = pymeshlab.Percentage(25)
                     
-                    else:
+                        #Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is 
+                    
+                        ms.apply_filter('compute_selection_by_edge_length',
+                                                    threshold = t_hold)  
+                    
+                        ms.apply_filter('meshing_remove_selected_faces')
+                    
+                        #Then we remove any isolated faces (floaters) that might still be laying around
+                    
+                        ms.apply_filter('meshing_remove_connected_component_by_diameter',
+                                                    mincomponentdiag = p)  
                         
-                        t_hold = 0.08
-                        p = pymeshlab.Percentage(25)
-                
-                    #Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is 
-                
-                    ms.apply_filter('compute_selection_by_edge_length',
-                                                threshold = t_hold)  
-                
-                    ms.apply_filter('meshing_remove_selected_faces')
-                
-                    #Then we remove any isolated faces (floaters) that might still be laying around
-                
-                    ms.apply_filter('meshing_remove_connected_component_by_diameter',
-                                                mincomponentdiag = p)  
+                        #logging.info("Exporting Mesh.")
                     
-                    #logging.info("Exporting Mesh.")
-                
-                    message = 'Exporting Mesh.'
-                
-                    self.write_to_log(path, separator, message)				
-                
-                    newpath = simplified_output_folder+separator+filename.replace('ply', 'obj').replace('pts', 'obj')
-                
-                    ms.save_current_mesh(newpath,
-                                        save_vertex_color = True,
-                                        save_vertex_coord = True,
-                                        save_vertex_normal = True,
-                                        save_face_color = True,
-                                        save_wedge_texcoord = True,
-                                        save_wedge_normal = True,
-                                        save_polygonal = True)
-                
+                        message = 'Exporting Mesh.'
+                    
+                        self.write_to_log(path, separator, message)				
+                    
+                        newpath = simplified_output_folder+separator+filename.replace('ply', 'obj').replace('pts', 'obj')
+                    
+                        ms.save_current_mesh(newpath,
+                                            save_vertex_color = True,
+                                            save_vertex_coord = True,
+                                            save_vertex_normal = True,
+                                            save_face_color = True,
+                                            save_wedge_texcoord = True,
+                                            save_wedge_normal = True,
+                                            save_polygonal = True)
+                        
+                    except pymeshlab.pmeshlab.PyMeshLabException:
+                        
+                        #If we got to this exception, then it means the generated mesh has way too many disconnected faces and cannot be fully 
+                        #cleaned, so we will have to export with some artifacts in it. 
+                        
+                        ms.load_new_mesh(generated_mesh)
+                        
+                        #logging.info('Mesh not optimal. Retargeting parameters (2).\r')
+                    
+                        message = 'Mesh still not optimal. Retargeting parameters (3) and going to best effort.'
+                    
+                        self.write_to_log(path, separator, message)                      
+                        
+                        boundingbox =  ms.current_mesh().bounding_box()
+                        
+                        diag = boundingbox.diagonal()
+                    
+                        t_hold = 3
+                    
+                        #We will select faces that are long based on the bounding box calculation and then remove them
+                    
+                        ms.apply_filter('compute_selection_by_edge_length',
+                                                    threshold = t_hold)
+                    
+                        ms.apply_filter('meshing_remove_selected_faces')      
+                        
+                        message = 'Exporting Mesh.'
+                    
+                        self.write_to_log(path, separator, message)				
+                    
+                        newpath = simplified_output_folder+separator+filename.replace('ply', 'obj').replace('pts', 'obj')
+                    
+                        ms.save_current_mesh(newpath,
+                                            save_vertex_color = True,
+                                            save_vertex_coord = True,
+                                            save_vertex_normal = True,
+                                            save_face_color = True,
+                                            save_wedge_texcoord = True,
+                                            save_wedge_normal = True,
+                                            save_polygonal = True)                        
+                    
             m = ms.current_mesh()
         
             v_number = m.vertex_number()
@@ -600,7 +641,7 @@ class meshing():
 
             self.write_to_log(path, separator, message)		
 
-            quit()
+            sys.exit()
 
     def decimation(self, ms, newpath, f_number):
 
@@ -703,8 +744,6 @@ class meshing():
 
             message = 'Correcting Axis.'
 
-            print('\r')
-
             self.write_to_log(path, separator, message)			
 
             ms.apply_filter('compute_matrix_from_rotation',
@@ -768,35 +807,33 @@ class meshing():
         self.compress_into_zip(with_texture_output_folder, newpath)
 
         #Once done, we will cleanup
-
-        self.write_to_log(path, separator, message)
-    
-        self.write_to_log(path, separator, message)	
     
         files = [f for f in glob.glob(with_texture_output_folder+"/*.zip")]
     
         for file in files:
     
             shutil.copy(file, model_dest_folder)
-    
+        
         try:
-    
-            shutil.rmtree("ARTAK_MM/DATA/PointClouds/LowRes"+separator+pc_folder)
+            
+            shutil.rmtree("ARTAK_MM/DATA/PointClouds/HighRes"+separator+pc_folder)
             
         except FileNotFoundError:
             
-            pass    
+            pass 
+            
+        messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction Complete.')
         
-        messagebox.showinfo('ARTAK 3D Map Maker', 'Process Complete.')
+        shutil.rmtree("ARTAK_MM/DATA/PointClouds/LowRes"+separator+pc_folder) 
         
-        print('\n')
+        #logging.info('Reconstruction Complete.\r')
 
-        #logging.info('Process complete.\r')
-
-        message = 'Process complete.'        
+        message = 'Reconstruction Complete.'   
         
-        sys.exit()
-
+        self.write_to_log(path, separator, message)	
+        
+        sys.exit()        
+    
     def compress_into_zip(self, with_texture_output_folder, newpath):
 
         extensions = ['.obj', '.obj.mtl', '.png', '.xyz', '.prj']
