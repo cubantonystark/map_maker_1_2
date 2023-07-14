@@ -135,8 +135,12 @@ class meshing():
         
         preview = 0
         
+        with open("ARTAK_MM/LOGS/status.log", "w") as status:
+            
+            pass
+        
         #logging.info('Loading PointCloud.\r')
-
+    
         message = 'Loading PointCloud. '+str(fullpath)
 
         self.write_to_log(path, separator, message)
@@ -791,6 +795,10 @@ class meshing():
             
             shutil.rmtree("ARTAK_MM/DATA/PointClouds/HighRes"+separator+pc_folder)
             
+            #Remove the status flag for MM_GUI progressbar
+            
+            os.remove(log_folder+"/status.log")
+            
         except FileNotFoundError:
             
             pass 
@@ -799,7 +807,9 @@ class meshing():
 
         #logging.info('Process complete.\r')
 
-        message = 'Reconstruction Complete.'        
+        message = 'Reconstruction Complete.'   
+        
+        os.remove("ARTAK_MM/LOGS/status.log")
         
         sys.exit()
 
