@@ -803,13 +803,13 @@ class meshing():
             
             pass 
         
-        os.remove("ARTAK_MM/LOGS/status.log")
-        
         messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction Complete.')
 
         #logging.info('Process complete.\r')
 
         message = 'Reconstruction Complete.'   
+        
+        os.remove("ARTAK_MM/LOGS/status.log")
         
         sys.exit()
 
