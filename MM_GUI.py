@@ -1,10 +1,11 @@
 import win32gui, win32con
 '''
 This snippet hides the console in non compiled scripts. Done for aesthetics
-'''
+
 
 this_program = win32gui.GetForegroundWindow()
 win32gui.ShowWindow(this_program , win32con.SW_HIDE)
+'''
 
 import random, psutil
 from datetime import datetime
@@ -68,7 +69,7 @@ subprocess.Popen(["python", "MM_loop_check_files.py"])
 r = random.Random()
 session_id = r.randint(1, 10000000)
 session_logger = MM_logger.initialize_logger("SessionLog" + str(session_id))
-print = session_logger.info
+#print = session_logger.info
 
 class SdCardInsertionEvent(tk.Event):
     def __init__(self, drive_letter):
@@ -378,15 +379,25 @@ class App(customtkinter.CTk):
         
         #will check if recon is running. should it be runing, the 'Browse' button is disabled'
         
+        self.progressbar_pc = customtkinter.CTkProgressBar(self.home_frame)        
+        
         while True:
 
             if os.path.exists("ARTAK_MM/LOGS/status.log"):
                 
                 self.browse_button_pc.configure(state = 'disabled')
                 
+                self.progressbar_pc.grid(row=8, column=2, padx=20, pady=10, sticky="ew")
+                self.progressbar_pc.configure(mode="determinate", progress_color="blue")
+                self.progressbar_pc.set(0)
+                self.progressbar_pc.start()            
+                
             else:
                 
                 self.browse_button_pc.configure(state = 'normal')
+                self.progressbar_pc.stop()
+                self.progressbar_pc.configure(mode="determinate", progress_color="green")
+                self.progressbar_pc.set(1)
             
             time.sleep(3)
                  
