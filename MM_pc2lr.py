@@ -825,6 +825,9 @@ class meshing():
         except FileNotFoundError:
             
             pass 
+        
+        
+        os.remove("ARTAK_MM/LOGS/status.log")        
             
         messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction Complete.')
         
@@ -835,9 +838,7 @@ class meshing():
         message = 'Reconstruction Complete.'   
         
         self.write_to_log(path, separator, message)
-        
-        os.remove("ARTAK_MM/LOGS/status.log")
-        
+
         sys.exit()        
     
     def compress_into_zip(self, with_texture_output_folder, newpath):
