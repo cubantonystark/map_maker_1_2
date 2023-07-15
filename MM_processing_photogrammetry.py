@@ -1,20 +1,6 @@
-#!/usr/bin/env python
-# ******************************************************************************
-# Copyright (c) 2018 Bentley Systems, Incorporated. All rights reserved.
-# ******************************************************************************
-# ContextCapture MasterKernel Python SDK - example script
-#
-# Script: automaster.py
-# Purpose : create a complete reconstruction from a directory of photos
-# Keywords: block creation, photos, project creation, reconstruction, production, job monitoring
-#
-# Script description:
-#    This script browses an input photo directory and manages a complete reconstruction project with default settings
-#    from these photos including:
-#    - AT,
-#    - Reconstruction,
-#    - Production in OBJ format.
-# ******************************************************************************
+
+# Script: built off automaster.py
+
 import shutil
 import subprocess
 import sys
