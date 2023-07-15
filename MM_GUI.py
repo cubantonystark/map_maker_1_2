@@ -713,8 +713,8 @@ def button_click_event():
 if __name__ == "__main__":
     app = App()
   #  threading.Thread(target=app.sd_card_monitor).start()
-   # threading.Thread(target=app.job_queue_monitor).start()
-   # threading.Thread(target=app.mm_project_monitor).start()
-  #  threading.Thread(target=app.find_preprocessed_folders_with_obj).start()
+  #  threading.Thread(target=app.job_queue_monitor).start()
+    threading.Thread(target=app.mm_project_monitor).start()
+    threading.Thread(target=app.find_preprocessed_folders_with_obj).start()
     app.run_executable()
     app.mainloop()
