@@ -3,8 +3,8 @@ import win32gui, win32con
 This snippet hides the console in non compiled scripts. Done for aesthetics
 '''
 
-#this_program = win32gui.GetForegroundWindow()
-#win32gui.ShowWindow(this_program , win32con.SW_HIDE)
+this_program = win32gui.GetForegroundWindow()
+win32gui.ShowWindow(this_program , win32con.SW_HIDE)
 
 import random, psutil
 from datetime import datetime
@@ -555,27 +555,39 @@ class App(customtkinter.CTk):
             time.sleep(5)
 
     def find_preprocessed_folders_with_obj(self):
-
-        directory = os.getcwd()+"/ARTAK_MM/POST/Photogrammetry"
+        
         previous_file_count = 0
-        self.list_of_objs = []
-        if 1 == 1:
-            current_file_count = len(os.listdir(directory))
-            if previous_file_count != current_file_count:
-                for root, dirs, files in os.walk(directory):
-                    if "Preprocessed" in dirs:
-                        preprocessed_folder = os.path.join(root, "Preprocessed")
-                        obj_files = [file for file in os.listdir(preprocessed_folder) if file.endswith(".obj")]
-                        if obj_files:
-                            print(f"Found Preprocessed folder with OBJ file(s): {preprocessed_folder}")
-                            print("OBJ files:")
-                            for obj_file in obj_files:
-                                print(os.path.join(preprocessed_folder, obj_file))
-                            self.list_of_objs.append(preprocessed_folder)
-                for each_item in self.list_of_objs:  # add items with images
-                    self.scrollable_label_button_frame.add_item(file=each_item, button_command=each_item)               
-                previous_file_count = current_file_count
-            time.sleep(5)
+        
+        while True:
+            
+            directory = os.getcwd()+"/ARTAK_MM/POST/Photogrammetry"
+            #previous_file_count = 0
+            self.list_of_objs = []
+            if 1 == 1:
+                current_file_count = len(os.listdir(directory))
+                if current_file_count != previous_file_count:
+                    
+                    self.scrollable_label_button_frame.destroy()
+                    self.scrollable_label_button_frame = ScrollableLabelButtonFrame(master=self, width=300,
+                                                                                            command=self.label_button_frame_event,
+                                                                                                corner_radius=0)
+                    self.scrollable_label_button_frame.grid(row=0, column=2, padx=0, pady=0, sticky="nsew")    
+                    
+                    for root, dirs, files in os.walk(directory):
+                        if "Preprocessed" in dirs:
+                            preprocessed_folder = os.path.join(root, "Preprocessed")
+                            obj_files = [file for file in os.listdir(preprocessed_folder) if file.endswith(".obj")]
+                            if obj_files:
+                                print(f"Found Preprocessed folder with OBJ file(s): {preprocessed_folder}")
+                                print("OBJ files:")
+                                for obj_file in obj_files:
+                                    print(os.path.join(preprocessed_folder, obj_file))
+                                self.list_of_objs.append(preprocessed_folder)
+                    for each_item in self.list_of_objs:  # add items with images
+                        self.scrollable_label_button_frame.add_item(file=each_item, button_command=each_item)               
+                    previous_file_count = current_file_count
+                    
+                time.sleep(5)
 
     def open_obj(self, path):
         path = os.path.join(path+"/", "Model.obj")
@@ -631,7 +643,7 @@ class App(customtkinter.CTk):
         print("on name change")
     def on_project_completed(self, path=None, mm_project=MapmakerProject()):
         #path = "C:\ARTAK_MM\POST\Photogrammetry/2023-05-18_14-42-52993\Productions\Production_1\Data\Model\Preprocessed"
-        threading.Thread(target=app.find_preprocessed_folders_with_obj).start()
+        #threading.Thread(target=app.find_preprocessed_folders_with_obj).start()
 
         project2_open_map_icon = customtkinter.CTkButton(self.home_frame,
                                                                  text="Open Map",
@@ -694,7 +706,7 @@ class App(customtkinter.CTk):
             self.fourth_frame.grid_forget()
 
     def run_executable(self):
-        executable_path = "C:/Program Files/Bentley/iTwin Capture Modeler/bin/iTwinCaptureModelerEngine.exe"
+        executable_path = "C:/Program Files/Bentley/ContextCapture/bin/CCEngine.exe"
 
         def read_output():
             process = subprocess.Popen(executable_path, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -783,8 +795,8 @@ def button_click_event():
 
 if __name__ == "__main__":
     app = App()
-  #  threading.Thread(target=app.sd_card_monitor).start()
-  #  threading.Thread(target=app.job_queue_monitor).start()
+    threading.Thread(target=app.sd_card_monitor).start()
+    threading.Thread(target=app.job_queue_monitor).start()
     threading.Thread(target=app.mm_project_monitor).start()
     threading.Thread(target=app.find_preprocessed_folders_with_obj).start()
     threading.Thread(target=app.display_activity_on_pc_recon).start()
