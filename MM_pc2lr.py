@@ -14,6 +14,7 @@ from PIL import Image
 import os, platform, shutil, zipfile, logging, utm, sys, glob
 from tkinter import Tk
 from tkinter import filedialog, messagebox
+from MM_upload_to_artak_mk1 import upload
 
 Image.MAX_IMAGE_PIXELS = None
 
@@ -863,7 +864,7 @@ class meshing():
                 except FileNotFoundError:
                     
                     pass                
-        
+        upload(zip_file, url="https://esp.eastus2.cloudapp.azure.com/")
         return
 
     def visualize(self, target, message):
