@@ -694,7 +694,7 @@ class App(customtkinter.CTk):
             self.fourth_frame.grid_forget()
 
     def run_executable(self):
-        executable_path = "C:/Program Files/Bentley/ContextCapture/bin/CCEngine.exe"
+        executable_path = "C:/Program Files/Bentley/iTwin Capture Modeler/bin/iTwinCaptureModelerEngine.exe"
 
         def read_output():
             process = subprocess.Popen(executable_path, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -783,8 +783,8 @@ def button_click_event():
 
 if __name__ == "__main__":
     app = App()
-    threading.Thread(target=app.sd_card_monitor).start()
-    threading.Thread(target=app.job_queue_monitor).start()
+  #  threading.Thread(target=app.sd_card_monitor).start()
+  #  threading.Thread(target=app.job_queue_monitor).start()
     threading.Thread(target=app.mm_project_monitor).start()
     threading.Thread(target=app.find_preprocessed_folders_with_obj).start()
     threading.Thread(target=app.display_activity_on_pc_recon).start()

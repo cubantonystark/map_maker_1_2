@@ -14,12 +14,12 @@
 import sys
 import os
 import time
-import ccmasterkernel
+import itwincapturemodeler
 
 # Note: replace paths with your references, or install SDK sample data in C:/CC_SDK_DATA
 jobQueuePath = 'C:/Users/escam/Documents/Bentley/ContextCapture Desktop/Jobs'
 
-
+ccmasterkernel = itwincapturemodeler
 def main():
     # print('MasterKernel version %s' % ccmasterkernel.version())
     # print('')

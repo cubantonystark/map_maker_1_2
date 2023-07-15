@@ -22,10 +22,10 @@ import os
 import time
 import array as arr
 
-import ccmasterkernel
+import itwincapturemodeler
 import random
 
-import pymeshlab
+#import pymeshlab
 import requests
 from numpy import array
 
@@ -33,7 +33,7 @@ import MM_logger
 import xml.etree.ElementTree as ET
 from MM_objects import MapmakerProject
 
-
+ccmasterkernel = itwincapturemodeler
 # Note: replace paths with your references, or install SDK sample data in C:/CC_SDK_DATA
 photosDirPath = os.getcwd()+'/ARTAK_MM/DATA/Raw_Images/UNZIPPED'
 projectDir = os.getcwd()+'/ARTAK_MM/POST/Photogrammetry/'
@@ -173,8 +173,8 @@ class processing_photogrammetry():
             for photo_i in photogroups.getPhotogroup(i_pg).getPhotoArray():
                 self.logger.info('image: %s' % photo_i.imageFilePath)
             print('')
-            photogroups.getPhotogroup(i_pg).cameraModelBand = ccmasterkernel.CameraModelBand.CameraModelBand_visible
-            photogroups.getPhotogroup(i_pg).CameraModelType = ccmasterkernel.CameraModelType.CameraModelType_perspective
+          #  photogroups.getPhotogroup(i_pg).cameraModelBand = ccmasterkernel.CameraModelBand.CameraModelBand_visible
+          #  photogroups.getPhotogroup(i_pg).CameraModelType = ccmasterkernel.CameraModelType.CameraModelType_perspective
 
            #  photogroups.getPhotogroup(i_pg).focalLength_mm = float(3.77202)
            #  photogroups.getPhotogroup(i_pg).focalLength35mm = float(22.938)
@@ -292,7 +292,7 @@ class processing_photogrammetry():
         # --------------------------------------------------------------------
         reconstruction = ccmasterkernel.Reconstruction(blockAT)
         reconsettings = reconstruction.getSettings()
-        reconsettings.loadPreset(os.getcwd()+"configs/Recons_preset.cfg")
+        reconsettings.loadPreset("configs/Recons_preset.cfg")
         reconstruction.setSettings(reconsettings)
         blockAT.addReconstruction(reconstruction)
 
@@ -315,7 +315,7 @@ class processing_photogrammetry():
             driverOptions = production.getDriverOptions()
             self.logger.info(driverOptions)
             driverOptions.put_bool('TextureEnabled', True)
-            driverOptions.put_int('TextureCompressionQuality', 100)
+            driverOptions.put_int('TextureCompressionQuality', 75)
             driverOptions.writeXML(os.path.join(project.getProductionsDirPath(), "options.xml"))
 
         else:
@@ -325,9 +325,10 @@ class processing_photogrammetry():
             self.logger.info (driverOptions)
             driverOptions.put_bool('TextureEnabled', True)
             driverOptions.put_bool('DoublePrecision', True)
-            driverOptions.put_int('TextureCompressionQuality', 100)
+            driverOptions.put_int('TextureCompressionQuality', 75)
+            driverOptions.put_int('MaximumTextureSize', 4096)
             #driverOptions.put_int('TextureColorSource', ccmasterkernel.CameraModelBand.CameraModelBand_thermal)
-            driverOptions.put_string('SRS', 'EPSG:32617')
+            #driverOptions.put_string('SRS', 'EPSG:32617')
             driverOptions.writeXML(os.path.join(project.getProductionsDirPath(), "options.xml"))
 
         production.setDriverOptions(driverOptions)
@@ -395,8 +396,8 @@ class processing_photogrammetry():
         input_file = production.getDestination() + "/Data/Model/Model.obj"
 
         # path to the output folder
-        output_folder = production.getDestination() + "/Data/Model/Preprocessed"
-        zip_location = production.getDestination() + "/Data/Model/"
+        output_folder = production.getDestination() + "/Data/Model/"
+        zip_location = production.getDestination() + "/Data/"
         # create the output folder if it doesn't exist
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
@@ -407,29 +408,30 @@ class processing_photogrammetry():
         with open(output_folder + "/metadata.xyz",
                   'w') as xyz:
             xyz.write(x + " " + y + " " + z)
-        shutil.copy("configs/WGS84.prj", output_folder+ "/metadata.prj")
+        shutil.copy("configs/WGS84.prj", production.getDestination()  + "/Data/Model/metadata.prj")
 
 
         # set the output file name based on the input file name
         output_file = os.path.join(output_folder, os.path.splitext(os.path.basename(input_file))[0] + ".obj")
 
-        # create a MeshSet object and load the input OBJ file
-        ms = pymeshlab.MeshSet()
-        ms.load_new_mesh(input_file)
-        # save the MeshSet object to the output file
-        ms.save_current_mesh(output_file)
-
+        # # create a MeshSet object and load the input OBJ file
+     #   ms = pymeshlab.MeshSet()
+     #   ms.load_new_mesh(input_file)
+        # # save the MeshSet object to the output file
+     #   ms.save_current_mesh(output_file)
+        inp_folder = production.getDestination() + "/Data/"
+        #shutil.copytree(inp_folder, output_folder + "/")
         # print a message when the process is complete
         self.logger.info("Output file saved to:" + output_file)
         self.logger.info("Filename:" + self.filename[:len(self.filename)-4])
         self.logger.info("Output folder:" + output_folder)
         a = os.path.join(zip_location + self.filename)
-        self.logger.info ("Zip filename path a:" + a)
+        self.logger.info ("Zip filename path : " + a)
         if len(self.filename) > 19:
-            shutil.make_archive(zip_location+self.filename[:len(self.filename)-4], 'zip', output_folder)
+            shutil.make_archive(zip_location+self.filename[:len(self.filename)-4], 'zip', inp_folder)
             self.logger.info("cutting filename")
         else:
-            shutil.make_archive(zip_location+self.filename, 'zip', output_folder)
+            shutil.make_archive(zip_location+self.filename, 'zip', production.getDestination() + "/Data/Model/")
         if ".zip" in a:
             self.logger.info("already has .zip in upload filename")
         else:
