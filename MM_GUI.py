@@ -3,8 +3,8 @@ import win32gui, win32con
 This snippet hides the console in non compiled scripts. Done for aesthetics
 '''
 
-this_program = win32gui.GetForegroundWindow()
-win32gui.ShowWindow(this_program , win32con.SW_HIDE)
+#this_program = win32gui.GetForegroundWindow()
+#win32gui.ShowWindow(this_program , win32con.SW_HIDE)
 
 import random, psutil
 from datetime import datetime
@@ -126,7 +126,7 @@ class App(customtkinter.CTk):
         
     def __init__(self):
         super().__init__()
-        
+
         self.session_logger = session_logger
         self.iconbitmap(default = 'gui_images/ARTAK_103.ico')
         self.title("ARTAK Map Maker, by Eolian")
@@ -526,7 +526,8 @@ class App(customtkinter.CTk):
 
     def job_queue_monitor(self):
         while True:
-            que_dict = jobqueue_monitor_sample.main()
+        
+            que_dict = jobqueue_monitor_sample.main(self.jobQuePath)
             self.output_text3.delete("1.0", tk.END)
             for each_job in que_dict:
                 self.output_text3.insert(tk.END, str(each_job) + "\n")
@@ -706,7 +707,7 @@ class App(customtkinter.CTk):
             self.fourth_frame.grid_forget()
 
     def run_executable(self):
-        executable_path = "C:/Program Files/Bentley/ContextCapture/bin/CCEngine.exe"
+        executable_path = "C:/Program Files/Bentley/iTwin Capture Modeler/bin/iTwinCaptureModelerEngine.exe"
 
         def read_output():
             process = subprocess.Popen(executable_path, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -796,7 +797,6 @@ def button_click_event():
 if __name__ == "__main__":
     app = App()
     threading.Thread(target=app.sd_card_monitor).start()
-    threading.Thread(target=app.job_queue_monitor).start()
     threading.Thread(target=app.mm_project_monitor).start()
     threading.Thread(target=app.find_preprocessed_folders_with_obj).start()
     threading.Thread(target=app.display_activity_on_pc_recon).start()
