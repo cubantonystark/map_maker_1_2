@@ -492,7 +492,7 @@ class App(customtkinter.CTk):
                     os.remove(path + f)
             if map_type == "OBJ":
                 for each_folder in folder_name_list:
-                    file_count = len(os.listdir(path))
+                    file_count = len(os.listdir(os.getcwd() + "/ARTAK_MM/DATA/Raw_Images/UNZIPPED/" + each_folder))
                     logger = MM_logger.initialize_logger("MMProjectLog_" + each_folder)
                     if self.local_server_ip.get() != "":
                         artak_server = self.local_server_ip.get()
