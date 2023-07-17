@@ -430,11 +430,6 @@ class App(customtkinter.CTk):
         except:
             if mm_project.status == "Error":
                 print("Error processing 3D Map")
-        self.scrollable_label_button_frame.destroy()
-        self.scrollable_label_button_frame = ScrollableLabelButtonFrame(master=self, width=300,
-                                                                        command=self.label_button_frame_event,
-                                                                        corner_radius=0)
-        self.scrollable_label_button_frame.grid(row=0, column=2, padx=0, pady=0, sticky="nsew")
         self.on_project_completed(progress_bar=progress_bar, path=each_folder, mm_project=mm_project)
 
     def label_button_frame_event(self, item):
@@ -584,31 +579,30 @@ class App(customtkinter.CTk):
             directory = os.getcwd()+"/ARTAK_MM/POST/Photogrammetry"
             #previous_file_count = 0
             self.list_of_objs = []
-            if 1 == 1:
-                current_file_count = len(os.listdir(directory))
-                if current_file_count != previous_file_count:
+            current_file_count = len(os.listdir(directory))
+            if current_file_count != previous_file_count:
                     
-                    self.scrollable_label_button_frame.destroy()
-                    self.scrollable_label_button_frame = ScrollableLabelButtonFrame(master=self, width=300,
+                self.scrollable_label_button_frame.destroy()
+                self.scrollable_label_button_frame = ScrollableLabelButtonFrame(master=self, width=300,
                                                                                             command=self.label_button_frame_event,
                                                                                                 corner_radius=0)
-                    self.scrollable_label_button_frame.grid(row=0, column=2, padx=0, pady=0, sticky="nsew")    
+                self.scrollable_label_button_frame.grid(row=0, column=2, padx=0, pady=0, sticky="nsew")
                     
-                    for root, dirs, files in os.walk(directory):
-                        if "Model" in dirs:
-                            output_model_folder = os.path.join(root, "Model")
-                            obj_files = [file for file in os.listdir(output_model_folder) if file.endswith(".obj")]
-                            if obj_files:
-                                print(f"Found Preprocessed folder with OBJ file(s): {output_model_folder}")
-                                print("OBJ files:")
-                                for obj_file in obj_files:
-                                    print(os.path.join(output_model_folder, obj_file))
-                                self.list_of_objs.append(output_model_folder)
-                    for each_item in self.list_of_objs:  # add items with images
-                        self.scrollable_label_button_frame.add_item(file=each_item, button_command=each_item)               
-                    previous_file_count = current_file_count
+                for root, dirs, files in os.walk(directory):
+                   if "Model" in dirs:
+                        output_model_folder = os.path.join(root, "Model")
+                        obj_files = [file for file in os.listdir(output_model_folder) if file.endswith(".obj")]
+                        if obj_files:
+                            print(f"Found Preprocessed folder with OBJ file(s): {output_model_folder}")
+                            print("OBJ files:")
+                            for obj_file in obj_files:
+                                print(os.path.join(output_model_folder, obj_file))
+                            self.list_of_objs.append(output_model_folder)
+            for each_item in self.list_of_objs:  # add items with images
+                self.scrollable_label_button_frame.add_item(file=each_item, button_command=each_item)
+            previous_file_count = current_file_count
                     
-                time.sleep(5)
+            time.sleep(5)
 
     def open_obj(self, path):
         path = os.path.join(path+"/", "Model.obj")
@@ -657,13 +651,7 @@ class App(customtkinter.CTk):
     def on_change_name(self):
         print("on name change")
     def on_project_completed(self, progress_bar, path=None, mm_project=MapmakerProject(), ):
-        #threading.Thread(target=app.find_preprocessed_folders_with_obj).start()
         session_project_number = mm_project.session_project_number
-
-        # add progress bar
-        # progressbar_1 = customtkinter.CTkProgressBar(self.home_frame)
-        # progressbar_1.grid(row=len(self.list_of_projects)+9, column=4, padx=20, pady=10, sticky="ew")
-
         if mm_project.status == "Error":
             progress_bar.configure(mode="determinate", progress_color="red")
             progress_bar.set(1)
@@ -678,8 +666,7 @@ class App(customtkinter.CTk):
             progress_bar.configure(mode="determinate", progress_color="green")
             progress_bar.set(1)
             progress_bar.stop()
-    #        progressbar_1.destroy()
-
+        self.find_folders_with_obj()
     def process_sd_card(self, drive_letter, button):
         threading.Thread(target=self.process_files, kwargs=({'drive_letter': drive_letter})).start()
         button.destroy()  # Remove the button from the GUI after it has been clicked
