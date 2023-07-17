@@ -3,8 +3,8 @@ import win32gui, win32con
 This snippet hides the console in non compiled scripts. Done for aesthetics
 '''
 
-this_program = win32gui.GetForegroundWindow()
-win32gui.ShowWindow(this_program , win32con.SW_HIDE)
+#this_program = win32gui.GetForegroundWindow()
+#win32gui.ShowWindow(this_program , win32con.SW_HIDE)
 
 import random, psutil
 from datetime import datetime
@@ -348,8 +348,19 @@ class App(customtkinter.CTk):
         self.local_server_label = customtkinter.CTkLabel(self.fourth_frame, text="Local Server IP Address")
         self.local_server_ip = customtkinter.CTkEntry(self.fourth_frame, placeholder_text="http://192.168.10.200")
         self.local_server_label.grid(row=8, column=0, padx=20, pady=10, sticky="ew")
-        self.local_server_ip.grid(row=8, column=1, padx=20, pady=10, sticky="ew") 
-    
+        self.local_server_ip.grid(row=8, column=1, padx=20, pady=10, sticky="ew")
+
+        # todo fix delete button which currently doesnt have permission to delete
+        # self.delete_source_data = customtkinter.CTkButton(self.fourth_frame, text="Delete Input Data", command=self.delete_all_source_data, state="normal")
+        # self.delete_source_data.grid(row=9, column=1, padx=20, pady=10)
+
+    # not working right now because of permissions
+    # todo fix permissions
+    def delete_all_source_data(self):
+        dir = os.getcwd() + '/ARTAK_MM/DATA/Raw_Images/UNZIPPED'
+        for f in os.listdir(dir):
+            os.remove(os.path.join(dir, f))
+
     def add_radio_button_set(self, button_label, button_option1, button_option2):
         print ("WIP")
         
@@ -402,13 +413,16 @@ class App(customtkinter.CTk):
 
         if path:
             print(f"Selected Directory: {path}")
-            threading.Thread(target=self.print_sd_card_files, kwargs=({'folder_path': path})).start()
+            threading.Thread(target=self.process_files, kwargs=({'folder_path': path})).start()
 
     def check_project_status(self):
         status = self.job_queue_monitor()
         self.home_frame_text = status
 
     def trigger_photogrammetry(self, each_folder, logger, mm_project=MM_objects.MapmakerProject()):
+        session_project_number = mm_project.session_project_number
+        progress_bar = self.on_project_started(path=each_folder, mm_project=mm_project,
+                                               session_project_number=session_project_number)
         mm_project.manually_made_name = "ManualNameTest"
         a = MM_processing_photogrammetry.processing_photogrammetry(each_folder, logger=logger, mm_project=mm_project)
         a.do_photogrammetry()
@@ -417,7 +431,7 @@ class App(customtkinter.CTk):
                                                                         command=self.label_button_frame_event,
                                                                         corner_radius=0)
         self.scrollable_label_button_frame.grid(row=0, column=2, padx=0, pady=0, sticky="nsew")
-        self.on_project_completed(path=each_folder, mm_project=mm_project)
+        self.on_project_completed(progress_bar=progress_bar, path=each_folder, mm_project=mm_project)
 
     def label_button_frame_event(self, item):
         print(f"label button frame clicked: {item}")
@@ -456,7 +470,7 @@ class App(customtkinter.CTk):
             except:
                 print("Ignoring JSON File")
 
-    def print_sd_card_files(self, folder_path="", drive_letter=""):
+    def process_files(self, folder_path="", drive_letter=""):
 
         if drive_letter == "":
             path = folder_path
@@ -465,7 +479,7 @@ class App(customtkinter.CTk):
         try:
             files = get_image_files(path)
           #  threading.Thread(target=app.add_images_to_page, kwargs={"path":path}).start()
-            print(f"(Immage Files on {path}:")
+            print(f"(Image Files on {path}:")
             for file in files:
                 print(file)
             folder_name_list = MM_image_grouper.group_images(path, logger=self.session_logger)
@@ -484,10 +498,12 @@ class App(customtkinter.CTk):
                     logger = MM_logger.initialize_logger("MMProjectLog_" + each_folder)
                     if self.local_server_ip.get() != "":
                         artak_server = self.local_server_ip.get()
-                    new_project = MapmakerProject(name=each_folder, time_first_image=each_folder,
+                    session_project_number = len(self.list_of_projects)
+                    new_project = MapmakerProject(name=each_folder, time_first_image = each_folder,
                                                   time_mm_start=time.time(),
                                                   image_folder=each_folder, total_images=file_count, logger=logger,
-                                                  artak_server=artak_server)
+                                                  artak_server=artak_server,
+                                                  session_project_number=session_project_number)
 
                     self.list_of_projects.append(new_project)
                     print(new_project.as_dict())
@@ -495,17 +511,19 @@ class App(customtkinter.CTk):
                                      args=(each_folder, logger, new_project)).start()
 
                     # send the message that a project has been started
-                    self.on_project_started(path=path, mm_project=new_project)
-                    
+
             if map_type == "TILES":
                 
                 for each_folder in folder_name_list:
                     file_count = len(os.listdir(path))
                     logger = MM_logger.initialize_logger(each_folder)
+                    session_project_number = len(self.list_of_projects)
                     new_project = MapmakerProject(name=each_folder, time_first_image=each_folder,
                                                   time_mm_start=time.time(),
                                                   image_folder=each_folder, total_images=file_count, logger=logger,
-                                                  artak_server=artak_server)
+                                                  artak_server=artak_server,
+                                                  session_project_number=session_project_number
+                                                  )
                     self.list_of_projects.append(new_project)
                     print(new_project.as_dict())
                     threading.Thread(target=self.trigger_photogrammetry,
@@ -608,59 +626,52 @@ class App(customtkinter.CTk):
 
         self.process_sd_button.grid(row=7, column=1, padx=20, pady=10)
 
-    def on_project_started(self, path, mm_project=MapmakerProject()):
-        #path = "C:\ARTAK_MM\POST\Photogrammetry/2023-05-18_14-42-52993\Productions\Production_1\Data\Model\Preprocessed"
-        self.project2_label = customtkinter.CTkLabel(self.home_frame, text=mm_project.name)
 
-        self.project2_open_images_icon = customtkinter.CTkButton(self.home_frame,
+    def on_project_started(self, path, session_project_number, mm_project=MapmakerProject()):
+        project2_label = customtkinter.CTkLabel(self.home_frame, text=mm_project.name)
+        project2_open_images_icon = customtkinter.CTkButton(self.home_frame,
                                                                  text="View Images",
                                                                  command=lambda: threading.Thread(
                                                                      target=self.add_images_to_page,
                                                                      kwargs={"path": mm_project.name}).start())
-        self.project2_open_images_icon.grid(row=len(self.list_of_projects)+9, column=2, padx=20, pady=10)
-        self.project2_label.grid(row=len(self.list_of_projects)+9, column=0, padx=20, pady=10)
+        project2_open_images_icon.grid(row=session_project_number+9, column=2, padx=20, pady=10)
+        project2_label.grid(row=session_project_number+9, column=0, padx=20, pady=10)
         e1 = customtkinter.CTkEntry(self.home_frame)
-        e1.grid(row=len(self.list_of_projects)+9, column=1, padx=20, pady=10, sticky="ew")
-        # project3_edit_name = customtkinter.CTkButton(self.home_frame,
-        #                                                          text="Edit Name",
-        #                                                          command=lambda: threading.Thread(target=self.add_images_to_page, kwargs={"path":path}).start())
-        # project3_edit_name.grid(row=len(self.list_of_projects)+9, column=1, padx=20, pady=10)
-        # add progress bar
-        self.progressbar_1 = customtkinter.CTkProgressBar(self.home_frame)
-        self.progressbar_1.grid(row=len(self.list_of_projects)+9, column=4, padx=20, pady=10, sticky="ew")
+        e1.grid(row=session_project_number+9, column=1, padx=20, pady=10, sticky="ew")
+        progressbar_1 = customtkinter.CTkProgressBar(self.home_frame)
+        progressbar_1.grid(row=session_project_number+9, column=4, padx=20, pady=10, sticky="ew")
 
-        self.progressbar_1.configure(mode="determinate")
-        self.progressbar_1.set(0)
-        self.progressbar_1.start()
+        progressbar_1.configure(mode="determinate")
+        progressbar_1.set(0)
+        progressbar_1.start()
 
         threading.Thread(target=self.update_name_manually_loop, args=(e1, mm_project)).start()
-
+        return progressbar_1
     def update_name_manually_loop(self, input_field, mm_project):
         while True:
             mm_project.manually_made_name = input_field.get()
             time.sleep(5)
     def on_change_name(self):
         print("on name change")
-    def on_project_completed(self, path=None, mm_project=MapmakerProject()):
-        #path = "C:\ARTAK_MM\POST\Photogrammetry/2023-05-18_14-42-52993\Productions\Production_1\Data\Model\Preprocessed"
+    def on_project_completed(self, progress_bar, path=None, mm_project=MapmakerProject(), ):
         #threading.Thread(target=app.find_preprocessed_folders_with_obj).start()
-
+        session_project_number = mm_project.session_project_number
         project2_open_map_icon = customtkinter.CTkButton(self.home_frame,
                                                                  text="Open Map",
                                                                  command=lambda: threading.Thread(target=self.open_obj, kwargs={"path":path}).start())
-        project2_open_map_icon.grid(row=len(self.list_of_projects)+9, column=3, padx=20, pady=10)
+        project2_open_map_icon.grid(row=session_project_number+9, column=3, padx=20, pady=10)
 
         # add progress bar
-        progressbar_1 = customtkinter.CTkProgressBar(self.home_frame)
-        progressbar_1.grid(row=len(self.list_of_projects)+9, column=4, padx=20, pady=10, sticky="ew")
+        # progressbar_1 = customtkinter.CTkProgressBar(self.home_frame)
+        # progressbar_1.grid(row=len(self.list_of_projects)+9, column=4, padx=20, pady=10, sticky="ew")
 
-        progressbar_1.configure(mode="determinate", progress_color="green")
-        progressbar_1.set(1)
-        progressbar_1.stop()
+        progress_bar.configure(mode="determinate", progress_color="green")
+        progress_bar.set(1)
+        progress_bar.stop()
 #        progressbar_1.destroy()
 
     def process_sd_card(self, drive_letter, button):
-        threading.Thread(target=self.print_sd_card_files, kwargs=({'drive_letter': drive_letter})).start()
+        threading.Thread(target=self.process_files, kwargs=({'drive_letter': drive_letter})).start()
         button.destroy()  # Remove the button from the GUI after it has been clicked
 
     def sd_card_monitor(self):
@@ -706,7 +717,7 @@ class App(customtkinter.CTk):
             self.fourth_frame.grid_forget()
 
     def run_executable(self):
-        executable_path = "C:/Program Files/Bentley/ContextCapture/bin/CCEngine.exe"
+        executable_path = "C:/Program Files/Bentley/iTwin Capture Modeler/bin/iTwinCaptureModelerEngine.exe"
 
         def read_output():
             process = subprocess.Popen(executable_path, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -737,6 +748,16 @@ class App(customtkinter.CTk):
 
     def change_appearance_mode_event(self, new_appearance_mode):
         customtkinter.set_appearance_mode(new_appearance_mode)
+
+
+class StatusObject:
+
+    def __init__(self, label, image_icon, name_entry_field, progress_bar):
+        self.label = label
+        self.image_icon = image_icon
+        self.name_entry_field = name_entry_field
+        self.progress_bar = progress_bar
+
 
 
 class TextRedirector:
@@ -795,8 +816,8 @@ def button_click_event():
 
 if __name__ == "__main__":
     app = App()
-    threading.Thread(target=app.sd_card_monitor).start()
-    threading.Thread(target=app.job_queue_monitor).start()
+    # threading.Thread(target=app.sd_card_monitor).start()
+    #threading.Thread(target=app.job_queue_monitor).start()
     threading.Thread(target=app.mm_project_monitor).start()
     threading.Thread(target=app.find_preprocessed_folders_with_obj).start()
     threading.Thread(target=app.display_activity_on_pc_recon).start()

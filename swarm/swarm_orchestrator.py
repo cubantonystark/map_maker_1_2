@@ -231,7 +231,7 @@ def setup_demo():
     # Example Usage
     # create drone object for each drone
     #new_drone1 = Drone("ANAFI-G058795", "", "J", network_interface="Wi-Fi 4")
-    new_drone2 = Drone("ANAFI-W", "", "W", network_interface="Wi-Fi 3")
+    new_drone2 = Drone("ANAFI-W", "", "W", network_interface="Wi-Fi 12")
     new_drone3 = Drone("ANAFI-Q", "", "Q", network_interface="Wi-Fi 18")
     new_drone4 = Drone("ANAFI-X", "", "X", network_interface="Wi-Fi")
     new_drone5 = Drone("ANAFI-T", "", "T", network_interface="Wi-Fi 10")
@@ -249,7 +249,7 @@ def setup_demo():
 
     # create list of ground control stations
     #new_gcs1 = GroundControlStation("192.168.86.132")6
-    new_gcs2 = GroundControlStation("192.168.86.138")
+    new_gcs2 = GroundControlStation("192.168.52.129")
     new_gcs3 = GroundControlStation("192.168.86.134")
     new_gcs4 = GroundControlStation("192.168.86.131")
     new_gcs5 = GroundControlStation("192.168.86.135")

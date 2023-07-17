@@ -2,7 +2,7 @@ class MapmakerProject:
     def __init__(self, name=None, time_first_image=None, time_mm_start=None, time_processing_start=None,
                  time_processing_complete=None, time_accepted_by_artak=None, total_images=None, image_folder=None,
                  processed_zip_path=None, status=None, logger=None, artak_server=None, manually_made_name=None,
-                 manually_made_name_field=None, local_image_folder=None):
+                 manually_made_name_field=None, local_image_folder=None, session_project_number=None):
         self.name = name
         self.time_first_image = time_first_image
         self.time_mm_start = time_mm_start
@@ -18,6 +18,7 @@ class MapmakerProject:
         self.manually_made_name = manually_made_name
         self.manually_made_field = manually_made_name_field
         self.local_image_folder = local_image_folder
+        self.session_project_number = session_project_number
 
     def as_dict(self):
         return vars(self)

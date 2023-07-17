@@ -4,7 +4,7 @@ import swarm_orchestrator
 import MM_swarm_control_interface_methods
 from flask import jsonify
 from flask_cors import CORS, cross_origin
-from swarm.my_location import get_my_position
+from my_location import get_my_position
 import requests
 from flask import request
 import geo_math

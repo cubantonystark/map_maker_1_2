@@ -16,8 +16,9 @@ import os
 import time
 import itwincapturemodeler
 
+
 # Note: replace paths with your references, or install SDK sample data in C:/CC_SDK_DATA
-jobQueuePath = 'C:/Users/escam/Documents/Bentley/ContextCapture Desktop/Jobs'
+jobQueuePath = "C:/Program Files/Bentley/iTwin Capture Modeler/bin/iTwinCaptureModelerEngine.exe"
 
 ccmasterkernel = itwincapturemodeler
 def main():
