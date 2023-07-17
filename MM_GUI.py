@@ -625,7 +625,6 @@ class App(customtkinter.CTk):
 
         self.process_sd_button.grid(row=7, column=1, padx=20, pady=10)
 
-
     def on_project_started(self, path, session_project_number, mm_project=MapmakerProject()):
         project2_label = customtkinter.CTkLabel(self.home_frame, text=mm_project.name)
         project2_open_images_icon = customtkinter.CTkButton(self.home_frame,
@@ -646,13 +645,16 @@ class App(customtkinter.CTk):
 
         threading.Thread(target=self.update_name_manually_loop, args=(e1, mm_project)).start()
         return progressbar_1
+
     def update_name_manually_loop(self, input_field, mm_project):
         while True:
             mm_project.manually_made_name = input_field.get()
             time.sleep(5)
+
     def on_change_name(self):
         print("on name change")
-    def on_project_completed(self, progress_bar, path=None, mm_project=MapmakerProject(), ):
+
+    def on_project_completed(self, progress_bar, path=None, mm_project=MapmakerProject()):
         session_project_number = mm_project.session_project_number
         if mm_project.status == "Error":
             progress_bar.configure(mode="determinate", progress_color="red")
