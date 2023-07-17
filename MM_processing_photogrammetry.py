@@ -181,10 +181,15 @@ class processing_photogrammetry():
         if not block.isReadyForAT():
             if block.reachedLicenseLimit():
                 self.logger.info('Error: Block size exceeds license capabilities.')
+                self.mm_project.status = "Error"
             if block.getPhotogroups().getNumPhotos() < 3:
                 self.logger.info('Error: Insufficient number of photos.')
+                self.mm_project.status = "Error"
+
             else:
                 self.logger.info('Error: Missing focal lengths and sensor sizes.')
+                self.mm_project.status = "Error"
+
             sys.exit(0)
 
         # --------------------------------------------------------------------
@@ -211,11 +216,15 @@ class processing_photogrammetry():
 
         if not blockAT.getAT().setSettings(at_settings):
             self.logger.info("Error: Failed to set settings for aerotriangulation")
+            self.mm_project.status = "Error"
+
             sys.exit(0)
         atSubmitError = blockAT.getAT().submitProcessing()
 
         if not atSubmitError.isNone():
             self.logger.info('Error: Failed to submit aerotriangulation.')
+            self.mm_project.status = "Error"
+
             self.logger.info(atSubmitError.message)
             sys.exit(0)
 
@@ -246,6 +255,7 @@ class processing_photogrammetry():
 
         if jobStatus != ccmasterkernel.JobStatus.Job_completed:
             self.logger.info('"Error: Incomplete aerotriangulation.')
+            self.mm_project.status = "Error"
 
             if blockAT.getAT().getJobMessage() != '':
                 print(blockAT.getAT().getJobMessage())
@@ -255,15 +265,18 @@ class processing_photogrammetry():
         if not blockAT.canGenerateQualityReport():
             self.logger.info("Error: BlockAT can't generate Quality report")
             sys.exit(0)
+            self.mm_project.status = "Error"
 
         if not blockAT.generateQualityReport(True):
             self.logger.info("Error: failed to generate Quality report")
+            self.mm_project.status = "Error"
             sys.exit(0)
 
        # self.logger.info("AT report available at", blockAT.getQualityReportPath())
 
         if not blockAT.isReadyForReconstruction():
             self.logger.info('Error: Incomplete photos. Cannot create reconstruction.')
+            self.mm_project.status = "Error"
             sys.exit(0)
 
         self.logger.info('Ready for reconstruction.')
@@ -284,6 +297,7 @@ class processing_photogrammetry():
 
         if reconstruction.getNumInternalTiles() == 0:
             self.logger.info('Error: Failed to create reconstruction layout.')
+            self.mm_project.status = "Error"
             sys.exit(0)
 
         self.logger.info('Reconstruction item created.')
@@ -325,6 +339,7 @@ class processing_photogrammetry():
 
         if not productionSubmitError.isNone():
             self.logger.info('Error: Failed to submit production.')
+            self.mm_project.status = "Error"
             self.logger.info(productionSubmitError.message)
             sys.exit(0)
 
@@ -355,7 +370,7 @@ class processing_photogrammetry():
 
         if jobStatus != ccmasterkernel.JobStatus.Job_completed:
             self.logger.info('"Error: Incomplete production.')
-
+            self.mm_project.status = "Error"
             if production.getJobMessage() != '':
                 self.logger.info(production.getJobMessage())
 
@@ -446,10 +461,12 @@ class processing_photogrammetry():
                 if response.status_code == 200:
                     self.mm_project.time_accepted_by_artak = time.time()
                     self.mm_project.status = "Complete"
+                else:
+                    self.mm_project.status = "Error"
                 self.logger.info(self.mm_project)
             except:
                 self.logger.info("Uncaught exception attempting to upload file. File = " + str(a) + "URL = " + self.artak_server)
-
+        return self.mm_project.status
 #supload("C:/ARTAK_MM/POST/Photogrammetry/Ztest5.zip388\Productions\Production_1/Data/Model/Preprocessed" + "/" + "Ztest5.zip" + ".zip")
 #upload("C:/ARTAK_MM/POST/Photogrammetry/2023-06-13_18-26-02921/Productions/Production_1/Data/Model/2023-06-13_18-2.zip")
 ##a = processing_photogrammetry('Ztest.zip', MM__logger.initialize_logger())

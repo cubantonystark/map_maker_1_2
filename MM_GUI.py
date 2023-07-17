@@ -424,8 +424,12 @@ class App(customtkinter.CTk):
         progress_bar = self.on_project_started(path=each_folder, mm_project=mm_project,
                                                session_project_number=session_project_number)
         mm_project.manually_made_name = "ManualNameTest"
-        a = MM_processing_photogrammetry.processing_photogrammetry(each_folder, logger=logger, mm_project=mm_project)
-        a.do_photogrammetry()
+        try:
+            a = MM_processing_photogrammetry.processing_photogrammetry(each_folder, logger=logger, mm_project=mm_project)
+            status = a.do_photogrammetry()
+        except:
+            if mm_project.status == "Error":
+                print("Error processing 3D Map")
         self.scrollable_label_button_frame.destroy()
         self.scrollable_label_button_frame = ScrollableLabelButtonFrame(master=self, width=300,
                                                                         command=self.label_button_frame_event,
@@ -478,7 +482,6 @@ class App(customtkinter.CTk):
             path = drive_letter + ":\\"
         try:
             files = get_image_files(path)
-          #  threading.Thread(target=app.add_images_to_page, kwargs={"path":path}).start()
             print(f"(Image Files on {path}:")
             for file in files:
                 print(file)
@@ -572,7 +575,7 @@ class App(customtkinter.CTk):
                 count += 1
             time.sleep(5)
 
-    def find_preprocessed_folders_with_obj(self):
+    def find_folders_with_obj(self):
         
         previous_file_count = 0
         
@@ -592,15 +595,15 @@ class App(customtkinter.CTk):
                     self.scrollable_label_button_frame.grid(row=0, column=2, padx=0, pady=0, sticky="nsew")    
                     
                     for root, dirs, files in os.walk(directory):
-                        if "Preprocessed" in dirs:
-                            preprocessed_folder = os.path.join(root, "Preprocessed")
-                            obj_files = [file for file in os.listdir(preprocessed_folder) if file.endswith(".obj")]
+                        if "Model" in dirs:
+                            output_model_folder = os.path.join(root, "Model")
+                            obj_files = [file for file in os.listdir(output_model_folder) if file.endswith(".obj")]
                             if obj_files:
-                                print(f"Found Preprocessed folder with OBJ file(s): {preprocessed_folder}")
+                                print(f"Found Preprocessed folder with OBJ file(s): {output_model_folder}")
                                 print("OBJ files:")
                                 for obj_file in obj_files:
-                                    print(os.path.join(preprocessed_folder, obj_file))
-                                self.list_of_objs.append(preprocessed_folder)
+                                    print(os.path.join(output_model_folder, obj_file))
+                                self.list_of_objs.append(output_model_folder)
                     for each_item in self.list_of_objs:  # add items with images
                         self.scrollable_label_button_frame.add_item(file=each_item, button_command=each_item)               
                     previous_file_count = current_file_count
@@ -656,19 +659,26 @@ class App(customtkinter.CTk):
     def on_project_completed(self, progress_bar, path=None, mm_project=MapmakerProject(), ):
         #threading.Thread(target=app.find_preprocessed_folders_with_obj).start()
         session_project_number = mm_project.session_project_number
-        project2_open_map_icon = customtkinter.CTkButton(self.home_frame,
-                                                                 text="Open Map",
-                                                                 command=lambda: threading.Thread(target=self.open_obj, kwargs={"path":path}).start())
-        project2_open_map_icon.grid(row=session_project_number+9, column=3, padx=20, pady=10)
 
         # add progress bar
         # progressbar_1 = customtkinter.CTkProgressBar(self.home_frame)
         # progressbar_1.grid(row=len(self.list_of_projects)+9, column=4, padx=20, pady=10, sticky="ew")
 
-        progress_bar.configure(mode="determinate", progress_color="green")
-        progress_bar.set(1)
-        progress_bar.stop()
-#        progressbar_1.destroy()
+        if mm_project.status == "Error":
+            progress_bar.configure(mode="determinate", progress_color="red")
+            progress_bar.set(1)
+            progress_bar.stop()
+        else:
+            project2_open_map_icon = customtkinter.CTkButton(self.home_frame,
+                                                             text="Open Map",
+                                                             command=lambda: threading.Thread(target=self.open_obj,
+                                                                                              kwargs={
+                                                                                                  "path": path}).start())
+            project2_open_map_icon.grid(row=session_project_number + 9, column=3, padx=20, pady=10)
+            progress_bar.configure(mode="determinate", progress_color="green")
+            progress_bar.set(1)
+            progress_bar.stop()
+    #        progressbar_1.destroy()
 
     def process_sd_card(self, drive_letter, button):
         threading.Thread(target=self.process_files, kwargs=({'drive_letter': drive_letter})).start()
@@ -817,9 +827,9 @@ def button_click_event():
 if __name__ == "__main__":
     app = App()
     # threading.Thread(target=app.sd_card_monitor).start()
-    #threading.Thread(target=app.job_queue_monitor).start()
+    threading.Thread(target=app.job_queue_monitor).start()
     threading.Thread(target=app.mm_project_monitor).start()
-    threading.Thread(target=app.find_preprocessed_folders_with_obj).start()
+    threading.Thread(target=app.find_folders_with_obj).start()
     threading.Thread(target=app.display_activity_on_pc_recon).start()
     app.run_executable()
     app.mainloop()
