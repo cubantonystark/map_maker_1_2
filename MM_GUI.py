@@ -449,14 +449,16 @@ class App(customtkinter.CTk):
             pass
 
     def add_images_to_page(self, path=None):
+        self.frame_3_button_event()
         image_path = os.path.join(os.getcwd()+'/ARTAK_MM/DATA/Raw_Images/UNZIPPED/', path)
         images = os.listdir(image_path)
         row = 0
         column = 0
         number_of_columns = 3
-        self.third_frame.destroy()
-        self.third_frame = customtkinter.CTkScrollableFrame(self, corner_radius=0, fg_color="transparent")
-
+     #   self.third_frame.
+       # self.third_frame = customtkinter.CTkScrollableFrame(self, corner_radius=0, fg_color="transparent")
+        for widget in self.third_frame.winfo_children():
+            widget.destroy()
         for each_image in images:
             try:
                 image_payload = customtkinter.CTkImage(Image.open(os.path.join(image_path, each_image)), size=(300,255))
