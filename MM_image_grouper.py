@@ -29,7 +29,9 @@ def sort_files_by_datetime(file_list):
     return file_list
 
 def group_images(source, logger=MM_logger.initialize_logger("GroupImagesLogUNNAMED"), image_spacing=60):
-    
+
+    if image_spacing == "":
+        image_spacing = 60
     # Define the path to the source folder containing the photos
     file_list = get_image_files(source)
     # Define the path to the destination folder where the photos will be moved
