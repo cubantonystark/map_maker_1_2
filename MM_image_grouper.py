@@ -6,7 +6,6 @@ import json
 import random
 import MM_logger
 # Set the time interval (in seconds) between photos
-time_interval = 60
 
 
 def get_image_files(folder):
@@ -29,7 +28,7 @@ def sort_files_by_datetime(file_list):
     file_list.sort(key=lambda x: Image.open(x)._getexif().get(36867))
     return file_list
 
-def group_images(source, logger=MM_logger.initialize_logger("GroupImagesLogUNNAMED")):
+def group_images(source, logger=MM_logger.initialize_logger("GroupImagesLogUNNAMED"), image_spacing=60):
     
     # Define the path to the source folder containing the photos
     file_list = get_image_files(source)
@@ -56,7 +55,7 @@ def group_images(source, logger=MM_logger.initialize_logger("GroupImagesLogUNNAM
 
     # Sort the files by creation time from the EXIF data
     file_list = sort_files_by_datetime(file_list)
-
+    image_spacing = int(image_spacing)
     # Create a list of lists containing the file names of photos taken within the time interval
     grouped_files = []
     for i in range(len(file_list)):
@@ -65,7 +64,7 @@ def group_images(source, logger=MM_logger.initialize_logger("GroupImagesLogUNNAM
         else:
             prev_time = datetime.strptime(Image.open(os.path.join(file_list[i-1]))._getexif()[36867], '%Y:%m:%d %H:%M:%S')
             curr_time = datetime.strptime(Image.open(os.path.join(file_list[i]))._getexif()[36867], '%Y:%m:%d %H:%M:%S')
-            if (curr_time - prev_time).total_seconds() <= time_interval:
+            if (curr_time - prev_time).total_seconds() <= image_spacing:
                 grouped_files[-1].append(file_list[i])
             else:
                 grouped_files.append([file_list[i]])

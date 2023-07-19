@@ -203,6 +203,7 @@ class App(customtkinter.CTk):
         self.home_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.home_frame.grid_columnconfigure(0, weight=1)
 
+
         self.home_frame_large_image_label = customtkinter.CTkLabel(self.home_frame, text="",
                                                                     image=self.large_test_image)
         # self.home_frame_large_image_label.grid(row=0, column=0, padx=20, pady=10)
@@ -350,6 +351,11 @@ class App(customtkinter.CTk):
         self.local_server_label.grid(row=8, column=0, padx=20, pady=10, sticky="ew")
         self.local_server_ip.grid(row=8, column=1, padx=20, pady=10, sticky="ew")
 
+        self.time_between_images = customtkinter.CTkLabel(self.fourth_frame, text="Max time between image groups")
+        self.time_between_images_value = customtkinter.CTkEntry(self.fourth_frame, placeholder_text="60")
+        self.time_between_images.grid(row=9, column=0, padx=20, pady=10, sticky="ew")
+        self.time_between_images_value.grid(row=9, column=1, padx=20, pady=10, sticky="ew")
+
         # todo fix delete button which currently doesnt have permission to delete
         # self.delete_source_data = customtkinter.CTkButton(self.fourth_frame, text="Delete Input Data", command=self.delete_all_source_data, state="normal")
         # self.delete_source_data.grid(row=9, column=1, padx=20, pady=10)
@@ -421,6 +427,7 @@ class App(customtkinter.CTk):
 
     def trigger_photogrammetry(self, each_folder, logger, mm_project=MM_objects.MapmakerProject()):
         session_project_number = mm_project.session_project_number
+        mm_project.local_image_folder = os.getcwd() + "/ARTAK_MM/DATA/Raw_Images/UNZIPPED/" + each_folder
         progress_bar = self.on_project_started(path=each_folder, mm_project=mm_project,
                                                session_project_number=session_project_number)
         mm_project.manually_made_name = "ManualNameTest"
@@ -482,7 +489,8 @@ class App(customtkinter.CTk):
             print(f"(Image Files on {path}:")
             for file in files:
                 print(file)
-            folder_name_list = MM_image_grouper.group_images(path, logger=self.session_logger)
+            image_spacing = self.time_between_images_value.get()
+            folder_name_list = MM_image_grouper.group_images(path, logger=self.session_logger, image_spacing=image_spacing)
             print("Folder name list: " + str(folder_name_list))
             map_type = self.radio_var1.get()
             delete_after = self.radio_var2.get()
@@ -626,6 +634,7 @@ class App(customtkinter.CTk):
         self.process_sd_button.grid(row=7, column=1, padx=20, pady=10)
 
     def on_project_started(self, path, session_project_number, mm_project=MapmakerProject()):
+        mm_project.status = "Processing"
         project2_label = customtkinter.CTkLabel(self.home_frame, text=mm_project.name)
         project2_open_images_icon = customtkinter.CTkButton(self.home_frame,
                                                                  text="View Images",

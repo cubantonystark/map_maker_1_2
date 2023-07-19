@@ -159,8 +159,8 @@ class processing_photogrammetry():
             for photo_i in photogroups.getPhotogroup(i_pg).getPhotoArray():
                 self.logger.info('image: %s' % photo_i.imageFilePath)
             print('')
-          #  photogroups.getPhotogroup(i_pg).cameraModelBand = ccmasterkernel.CameraModelBand.CameraModelBand_visible
-          #  photogroups.getPhotogroup(i_pg).CameraModelType = ccmasterkernel.CameraModelType.CameraModelType_perspective
+        photogroups.getPhotogroup(i_pg).cameraModelBand = ccmasterkernel.CameraModelBand.CameraModelBand_visible
+        photogroups.getPhotogroup(i_pg).CameraModelType = ccmasterkernel.CameraModelType.CameraModelType_perspective
 
            #  photogroups.getPhotogroup(i_pg).focalLength_mm = float(3.77202)
            #  photogroups.getPhotogroup(i_pg).focalLength35mm = float(22.938)
