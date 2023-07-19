@@ -159,8 +159,9 @@ class processing_photogrammetry():
             for photo_i in photogroups.getPhotogroup(i_pg).getPhotoArray():
                 self.logger.info('image: %s' % photo_i.imageFilePath)
             print('')
-        photogroups.getPhotogroup(i_pg).cameraModelBand = ccmasterkernel.CameraModelBand.CameraModelBand_visible
-        photogroups.getPhotogroup(i_pg).CameraModelType = ccmasterkernel.CameraModelType.CameraModelType_perspective
+        if photogroups.getPhotogroup(i_pg).cameraModelBand == ccmasterkernel.CameraModelBand.CameraModelBand_thermal:
+            photogroups.getPhotogroup(i_pg).cameraModelBand = ccmasterkernel.CameraModelBand.CameraModelBand_visible
+            photogroups.getPhotogroup(i_pg).CameraModelType = ccmasterkernel.CameraModelType.CameraModelType_perspective
 
            #  photogroups.getPhotogroup(i_pg).focalLength_mm = float(3.77202)
            #  photogroups.getPhotogroup(i_pg).focalLength35mm = float(22.938)
@@ -421,6 +422,7 @@ class processing_photogrammetry():
         # # save the MeshSet object to the output file
      #   ms.save_current_mesh(output_file)
         inp_folder = production.getDestination() + "/Data/"
+        self.mm_project.completed_file_path = os.path.join(inp_folder, "Model/Model.obj")
         #shutil.copytree(inp_folder, output_folder + "/")
         # print a message when the process is complete
         self.logger.info("Output file saved to:" + output_file)

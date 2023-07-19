@@ -619,6 +619,10 @@ class App(customtkinter.CTk):
         print ("opening obj" + path)
         subprocess.Popen(['start', ' ', path], shell=True)
 
+    def open_obj_new(self, path):
+        print ("opening obj" + path)
+        subprocess.Popen(['start', ' ', path], shell=True)
+
     def on_sd_card_insertion(self, event):
         global sd_drive
         # create a button to process the drive's images
@@ -664,6 +668,7 @@ class App(customtkinter.CTk):
         print("on name change")
 
     def on_project_completed(self, progress_bar, path=None, mm_project=MapmakerProject()):
+        path = mm_project.completed_file_path
         session_project_number = mm_project.session_project_number
         if mm_project.status == "Error":
             progress_bar.configure(mode="determinate", progress_color="red")
@@ -672,7 +677,7 @@ class App(customtkinter.CTk):
         else:
             project2_open_map_icon = customtkinter.CTkButton(self.home_frame,
                                                              text="Open Map",
-                                                             command=lambda: threading.Thread(target=self.open_obj,
+                                                             command=lambda: threading.Thread(target=self.open_obj_new,
                                                                                               kwargs={
                                                                                                   "path": path}).start())
             project2_open_map_icon.grid(row=session_project_number + 9, column=3, padx=20, pady=10)
