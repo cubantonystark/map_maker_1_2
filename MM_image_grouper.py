@@ -28,7 +28,7 @@ def sort_files_by_datetime(file_list):
     file_list.sort(key=lambda x: Image.open(x)._getexif().get(36867))
     return file_list
 
-def group_images(source, logger=MM_logger.initialize_logger("GroupImagesLogUNNAMED"), image_spacing=60):
+def group_images(source, logger=None, image_spacing=60):
 
     if image_spacing == "":
         image_spacing = 60

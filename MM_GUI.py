@@ -70,6 +70,7 @@ session_id = r.randint(1, 10000000)
 session_logger = MM_logger.initialize_logger("SessionLog" + str(session_id))
 print = session_logger.info
 
+
 class SdCardInsertionEvent(tk.Event):
     def __init__(self, drive_letter):
         super().__init__()
@@ -359,7 +360,7 @@ class App(customtkinter.CTk):
         # todo fix delete button which currently doesnt have permission to delete
         # self.delete_source_data = customtkinter.CTkButton(self.fourth_frame, text="Delete Input Data", command=self.delete_all_source_data, state="normal")
         # self.delete_source_data.grid(row=9, column=1, padx=20, pady=10)
-
+        session_logger.info("App Startup Complete")
     # not working right now because of permissions
     # todo fix permissions
     def delete_all_source_data(self):
@@ -774,18 +775,6 @@ class StatusObject:
         self.progress_bar = progress_bar
 
 
-
-class TextRedirector:
-    def __init__(self, widget, tag="stdout"):
-        self.widget = widget
-        self.tag = tag
-
-    def write(self, str):
-        self.widget.insert(tk.END, str, (self.tag,))
-        self.widget.see(tk.END)
-
-    def flush(self):
-        pass
 
 
 def detect_sd_card():

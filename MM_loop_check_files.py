@@ -1,3 +1,10 @@
+## Script looks for a zip file in the /new folder
+## unzips file and begins the group/process pipeline
+## usage: API gets zip file from HTTP and places it in the /new folder, then this script handles it
+
+# todo confirm this works with updated scripts
+
+
 import os
 import random
 import subprocess
