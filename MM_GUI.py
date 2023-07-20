@@ -54,6 +54,7 @@ import tkinter as tk
 import jobqueue_monitor_sample
 from tkhtmlview import HTMLLabel
 from pathlib import Path
+import playsound
 
 customtkinter.set_appearance_mode("Dark")  # Modes: system (default), light, dark
 customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
@@ -76,6 +77,17 @@ class SdCardInsertionEvent(tk.Event):
         super().__init__()
         self.drive_letter = drive_letter
 
+def play_sound_processing_error():
+    playsound.playsound(os.path.join(os.getcwd(), "error.wav"))
+    print ("playing sound: completed ")
+
+def play_sound_processing_complete():
+    print (os.getcwd())
+    playsound.playsound(os.path.join(os.getcwd(), "completed.wav"))
+    print ("playing sound: completed ")
+def play_sound_processing_started():
+    playsound.playsound(os.path.join(os.getcwd(), "apocalypse_mission.wav"))
+    print ("playing sound: started ")
 
 class ScrollableLabelButtonFrame(customtkinter.CTkScrollableFrame):
     def __init__(self, master, command=None, **kwargs):
@@ -358,15 +370,15 @@ class App(customtkinter.CTk):
         self.time_between_images_value.grid(row=9, column=1, padx=20, pady=10, sticky="ew")
 
         # todo fix delete button which currently doesnt have permission to delete
-        # self.delete_source_data = customtkinter.CTkButton(self.fourth_frame, text="Delete Input Data", command=self.delete_all_source_data, state="normal")
-        # self.delete_source_data.grid(row=9, column=1, padx=20, pady=10)
+        self.delete_source_data = customtkinter.CTkButton(self.fourth_frame, text="Delete Input Data", command=self.delete_all_source_data, state="normal")
+        self.delete_source_data.grid(row=11, column=1, padx=20, pady=10)
         session_logger.info("App Startup Complete")
     # not working right now because of permissions
     # todo fix permissions
     def delete_all_source_data(self):
-        dir = os.getcwd() + '/ARTAK_MM/DATA/Raw_Images/UNZIPPED'
-        for f in os.listdir(dir):
-            os.remove(os.path.join(dir, f))
+        directory = os.path.join(os.getcwd(), 'ARTAK_MM/DATA/Raw_Images/UNZIPPED')
+        for f in os.listdir(directory):
+            os.remove(os.path.join(directory, f))
 
     def add_radio_button_set(self, button_label, button_option1, button_option2):
         print ("WIP")
@@ -438,6 +450,7 @@ class App(customtkinter.CTk):
         except:
             if mm_project.status == "Error":
                 print("Error processing 3D Map")
+                play_sound_processing_complete()
         self.on_project_completed(progress_bar=progress_bar, path=each_folder, mm_project=mm_project)
 
     def label_button_frame_event(self, item):
@@ -592,13 +605,6 @@ class App(customtkinter.CTk):
             self.list_of_objs = []
             current_file_count = len(os.listdir(directory))
             if current_file_count != previous_file_count:
-                    
-                self.scrollable_label_button_frame.destroy()
-                self.scrollable_label_button_frame = ScrollableLabelButtonFrame(master=self, width=300,
-                                                                                            command=self.label_button_frame_event,
-                                                                                                corner_radius=0)
-                self.scrollable_label_button_frame.grid(row=0, column=2, padx=0, pady=0, sticky="nsew")
-                    
                 for root, dirs, files in os.walk(directory):
                    if "Model" in dirs:
                         output_model_folder = os.path.join(root, "Model")
@@ -609,10 +615,15 @@ class App(customtkinter.CTk):
                             for obj_file in obj_files:
                                 print(os.path.join(output_model_folder, obj_file))
                             self.list_of_objs.append(output_model_folder)
-            for each_item in self.list_of_objs:  # add items with images
-                self.scrollable_label_button_frame.add_item(file=each_item, button_command=each_item)
-            previous_file_count = current_file_count
-                    
+                if len(self.list_of_objs) != int(previous_file_count):
+                    self.scrollable_label_button_frame.destroy()
+                    self.scrollable_label_button_frame = ScrollableLabelButtonFrame(master=self, width=300,
+                                                                                    command=self.label_button_frame_event,
+                                                                                    corner_radius=0)
+                    self.scrollable_label_button_frame.grid(row=0, column=2, padx=0, pady=0, sticky="nsew")
+                    for each_item in self.list_of_objs:  # add items with images
+                        self.scrollable_label_button_frame.add_item(file=each_item, button_command=each_item)
+                    previous_file_count = current_file_count
             time.sleep(5)
 
     def open_obj(self, path):
@@ -669,6 +680,7 @@ class App(customtkinter.CTk):
         print("on name change")
 
     def on_project_completed(self, progress_bar, path=None, mm_project=MapmakerProject()):
+        play_sound_processing_complete()
         path = mm_project.completed_file_path
         session_project_number = mm_project.session_project_number
         if mm_project.status == "Error":
@@ -685,7 +697,8 @@ class App(customtkinter.CTk):
             progress_bar.configure(mode="determinate", progress_color="green")
             progress_bar.set(1)
             progress_bar.stop()
-        self.find_folders_with_obj()
+        # self.find_folders_with_obj()
+
     def process_sd_card(self, drive_letter, button):
         threading.Thread(target=self.process_files, kwargs=({'drive_letter': drive_letter})).start()
         button.destroy()  # Remove the button from the GUI after it has been clicked
