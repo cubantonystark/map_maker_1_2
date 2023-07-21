@@ -311,7 +311,14 @@ class App(customtkinter.CTk):
         self.browse_label_pc.grid(row=8, column=0, padx=20, pady=10)
 
         self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.gen_pc, state = "normal")
-        self.browse_button_pc.grid(row=8, column=1, padx=20, pady=10)  
+        self.browse_button_pc.grid(row=8, column=1, padx=20, pady=10)
+
+        self.browse_label_nr = customtkinter.CTkLabel(self.home_frame, text="Neural Rendering")
+        self.browse_label_nr.grid(row=10, column=0, padx=20, pady=10)
+
+        self.browse_button_nr = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.gen_pc,
+                                                        state="normal")
+        self.browse_button_nr.grid(row=10, column=1, padx=20, pady=10)
         
         # create second frame
         self.second_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")

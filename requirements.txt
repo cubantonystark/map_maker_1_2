@@ -7,4 +7,7 @@ pymeshlab
 open3d
 utm
 open3d
-utm
+playsound
+nerfstudio
+torch==2.0.1+cu118 torchvision==0.15.2+cu118 --extra-index-url https://download.pytorch.org/whl/cu118
+ninja git+https://github.com/NVlabs/tiny-cuda-nn/#subdirectory=bindings/torch
