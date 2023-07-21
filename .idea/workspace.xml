@@ -4,8 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="added utm again test">
-      <change beforePath="$PROJECT_DIR$/MM_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_GUI.py" afterDir="false" />
+    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Added requirements for torch and cuda 11.8 as well as added the button for processing datasets using Neural Radiance Fields">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -90,7 +90,7 @@
       <workItem from="1689624230811" duration="735000" />
       <workItem from="1689624997905" duration="21000" />
       <workItem from="1689888103881" duration="405000" />
-      <workItem from="1689888521449" duration="1675000" />
+      <workItem from="1689888521449" duration="2752000" />
     </task>
     <task id="LOCAL-00001" summary="added open3d">
       <option name="closed" value="true" />
@@ -116,7 +116,23 @@
       <option name="project" value="LOCAL" />
       <updated>1689624874156</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Added requirements for torch and cuda 11.8 as well as added the button for processing datasets using Neural Radiance Fields">
+      <option name="closed" value="true" />
+      <created>1689902229382</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1689902229382</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Added requirements for torch and cuda 11.8 as well as added the button for processing datasets using Neural Radiance Fields">
+      <option name="closed" value="true" />
+      <created>1689902292935</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1689902292935</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -126,6 +142,7 @@
     <MESSAGE value="added open3d" />
     <MESSAGE value="added utm again" />
     <MESSAGE value="added utm again test" />
-    <option name="LAST_COMMIT_MESSAGE" value="added utm again test" />
+    <MESSAGE value="Added requirements for torch and cuda 11.8 as well as added the button for processing datasets using Neural Radiance Fields" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added requirements for torch and cuda 11.8 as well as added the button for processing datasets using Neural Radiance Fields" />
   </component>
 </project>
