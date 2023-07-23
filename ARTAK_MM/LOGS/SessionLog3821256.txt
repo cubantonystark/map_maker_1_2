@@ -1,1 +1,0 @@
-2023-07-20 21:05:02,978 - MM_logger - INFO - App Startup Complete
