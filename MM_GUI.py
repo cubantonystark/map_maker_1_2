@@ -1,10 +1,11 @@
 import win32gui, win32con
 '''
 This snippet hides the console in non compiled scripts. Done for aesthetics
-'''
 
-#this_program = win32gui.GetForegroundWindow()
-#win32gui.ShowWindow(this_program , win32con.SW_HIDE)
+
+this_program = win32gui.GetForegroundWindow()
+win32gui.ShowWindow(this_program , win32con.SW_HIDE)
+'''
 
 import random, psutil
 from datetime import datetime
@@ -18,7 +19,7 @@ We will create the work folders on first run. This code serves as a check in cas
 accidentaly deleted.
 '''
 dirs1 = ['ARTAK_MM/DATA/Raw_Images/UNZIPPED', 'ARTAK_MM/DATA/Raw_Images/ZIP/Completed', 'ARTAK_MM/DATA/Raw_Images/ZIP/New', 'ARTAK_MM/DATA/Raw_Images/ZIP/Unzipping_in_progress', 
-         'ARTAK_MM/LOGS', 'ARTAK_MM/POST/Photogrammetry', 'ARTAK_MM/DATA/PointClouds']
+         'ARTAK_MM/LOGS', 'ARTAK_MM/POST/Photogrammetry','ARTAK_MM/POST/Neural', 'ARTAK_MM/DATA/PointClouds']
 
 #cleanup any straggler status file in case of disgraceful exit of either recon script
 
@@ -35,8 +36,7 @@ for dir in dirs1:
     else:
         
         continue  
-    
-import subprocess
+
 import sys
 import time
 import threading
@@ -313,10 +313,10 @@ class App(customtkinter.CTk):
         self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.gen_pc, state = "normal")
         self.browse_button_pc.grid(row=8, column=1, padx=20, pady=10)
 
-        self.browse_label_nr = customtkinter.CTkLabel(self.home_frame, text="Neural Rendering")
+        self.browse_label_nr = customtkinter.CTkLabel(self.home_frame, text="Neural Surface Reconstruction")
         self.browse_label_nr.grid(row=10, column=0, padx=20, pady=10)
 
-        self.browse_button_nr = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.gen_pc,
+        self.browse_button_nr = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.process_for_nr,
                                                         state="normal")
         self.browse_button_nr.grid(row=10, column=1, padx=20, pady=10)
         
@@ -389,7 +389,11 @@ class App(customtkinter.CTk):
 
     def add_radio_button_set(self, button_label, button_option1, button_option2):
         print ("WIP")
-        
+
+    def process_for_nr(self):
+
+        subprocess.Popen(["python", "MM_process_neural.py"])
+
     def open_pc_folder(self):
         
         cmd = os.getcwd()+"/ARTAK_MM/DATA/PointClouds"
@@ -793,9 +797,6 @@ class StatusObject:
         self.image_icon = image_icon
         self.name_entry_field = name_entry_field
         self.progress_bar = progress_bar
-
-
-
 
 def detect_sd_card():
     drive_list = []

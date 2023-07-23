@@ -5,13 +5,34 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Added requirements for torch and cuda 11.8 as well as added the button for processing datasets using Neural Radiance Fields">
+      <change afterPath="$PROJECT_DIR$/MM_process_neural.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/map_maker_1_2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/map_maker_1_2.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ARTAK_MM/LOGS/CheckFileLoopID58791.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/ARTAK_MM/LOGS/SessionLog3821256.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MM_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_GUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/install_ns.bat" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/nerfstudio/nerfstudio/engine/trainer.py" beforeDir="false" afterPath="$PROJECT_DIR$/nerfstudio/nerfstudio/engine/trainer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nerfstudio/nerfstudio/process_data/colmap_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/nerfstudio/nerfstudio/process_data/colmap_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nerfstudio/nerfstudio/viewer/app/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/nerfstudio/nerfstudio/viewer/app/public/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nerfstudio/nerfstudio/viewer/app/src/modules/Banner/Banner.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/nerfstudio/nerfstudio/viewer/app/src/modules/Banner/Banner.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nerfstudio/nerfstudio/viewer/app/src/modules/LandingModal/LandingModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/nerfstudio/nerfstudio/viewer/app/src/modules/LandingModal/LandingModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nerfstudio/nerfstudio/viewer/app/src/modules/ViewportControlsModal/ViewportControlsModal.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/nerfstudio/nerfstudio/viewer/app/src/modules/ViewportControlsModal/ViewportControlsModal.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nerfstudio/nerfstudio/viewer/server/viewer_state.py" beforeDir="false" afterPath="$PROJECT_DIR$/nerfstudio/nerfstudio/viewer/server/viewer_state.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="FlaskConsoleOptions" custom-start-script="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))">
     <envs>
@@ -35,7 +56,13 @@
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
   <component name="ProjectId" id="2SiL05sM28XorlM5hVlXwoiUmTa" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -51,11 +78,12 @@
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "editor.preferences.fonts.default",
+    "nodejs_package_manager_path": "yarn",
+    "settings.editor.selected.configurable": "Errors",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Flask server.map_maker_1_2">
     <configuration name="map_maker_1_2" type="PythonConfigurationType" factoryName="Python">
       <module name="map_maker_1_2" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -78,6 +106,21 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="map_maker_1_2" type="Python.FlaskServer">
+      <module name="map_maker_1_2" />
+      <option name="target" value="$PROJECT_DIR$/MM_webserver.py" />
+      <option name="targetType" value="PATH" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <method v="2" />
+    </configuration>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -90,7 +133,13 @@
       <workItem from="1689624230811" duration="735000" />
       <workItem from="1689624997905" duration="21000" />
       <workItem from="1689888103881" duration="405000" />
-      <workItem from="1689888521449" duration="2752000" />
+      <workItem from="1689888521449" duration="20134000" />
+      <workItem from="1689933714748" duration="1104000" />
+      <workItem from="1689934843096" duration="2167000" />
+      <workItem from="1689944982274" duration="16250000" />
+      <workItem from="1690023046076" duration="806000" />
+      <workItem from="1690063983464" duration="270000" />
+      <workItem from="1690103940460" duration="12114000" />
     </task>
     <task id="LOCAL-00001" summary="added open3d">
       <option name="closed" value="true" />
@@ -132,11 +181,38 @@
       <option name="project" value="LOCAL" />
       <updated>1689902292935</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Added requirements for torch and cuda 11.8 as well as added the button for processing datasets using Neural Radiance Fields">
+      <option name="closed" value="true" />
+      <created>1689903196731</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1689903196731</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Added requirements for torch and cuda 11.8 as well as added the button for processing datasets using Neural Radiance Fields">
+      <option name="closed" value="true" />
+      <created>1689903216417</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1689903216417</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="added open3d" />
