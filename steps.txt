@@ -1,0 +1,28 @@
+#Using python
+
+##Process data either images or videos
+
+path: D:\Projects\map_maker_1_2\nerfstudio\nerfstudio\scripts>
+
+python process_data.py images --data C:\Users\escam\Pictures\imagery\BananafarmGarage\images --output-dir C:\Users\escam\Pictures\imagery\BananafarmGarage\mm_neural --skip-image-processing
+
+
+##train
+
+path: D:\Projects\map_maker_1_2\nerfstudio\nerfstudio\scripts>
+
+python train.py nerfacto --pipeline.model.predict-normals True --data C:\Users\escam\Pictures\imagery\BananaFarm\nerf --experiment-name test --output-dir D:\Projects\map_maker_1_2 --viewer.quit-on-train-completion True --vis viewer_beta --viewer.websocket-host localhost
+
+
+##extract mesh
+
+path: D:\Projects\map_maker_1_2\nerfstudio\nerfstudio\scripts>
+
+python exporter.py poisson --load-config "D:\Projects\map_maker_1_2\test\nerfacto\2023-07-22_072528\config.yml" --output-dir mesh
+
+
+##view trained set
+
+path: D:\Projects\map_maker_1_2\nerfstudio\nerfstudio\scripts\viewer>
+
+python run_viewer.py --load-config "D:\Projects\map_maker_1_2\test\nerfacto\2023-07-22_072528\config.yml" --vis viewer_beta --viewer.websocket-host localhost
