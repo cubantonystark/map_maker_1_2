@@ -1,11 +1,11 @@
 import win32gui, win32con
 '''
 This snippet hides the console in non compiled scripts. Done for aesthetics
-
+'''
 
 this_program = win32gui.GetForegroundWindow()
 win32gui.ShowWindow(this_program , win32con.SW_HIDE)
-'''
+
 
 import random, psutil
 from datetime import datetime
@@ -865,6 +865,10 @@ def button_click_event():
 
 
 if __name__ == "__main__":
+
+    if os.path.exists("ARTAK_MM/LOGS/status_nr.log"):
+        os.remove("ARTAK_MM/LOGS/status_nr.log")
+
     app = App()
     # threading.Thread(target=app.sd_card_monitor).start()
     threading.Thread(target=app.job_queue_monitor).start()

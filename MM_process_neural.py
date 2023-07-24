@@ -5,12 +5,24 @@ For Enya, John and Willy.
 All rights reserved.
 '''
 
-import os, sys, browsers, glob, subprocess, time, win32ui, psutil
+import os, sys, browsers, glob, subprocess, time, win32ui, glob, psutil
 from tkinter import Tk
 from tkinter import filedialog, messagebox
 
-
 class neural_rendering_and_recon():
+
+    def recon(self, tgt_dir):
+
+        base_dir = os.getcwd()
+
+        cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/exporter.py poisson --load-config "+str(tgt_dir)+"/config.yml --output-dir "+str(tgt_dir)+"/mesh"
+        os.system(cmd)
+
+        if os.path.exists(base_dir + "/ARTAK_MM/LOGS/status_nr.log"):
+            os.remove(base_dir + "/ARTAK_MM/LOGS/status_nr.log")
+
+        messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction complete!\n. Mesh is located in '+str(tgt_dir)+"mesh")
+        sys.exit()
 
     def WindowExists(self, classname):
         try:
@@ -128,6 +140,8 @@ class neural_rendering_and_recon():
 
     def train(self, tgt_dir, base_dir):
 
+        base_dir = os.getcwd()
+
         arg1 = str(base_dir)+"/nerfstudio/nerfstudio/scripts/train.py"
         arg2 = "nerfacto"
         arg3 = "--pipeline.model.predict-normals"
@@ -156,7 +170,12 @@ class neural_rendering_and_recon():
             self.write_status(stats = 1)
             time.sleep(3)
 
-        os.remove(base_dir+"/ARTAK_MM/LOGS/status_nr.log")
+        a.kill()
+
+        tgt_dir = arg10+"/nsr/nerfacto"
+        tgt_dir = max(glob.glob(os.path.join(tgt_dir, '*/')), key=os.path.getmtime)
+
+        self.recon(tgt_dir)
 
     def render(self, tgt_dir, base_dir):
 
@@ -172,22 +191,31 @@ class neural_rendering_and_recon():
 
         time.sleep(5)
 
-        Call_URL = "http://localhost:7007"
-        mycmd = r'start chrome /new-tab {}'.format(Call_URL)
+        vis_url = "http://localhost:7007"
+        mycmd = r'start chrome /new-tab {}'.format(vis_url)
         c = subprocess.Popen(mycmd, shell=True)
 
-        # c = subprocess.run([browsers.launch("chrome", url="http://localhost:7007")])
+        def if_process_is_running_by_exename(exename='chrome.exe'):
+            for proc in psutil.process_iter(['pid', 'name']):
+                # This will check if there exists any process running with executable name
+                if proc.info['name'] == exename:
+                    running = "yes"
+                    return running
+
+            running = "no"
+            return running
+
+        time.sleep(5)
 
         while True:
-
-            "chrome.exe" in (i.name() for i in psutil.process_iter())
-            time.sleep(3)
+            running = if_process_is_running_by_exename()
+            if running == "yes":
+                time.sleep(5)
+            else:
+                break
 
         b.kill()
         c.kill()
-
-        if os.path.exists(base_dir + "/ARTAK_MM/LOGS/status_nr.log"):
-            os.remove(base_dir + "/ARTAK_MM/LOGS/status_nr.log")
 
         sys.exit()
 
