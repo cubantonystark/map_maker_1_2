@@ -437,6 +437,31 @@ class App(customtkinter.CTk):
                 self.progressbar_pc.set(1)
             
             time.sleep(3)
+
+    def display_activity_on_nr_recon(self):
+
+        # will check if neural recon is running. should it be running, the 'Browse' button is disabled'
+
+        self.progressbar_nr = customtkinter.CTkProgressBar(self.home_frame)
+
+        while True:
+
+            if os.path.exists("ARTAK_MM/LOGS/status_nr.log"):
+
+                self.browse_button_nr.configure(state='disabled')
+
+                self.progressbar_nr.grid(row=10, column=2, padx=20, pady=10, sticky="ew")
+                self.progressbar_nr.set(0)
+                self.progressbar_nr.start()
+
+            else:
+
+                self.browse_button_nr.configure(state='normal')
+                self.progressbar_nr.stop()
+                self.progressbar_nr.configure(mode="determinate", progress_color="green")
+                self.progressbar_nr.set(1)
+
+            time.sleep(3)
                  
     def browse_directory(self):
         path = filedialog.askdirectory()
@@ -846,5 +871,6 @@ if __name__ == "__main__":
     threading.Thread(target=app.mm_project_monitor).start()
     threading.Thread(target=app.find_folders_with_obj).start()
     threading.Thread(target=app.display_activity_on_pc_recon).start()
+    threading.Thread(target=app.display_activity_on_nr_recon).start()
     app.run_executable()
     app.mainloop()
