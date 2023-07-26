@@ -9,4 +9,4 @@ utm
 open3d
 playsound
 pybrowser
-psutil
+win32gui
