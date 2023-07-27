@@ -719,7 +719,7 @@ class App(customtkinter.CTk):
                                                                                         corner_radius=0)
                         self.scrollable_label_button_frame.grid(row=0, column=2, padx=0, pady=0, sticky="nsew")
                         refresh_frame_iters = 30
-            time.sleep(10)
+            time.sleep(20)
 
     def open_obj(self, path):
         path = os.path.join(path + "/", "Model.obj")

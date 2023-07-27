@@ -14,7 +14,7 @@ global post_dest_folder, model_dest_folder, mission
 
 class neural_rendering_and_recon():
 
-    def copy_obj_and_compress_into_zip(self, tgt_dir, post_dest_folder, model_dest_folder, mission):
+    def copy_obj_and_compress_into_zip(self, tgt_dir, post_dest_folder, model_dest_folder, mission, src_dir):
 
         # Lets move the ortho data files into the folder for compression
 
@@ -28,6 +28,8 @@ class neural_rendering_and_recon():
                 pass
             else:
                 shutil.copy(file, model_dest_folder+"/")
+
+        # Rename obj so it can be picked up by mm_gui and displayed on right pane
 
         os.rename(model_dest_folder+"/mesh.obj", model_dest_folder+"/Model.obj")
 
@@ -48,18 +50,18 @@ class neural_rendering_and_recon():
 
         return
 
-    def recon(self, tgt_dir, post_dest_folder, model_dest_folder, mission):
+    def recon(self, tgt_dir, post_dest_folder, model_dest_folder, mission, src_dir):
 
         base_dir = os.getcwd()
         tgt_dir = str(tgt_dir)+"/nerfacto"
         tgt_dir = max(pathlib.Path(tgt_dir).glob('*/'), key=os.path.getmtime)
-        cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/exporter.py poisson --load-config "+str(tgt_dir)+"/config.yml --output-dir "+str(tgt_dir)+"/mesh --num-pixels-per-side 4096 --px-per-uv-triangle 8 --num-rays-per-batch 65536 --normal-method open3d  --target-num-faces 200000"
+        cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/exporter.py poisson --load-config "+str(tgt_dir)+"/config.yml --output-dir "+str(tgt_dir)+"/mesh"
         os.system(cmd)
 
         if os.path.exists(base_dir + "/ARTAK_MM/LOGS/status_nr.log"):
             os.remove(base_dir + "/ARTAK_MM/LOGS/status_nr.log")
 
-        self.copy_obj_and_compress_into_zip(tgt_dir, post_dest_folder, model_dest_folder, mission)
+        self.copy_obj_and_compress_into_zip(tgt_dir, post_dest_folder, model_dest_folder, mission, src_dir)
 
         messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction complete!\n. Mesh is located in '+str(model_dest_folder))
         sys.exit()
@@ -155,11 +157,11 @@ class neural_rendering_and_recon():
 
             elif "transforms.json" in files[0]:
                 tgt_dir = src_dir
-                self.train(tgt_dir, base_dir, post_dest_folder, model_dest_folder, mission)
+                self.train(tgt_dir, base_dir, post_dest_folder, model_dest_folder, mission, src_dir)
 
             elif files[0].endswith(".yml") or files[0].endswith('.YML'):
                 tgt_dir = files[0]
-                self.render(tgt_dir, base_dir, post_dest_folder, model_dest_folder, mission)
+                self.render(tgt_dir, base_dir)
 
             else:
                 raise IndexError
@@ -188,7 +190,7 @@ class neural_rendering_and_recon():
             self.write_status(stats)
             os.system(cmd)
             self.check_for_transforms(tgt_dir)
-            self.train(tgt_dir, src_dir, post_dest_folder, model_dest_folder, mission)
+            self.train(tgt_dir, src_dir, post_dest_folder, model_dest_folder, mission, src_dir)
 
         if to_process == "vid":
             cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/process_data.py video --data " + str(src_dir) + " --output-dir " + str(tgt_dir)
@@ -196,9 +198,9 @@ class neural_rendering_and_recon():
             self.write_status(stats)
             os.system(cmd)
             self.check_for_transforms(tgt_dir)
-            self.train(tgt_dir, base_dir, post_dest_folder, model_dest_folder, mission)
+            self.train(tgt_dir, base_dir, post_dest_folder, model_dest_folder, mission, src_dir)
 
-    def train(self, tgt_dir, base_dir, post_dest_folder, model_dest_folder, mission):
+    def train(self, tgt_dir, base_dir, post_dest_folder, model_dest_folder, mission, src_dir):
 
         base_dir = os.getcwd()
 
@@ -234,7 +236,7 @@ class neural_rendering_and_recon():
 
         tgt_dir = max(pathlib.Path(arg10).glob('*/'), key=os.path.getmtime)
 
-        self.recon(tgt_dir, post_dest_folder, model_dest_folder, mission)
+        self.recon(tgt_dir, post_dest_folder, model_dest_folder, mission, src_dir)
 
     def render(self, tgt_dir, base_dir):
 
