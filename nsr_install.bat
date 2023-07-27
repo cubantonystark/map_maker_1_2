@@ -4,4 +4,3 @@ git clone https://github.com/nerfstudio-project/nerfstudio.git
 cd nerfstudio
 pip install --upgrade pip setuptools
 pip install -e .
-cd ..
