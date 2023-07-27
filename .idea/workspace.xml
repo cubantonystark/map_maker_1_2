@@ -4,10 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Updated Neural Surface Reconstruction Pipeline">
+    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Added functionality to close the iTwin engine on exit. cleaned up code.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MM_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_GUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MM_pc2hr.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_pc2hr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MM_pc2lr.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_pc2lr.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MM_process_neural.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_process_neural.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nsr_install.bat" beforeDir="false" afterPath="$PROJECT_DIR$/nsr_install.bat" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -55,22 +58,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "D:/Projects/map_maker_1_2",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "yarn",
-    "settings.editor.selected.configurable": "Errors",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Projects/map_maker_1_2&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;yarn&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;Errors&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="Flask server.map_maker_1_2">
     <configuration name="map_maker_1_2" type="PythonConfigurationType" factoryName="Python">
       <module name="map_maker_1_2" />
@@ -127,7 +130,13 @@
       <workItem from="1689944982274" duration="16250000" />
       <workItem from="1690023046076" duration="806000" />
       <workItem from="1690063983464" duration="270000" />
-      <workItem from="1690103940460" duration="37134000" />
+      <workItem from="1690103940460" duration="37528000" />
+      <workItem from="1690267737858" duration="9951000" />
+      <workItem from="1690335620889" duration="4940000" />
+      <workItem from="1690340694408" duration="166000" />
+      <workItem from="1690340905274" duration="12343000" />
+      <workItem from="1690354177579" duration="26959000" />
+      <workItem from="1690393520783" duration="13373000" />
     </task>
     <task id="LOCAL-00001" summary="added open3d">
       <option name="closed" value="true" />
@@ -217,7 +226,23 @@
       <option name="project" value="LOCAL" />
       <updated>1690158754041</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Updated Neural Surface Reconstruction Pipeline">
+      <option name="closed" value="true" />
+      <created>1690187519883</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1690187519883</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Added functionality to close the iTwin engine on exit. cleaned up code.">
+      <option name="closed" value="true" />
+      <created>1690356416555</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1690356416555</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -241,6 +266,7 @@
     <MESSAGE value="Added requirements for torch and cuda 11.8 as well as added the button for processing datasets using Neural Radiance Fields" />
     <MESSAGE value="Started implementing Neural Surface Reconstruction Pipeline" />
     <MESSAGE value="Updated Neural Surface Reconstruction Pipeline" />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated Neural Surface Reconstruction Pipeline" />
+    <MESSAGE value="Added functionality to close the iTwin engine on exit. cleaned up code." />
+    <option name="LAST_COMMIT_MESSAGE" value="Added functionality to close the iTwin engine on exit. cleaned up code." />
   </component>
 </project>

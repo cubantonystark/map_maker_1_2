@@ -10,3 +10,4 @@ open3d
 playsound
 pybrowser
 win32gui
+psutil

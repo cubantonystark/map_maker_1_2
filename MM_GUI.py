@@ -2,10 +2,10 @@ import win32gui, win32con
 '''
 This snippet hides the console in non compiled scripts. Done for aesthetics
 
+
 this_program = win32gui.GetForegroundWindow()
 win32gui.ShowWindow(this_program, win32con.SW_HIDE)
 '''
-
 from signal import SIGTERM
 import random
 from datetime import datetime
@@ -18,7 +18,7 @@ accidentaly deleted.
 '''
 dirs1 = ['ARTAK_MM/DATA/Raw_Images/UNZIPPED', 'ARTAK_MM/DATA/Raw_Images/ZIP/Completed',
          'ARTAK_MM/DATA/Raw_Images/ZIP/New', 'ARTAK_MM/DATA/Raw_Images/ZIP/Unzipping_in_progress',
-         'ARTAK_MM/LOGS', 'ARTAK_MM/POST/Photogrammetry', 'ARTAK_MM/POST/Neural', 'ARTAK_MM/DATA/PointClouds']
+         'ARTAK_MM/LOGS', 'ARTAK_MM/POST/Photogrammetry', 'ARTAK_MM/POST/Neural', 'ARTAK_MM/POST/Lidar', 'ARTAK_MM/DATA/PointClouds']
 
 # cleanup any straggler status file in case of disgraceful exit of either recon script
 
@@ -63,8 +63,7 @@ subprocess.Popen(["python", "MM_loop_check_files.py"])
 r = random.Random()
 session_id = r.randint(1, 10000000)
 session_logger = MM_logger.initialize_logger("SessionLog" + str(session_id))
-#print = session_logger.info
-
+print = session_logger.info
 
 class SdCardInsertionEvent(tk.Event):
     def __init__(self, drive_letter):
@@ -140,7 +139,7 @@ class App(customtkinter.CTk):
         self.session_logger = session_logger
         self.iconbitmap(default='gui_images/ARTAK_103.ico')
         self.title("ARTAK Map Maker, by Eolian")
-        self.geometry("1580x720")
+        self.geometry("1380x720")
         self.protocol('WM_DELETE_WINDOW', self.terminate)
 
         # set grid layout 1x2
@@ -693,15 +692,13 @@ class App(customtkinter.CTk):
 
     def find_folders_with_obj(self):
 
-        previous_file_count = 0
-
         while True:
 
-            directory = os.getcwd() + "/ARTAK_MM/POST/Photogrammetry"
-            # previous_file_count = 0
+            directory = os.getcwd() + "/ARTAK_MM/POST"
+            previous_file_count = 0
             self.list_of_objs = []
             current_file_count = len(os.listdir(directory))
-            if current_file_count != previous_file_count:
+            if current_file_count != previous_file_count or current_file_count == 0:
                 for root, dirs, files in os.walk(directory):
                     if "Model" in dirs:
                         output_model_folder = os.path.join(root, "Model")
@@ -713,7 +710,7 @@ class App(customtkinter.CTk):
                                 print(os.path.join(output_model_folder, obj_file))
                             self.list_of_objs.append(output_model_folder)
                 if len(self.list_of_objs) != int(previous_file_count):
-                    self.scrollable_label_button_frame.destroy()
+                    self.scrollable_label_button_frame.update()
                     self.scrollable_label_button_frame = ScrollableLabelButtonFrame(master=self, width=300,
                                                                                     command=self.label_button_frame_event,
                                                                                     corner_radius=0)

@@ -85,9 +85,9 @@ class meshing():
 
         #Derive destination folders from source path
         
-        post_dest_folder = "ARTAK_MM/POST/Photogrammetry"+separator+"hr_"+pc_folder+separator+"Productions/Production_1/Data/Model/Preprocessed"
+        post_dest_folder = "ARTAK_MM/POST/Lidar"+separator+"hr_"+pc_folder+separator+"Data"
         
-        model_dest_folder = "ARTAK_MM/POST/Photogrammetry"+separator+"hr_"+pc_folder+separator+"Productions/Production_1/Data/Model"
+        model_dest_folder = "ARTAK_MM/POST/Lidar"+separator+"hr_"+pc_folder+separator+"Data/Model"
 
         mesh_output_folder = "ARTAK_MM/DATA/PointClouds/HighRes"+separator+pc_folder+separator+"mesh_hr"
 
@@ -113,7 +113,10 @@ class meshing():
             
         if not os.path.exists(post_dest_folder):
     
-            os.makedirs(post_dest_folder, mode = 777)          
+            os.makedirs(post_dest_folder, mode = 777)
+
+        if not os.path.exists(model_dest_folder):
+            os.makedirs(model_dest_folder, mode=777)
 
         if ".obj" in filename:
 
@@ -777,7 +780,7 @@ class meshing():
         
         #copy the obj to the post folder
         
-        shutil.copy(newpath_texturized, post_dest_folder+"/Model.obj")
+        shutil.copy(newpath_texturized, model_dest_folder+"/Model.obj")
         
         #Let's compress
         
@@ -789,7 +792,7 @@ class meshing():
         
         for file in files:
             
-            shutil.copy(file, model_dest_folder)
+            shutil.copy(file, post_dest_folder)
             
         try:
             

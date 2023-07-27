@@ -100,9 +100,9 @@ class meshing():
 
         #Derive destination folders from source path
         
-        post_dest_folder = "ARTAK_MM/POST/Photogrammetry"+separator+"lr_"+pc_folder+separator+"Productions/Production_1/Data/Model/Preprocessed"
+        post_dest_folder = "ARTAK_MM/POST/Lidar"+separator+"lr_"+pc_folder+separator+"Data"
         
-        model_dest_folder = "ARTAK_MM/POST/Photogrammetry"+separator+"lr_"+pc_folder+separator+"Productions/Production_1/Data/Model"        
+        model_dest_folder = "ARTAK_MM/POST/Lidar"+separator+"lr_"+pc_folder+separator+"Data/Model"
 
         mesh_output_folder = "ARTAK_MM/DATA/PointClouds/LowRes"+separator+pc_folder+separator+"mesh_lr"
 
@@ -124,11 +124,13 @@ class meshing():
 
         if not os.path.exists(with_texture_output_folder):
 
-            os.makedirs(with_texture_output_folder, mode = 777)     
-            
+            os.makedirs(with_texture_output_folder, mode = 777)
+
         if not os.path.exists(post_dest_folder):
-    
-            os.makedirs(post_dest_folder, mode = 777)
+            os.makedirs(post_dest_folder, mode=777)
+
+        if not os.path.exists(model_dest_folder):
+            os.makedirs(model_dest_folder, mode=777)
             
         #Create xyz and prj based on lat and lon provided
         
@@ -474,7 +476,7 @@ class meshing():
                 
                     message = 'Exporting Mesh.'
                 
-                    self.write_to_log(path, separator, message)				
+                    self.write_to_log(path, separator, message)
                 
                     newpath = simplified_output_folder+separator+filename.replace('ply', 'obj').replace('pts', 'obj')
                 
@@ -497,7 +499,7 @@ class meshing():
                     
                         message = 'Mesh not optimal. Retargeting parameters (2).'
                     
-                        self.write_to_log(path, separator, message)                      
+                        self.write_to_log(path, separator, message)
                         
                         boundingbox =  ms.current_mesh().bounding_box()
                         
@@ -511,7 +513,7 @@ class meshing():
                     
                         message = 'Refining'
                     
-                        self.write_to_log(path, separator, message)    
+                        self.write_to_log(path, separator, message)
                     
                         #We will select faces that are long based on the bounding box calculation and then remove them
                     
@@ -560,7 +562,7 @@ class meshing():
                     
                         message = 'Exporting Mesh.'
                     
-                        self.write_to_log(path, separator, message)				
+                        self.write_to_log(path, separator, message)
                     
                         newpath = simplified_output_folder+separator+filename.replace('ply', 'obj').replace('pts', 'obj')
                     
@@ -584,7 +586,7 @@ class meshing():
                     
                         message = 'Mesh still not optimal. Retargeting parameters (3) and going to best effort.'
                     
-                        self.write_to_log(path, separator, message)                      
+                        self.write_to_log(path, separator, message)
                         
                         boundingbox =  ms.current_mesh().bounding_box()
                         
@@ -601,7 +603,7 @@ class meshing():
                         
                         message = 'Exporting Mesh.'
                     
-                        self.write_to_log(path, separator, message)				
+                        self.write_to_log(path, separator, message)
                     
                         newpath = simplified_output_folder+separator+filename.replace('ply', 'obj').replace('pts', 'obj')
                     
@@ -623,7 +625,7 @@ class meshing():
         
             message = 'Initial VC: '+str(v_number)+'. Initial FC: '+str(f_number)+"."   
             
-            self.write_to_log(path, separator, message)	
+            self.write_to_log(path, separator, message)
 
             #Let's take a look at the mesh file to see how big it is. We are constrained to about 120Mb in this case, therefore we 
             #will have to decimate if the file is bigger than that number.
@@ -644,7 +646,7 @@ class meshing():
 
             message = 'Error. Not enough Memory to run the process. Quitting.'
 
-            self.write_to_log(path, separator, message)		
+            self.write_to_log(path, separator, message)
 
             sys.exit()
 
@@ -670,7 +672,7 @@ class meshing():
 
             message = "Target: "+str(int(target_faces))+" F. Iter. "+str(c)+"."
 
-            self.write_to_log(path, separator, message)	            
+            self.write_to_log(path, separator, message)
             
             ms.apply_filter('meshing_decimation_quadric_edge_collapse', 
                             targetfacenum = int(target_faces), targetperc = 0, 
@@ -689,7 +691,7 @@ class meshing():
         
             message = 'Achieved: '+str(f_number)+' F. Ratio ==> '+'%.2f' % abs(ratio)+':1.00.'
         
-            self.write_to_log(path, separator, message) 
+            self.write_to_log(path, separator, message)
             
             c += 1
         
@@ -702,7 +704,7 @@ class meshing():
 
         message = 'End VC: '+str(v_number)+'. End FC: '+str(f_number)+"."
 
-        self.write_to_log(path, separator, message)	         
+        self.write_to_log(path, separator, message)
         
         newpath = simplified_output_folder+separator+filename.replace('ply', 'obj').replace('pts', 'obj')
 
@@ -731,7 +733,7 @@ class meshing():
 
         message = 'Loading and Analyzing Mesh.'
 
-        self.write_to_log(path, separator, message)				
+        self.write_to_log(path, separator, message)
 
         ms.load_new_mesh(newpath)        
         
@@ -739,7 +741,7 @@ class meshing():
 
         message = 'Generating Texture and Materials.'
 
-        self.write_to_log(path, separator, message)	
+        self.write_to_log(path, separator, message)
 
         ms.load_new_mesh(newpath)
 
@@ -749,7 +751,7 @@ class meshing():
 
             message = 'Correcting Axis.'
 
-            self.write_to_log(path, separator, message)			
+            self.write_to_log(path, separator, message)
 
             ms.apply_filter('compute_matrix_from_rotation',
                             rotaxis = 0,
@@ -805,7 +807,7 @@ class meshing():
         
         #copy the obj to the post folder
         
-        shutil.copy(newpath_texturized, post_dest_folder+"/Model.obj")        
+        shutil.copy(newpath_texturized, model_dest_folder+"/Model.obj")
         
         #Let's compress
         
@@ -814,10 +816,12 @@ class meshing():
         #Once done, we will cleanup
     
         files = [f for f in glob.glob(with_texture_output_folder+"/*.zip")]
-    
+
+        # Lets create the model destination folder
+
         for file in files:
     
-            shutil.copy(file, model_dest_folder)
+            shutil.copy(file, post_dest_folder)
         
         try:
             

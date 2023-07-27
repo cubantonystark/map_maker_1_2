@@ -5,15 +5,47 @@ For Enya, John and Willy.
 All rights reserved.
 '''
 
-import os, sys, browsers, glob, subprocess, time, win32ui, glob, psutil
+import os, sys, browsers, glob, subprocess, time, win32ui, glob, psutil, shutil, zipfile, pathlib
+from datetime import date, datetime
 from tkinter import Tk
 from tkinter import filedialog, messagebox
 
+global post_dest_folder, model_dest_folder, mission
+
 class neural_rendering_and_recon():
 
-    def recon(self, tgt_dir):
+    def copy_obj_and_compress_into_zip(self, tgt_dir, post_dest_folder, model_dest_folder, mission):
+
+        files = [f for f in glob.glob(str(tgt_dir) + "/mesh/*.*")]
+
+        for file in files:
+            if "poisson_mesh.ply" in file:
+                pass
+            else:
+                shutil.copy(file, model_dest_folder+"/")
+
+        os.rename(model_dest_folder+"/mesh.obj", model_dest_folder+"/Model.obj")
+
+        compression = zipfile.ZIP_DEFLATED
+
+        files = [f for f in glob.glob(model_dest_folder + "/*.*")]
+        zip_file = post_dest_folder+"/"+mission+'.zip'
+
+        with zipfile.ZipFile(zip_file, mode="w") as zf:
+            for file in files:
+                zf.write(file,compress_type = compression, compresslevel = 9)
+
+        #upload(zip_file, url="https://esp.eastus2.cloudapp.azure.com/")
+
+        return
+
+    def recon(self, tgt_dir, post_dest_folder, model_dest_folder, mission):
 
         base_dir = os.getcwd()
+
+        tgt_dir = str(tgt_dir)+"/nerfacto"
+
+        tgt_dir = max(pathlib.Path(tgt_dir).glob('*/'), key=os.path.getmtime)
 
         cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/exporter.py poisson --load-config "+str(tgt_dir)+"/config.yml --output-dir "+str(tgt_dir)+"/mesh"
         os.system(cmd)
@@ -21,7 +53,9 @@ class neural_rendering_and_recon():
         if os.path.exists(base_dir + "/ARTAK_MM/LOGS/status_nr.log"):
             os.remove(base_dir + "/ARTAK_MM/LOGS/status_nr.log")
 
-        messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction complete!\n. Mesh is located in '+str(tgt_dir)+"mesh")
+        self.copy_obj_and_compress_into_zip(tgt_dir, post_dest_folder, model_dest_folder, mission)
+
+        messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction complete!\n. Mesh is located in '+str(model_dest_folder))
         sys.exit()
 
     def WindowExists(self, classname):
@@ -69,6 +103,27 @@ class neural_rendering_and_recon():
         if len(src_dir) == 0:
             sys.exit()
 
+        today = date.today()
+        now = datetime.now()
+
+        mission = "nerf_"+str(today.strftime("%Y-%m-%d"))
+
+        current_time = now.strftime("%H-%M-%S")
+
+        mission = mission+"_"+str(current_time)
+
+        # Derive destination folders for posting from the source folder
+
+        post_dest_folder = "ARTAK_MM/POST/Neural/"+str(mission)+"/Data"
+
+        model_dest_folder = "ARTAK_MM/POST/Neural/"+str(mission)+"/Data/Model"
+
+        if not os.path.exists(post_dest_folder):
+            os.makedirs(post_dest_folder)
+
+        if not os.path.exists(model_dest_folder):
+            os.makedirs(model_dest_folder)
+
         # Get the source data folder contents
         base_dir = os.getcwd()
         files = []
@@ -80,26 +135,26 @@ class neural_rendering_and_recon():
             if files[0].endswith(".jpg") or files[0].endswith('.JPG'):
                 to_process = "img"
                 tgt_dir = self.create_t_folder(src_dir)
-                self.process_data(to_process, base_dir, src_dir, tgt_dir)
+                self.process_data(to_process, base_dir, src_dir, tgt_dir, post_dest_folder, model_dest_folder, mission)
 
             elif files[0].endswith(".png") or files[0].endswith('.PNG'):
                 to_process = "img"
                 tgt_dir = self.create_t_folder(src_dir)
-                self.process_data(to_process, base_dir, src_dir, tgt_dir)
+                self.process_data(to_process, base_dir, src_dir, tgt_dir, post_dest_folder, model_dest_folder, mission)
 
             elif files[0].endswith(".mp4") or files[0].endswith('.MP4'):
                 to_process = "vid"
                 tgt_dir = self.create_t_folder(src_dir)
                 src_dir = files[0]
-                self.process_data(to_process, base_dir, src_dir, tgt_dir)
+                self.process_data(to_process, base_dir, src_dir, tgt_dir, post_dest_folder, model_dest_folder, mission)
 
             elif "transforms.json" in files[0]:
                 tgt_dir = src_dir
-                self.train(tgt_dir, base_dir)
+                self.train(tgt_dir, base_dir, post_dest_folder, model_dest_folder, mission)
 
             elif files[0].endswith(".yml") or files[0].endswith('.YML'):
                 tgt_dir = files[0]
-                self.render(tgt_dir, base_dir)
+                self.render(tgt_dir, base_dir, post_dest_folder, model_dest_folder, mission)
 
             else:
                 raise IndexError
@@ -128,7 +183,7 @@ class neural_rendering_and_recon():
             self.write_status(stats)
             os.system(cmd)
             self.check_for_transforms(tgt_dir)
-            self.train(tgt_dir, src_dir)
+            self.train(tgt_dir, src_dir, post_dest_folder, model_dest_folder, mission)
 
         if to_process == "vid":
             cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/process_data.py video --data " + str(src_dir) + " --output-dir " + str(tgt_dir)
@@ -136,9 +191,9 @@ class neural_rendering_and_recon():
             self.write_status(stats)
             os.system(cmd)
             self.check_for_transforms(tgt_dir)
-            self.train(tgt_dir, base_dir)
+            self.train(tgt_dir, base_dir, post_dest_folder, model_dest_folder, mission)
 
-    def train(self, tgt_dir, base_dir):
+    def train(self, tgt_dir, base_dir, post_dest_folder, model_dest_folder, mission):
 
         base_dir = os.getcwd()
 
@@ -149,7 +204,7 @@ class neural_rendering_and_recon():
         arg5 = "--data"
         arg6 = str(tgt_dir)
         arg7 = "--experiment-name"
-        arg8 = "nsr"
+        arg8 = str(mission)
         arg9 = "--output-dir"
         arg10 = str(base_dir)+"/ARTAK_MM/POST/Neural"
         arg11 = "--viewer.quit-on-train-completion"
@@ -158,8 +213,10 @@ class neural_rendering_and_recon():
         arg14 = "viewer_beta"
         arg15 = "--viewer.websocket-host"
         arg16 = "localhost"
+        arg17 = "--max-num-iterations"
+        arg18 = "35000"
 
-        a = subprocess.Popen(["python", arg1, arg2, arg3, arg4, arg5, arg6, arg7,arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16])
+        a = subprocess.Popen(["python", arg1, arg2, arg3, arg4, arg5, arg6, arg7,arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18])
 
         self.write_status(stats = 1)
         time.sleep(5)
@@ -172,12 +229,12 @@ class neural_rendering_and_recon():
 
         a.kill()
 
-        tgt_dir = arg10+"/nsr/nerfacto"
-        tgt_dir = max(glob.glob(os.path.join(tgt_dir, '*/')), key=os.path.getmtime)
+        tgt_dir = max(pathlib.Path(arg10).glob('*/'), key=os.path.getmtime)
 
-        self.recon(tgt_dir)
+        self.recon(tgt_dir, post_dest_folder, model_dest_folder, mission)
 
     def render(self, tgt_dir, base_dir):
+
 
         arg1 = str(base_dir)+"/nerfstudio/nerfstudio/scripts/viewer/run_viewer.py"
         arg2 = "--load_config"
