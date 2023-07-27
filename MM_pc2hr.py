@@ -786,14 +786,14 @@ class meshing():
         
         self.compress_into_zip(with_texture_output_folder, newpath)
         
-        #Once done, we will cleanup
-        
         files = [f for f in glob.glob(with_texture_output_folder+"/*.zip")]
         
         for file in files:
             
             shutil.copy(file, post_dest_folder)
-            
+
+        # Once done, we will cleanup
+
         try:
             
             shutil.rmtree("ARTAK_MM/DATA/PointClouds/HighRes"+separator+pc_folder)

@@ -4,14 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Added functionality to close the iTwin engine on exit. cleaned up code.">
+    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Added functionality to close the iTwin engine on exit and as many background processes.&#10;Added folders for Lidar and NeuralRecon and updated paths accordingly.&#10;Added zip compression for SurfaceRecon mesh once finished&#10;Updated the mesh visualization pane to refresh every 5 seconds and display from Photogrammetry, Lidar and NeuralRecon&#10;Resized Main Map Maker Window for better aesthetics.&#10;Cleaned up code&#10;&#10;TO DO&#10;&#10;Include .xyz and prj files on zip Nerf zip file">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MM_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_GUI.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MM_pc2hr.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_pc2hr.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MM_pc2lr.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_pc2lr.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MM_process_neural.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_process_neural.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nsr_install.bat" beforeDir="false" afterPath="$PROJECT_DIR$/nsr_install.bat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -136,7 +134,7 @@
       <workItem from="1690340694408" duration="166000" />
       <workItem from="1690340905274" duration="12343000" />
       <workItem from="1690354177579" duration="26959000" />
-      <workItem from="1690393520783" duration="13373000" />
+      <workItem from="1690393520783" duration="14398000" />
     </task>
     <task id="LOCAL-00001" summary="added open3d">
       <option name="closed" value="true" />
@@ -242,7 +240,23 @@
       <option name="project" value="LOCAL" />
       <updated>1690356416555</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Added functionality to close the iTwin engine on exit and as many background processes.&#10;Added folders for Lidar and NeuralRecon and updated paths accordingly.&#10;Added zip compression for SurfaceRecon mesh once finished&#10;Updated the mesh visualization pane to refresh every 5 seconds and display from Photogrammetry, Lidar and NeuralRecon&#10;Resized Main Map Maker Window for better aesthetics.&#10;Cleaned up code&#10;&#10;TO DO&#10;&#10;Include .xyz and prj files on zip Nerf zip file">
+      <option name="closed" value="true" />
+      <created>1690426380618</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1690426380618</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Added functionality to close the iTwin engine on exit and as many background processes.&#10;Added folders for Lidar and NeuralRecon and updated paths accordingly.&#10;Added zip compression for SurfaceRecon mesh once finished&#10;Updated the mesh visualization pane to refresh every 5 seconds and display from Photogrammetry, Lidar and NeuralRecon&#10;Resized Main Map Maker Window for better aesthetics.&#10;Cleaned up code&#10;&#10;TO DO&#10;&#10;Include .xyz and prj files on zip Nerf zip file">
+      <option name="closed" value="true" />
+      <created>1690426390034</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1690426390034</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -267,6 +281,7 @@
     <MESSAGE value="Started implementing Neural Surface Reconstruction Pipeline" />
     <MESSAGE value="Updated Neural Surface Reconstruction Pipeline" />
     <MESSAGE value="Added functionality to close the iTwin engine on exit. cleaned up code." />
-    <option name="LAST_COMMIT_MESSAGE" value="Added functionality to close the iTwin engine on exit. cleaned up code." />
+    <MESSAGE value="Added functionality to close the iTwin engine on exit and as many background processes.&#10;Added folders for Lidar and NeuralRecon and updated paths accordingly.&#10;Added zip compression for SurfaceRecon mesh once finished&#10;Updated the mesh visualization pane to refresh every 5 seconds and display from Photogrammetry, Lidar and NeuralRecon&#10;Resized Main Map Maker Window for better aesthetics.&#10;Cleaned up code&#10;&#10;TO DO&#10;&#10;Include .xyz and prj files on zip Nerf zip file" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added functionality to close the iTwin engine on exit and as many background processes.&#10;Added folders for Lidar and NeuralRecon and updated paths accordingly.&#10;Added zip compression for SurfaceRecon mesh once finished&#10;Updated the mesh visualization pane to refresh every 5 seconds and display from Photogrammetry, Lidar and NeuralRecon&#10;Resized Main Map Maker Window for better aesthetics.&#10;Cleaned up code&#10;&#10;TO DO&#10;&#10;Include .xyz and prj files on zip Nerf zip file" />
   </component>
 </project>

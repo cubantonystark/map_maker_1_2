@@ -42,11 +42,8 @@ class neural_rendering_and_recon():
     def recon(self, tgt_dir, post_dest_folder, model_dest_folder, mission):
 
         base_dir = os.getcwd()
-
         tgt_dir = str(tgt_dir)+"/nerfacto"
-
         tgt_dir = max(pathlib.Path(tgt_dir).glob('*/'), key=os.path.getmtime)
-
         cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/exporter.py poisson --load-config "+str(tgt_dir)+"/config.yml --output-dir "+str(tgt_dir)+"/mesh"
         os.system(cmd)
 
@@ -84,7 +81,6 @@ class neural_rendering_and_recon():
     def write_status(self, stats):
 
         # This file is the beacon for the progress bar in the GUI
-
         base_dir = os.getcwd()
         with open(base_dir + "/ARTAK_MM/LOGS/status_nr.log", "w") as status:
             status.write(str(stats))

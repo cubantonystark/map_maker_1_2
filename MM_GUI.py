@@ -2,7 +2,6 @@ import win32gui, win32con
 '''
 This snippet hides the console in non compiled scripts. Done for aesthetics
 
-
 this_program = win32gui.GetForegroundWindow()
 win32gui.ShowWindow(this_program, win32con.SW_HIDE)
 '''
@@ -26,13 +25,10 @@ if os.path.exists("ARTAK_MM/LOGS/status.log"):
     os.remove("ARTAK_MM/LOGS/status.log")
 
 for dir in dirs1:
-
     if not os.path.exists(dir):
-
         os.makedirs(dir)
 
     else:
-
         continue
 
 import sys, time, threading, win32file, subprocess
@@ -74,17 +70,14 @@ def play_sound_processing_error():
     playsound.playsound(os.path.join(os.getcwd(), "error.wav"))
     print("playing sound: completed ")
 
-
 def play_sound_processing_complete():
     print(os.getcwd())
     playsound.playsound(os.path.join(os.getcwd(), "completed.wav"))
     print("playing sound: completed ")
 
-
 def play_sound_processing_started():
     playsound.playsound(os.path.join(os.getcwd(), "apocalypse_mission.wav"))
     print("playing sound: started ")
-
 
 class ScrollableLabelButtonFrame(customtkinter.CTkScrollableFrame):
     def __init__(self, master, command=None, **kwargs):
@@ -388,16 +381,13 @@ class App(customtkinter.CTk):
     # not working right now because of permissions
     # todo fix permissions
     def terminate(self):
-
         #This will create a file in the logs forlder that will signal we are cloing shop
-
         with open(os.getcwd()+"/ARTAK_MM/LOGS/kill.mm", "w") as killer:
             pass
         time.sleep(4)
 
         process = threading.current_thread()
         print("Current thread PID is: "+str(process))
-
         os.system('taskkill /im iTwinCaptureModelerEngine.exe /F')
         os.remove(os.getcwd()+"/ARTAK_MM/LOGS/kill.mm")
         os.kill(os.getpid(), SIGTERM)
@@ -718,7 +708,7 @@ class App(customtkinter.CTk):
                     for each_item in self.list_of_objs:  # add items with images
                         self.scrollable_label_button_frame.add_item(file=each_item, button_command=each_item)
                     previous_file_count = current_file_count
-            time.sleep(5)
+            time.sleep(10)
 
     def open_obj(self, path):
         path = os.path.join(path + "/", "Model.obj")
