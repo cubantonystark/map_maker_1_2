@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Added functionality to close the iTwin engine on exit and as many background processes.&#10;Added folders for Lidar and NeuralRecon and updated paths accordingly.&#10;Added zip compression for SurfaceRecon mesh once finished&#10;Updated the mesh visualization pane to refresh every 5 seconds and display from Photogrammetry, Lidar and NeuralRecon&#10;Resized Main Map Maker Window for better aesthetics.&#10;Cleaned up code&#10;&#10;TO DO&#10;&#10;Include .xyz and prj files on zip Nerf zip file">
+    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Corrected compression algo to properly map zipped files.&#10;Added projection files (prj and xyz) to the zipped package.&#10;&#10;TO DO&#10;&#10;Fix decimation value&#10;Improve speed during Pose Triangulation.&#10;Improve resulting mesh quality">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MM_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_GUI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MM_pc2hr.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_pc2hr.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MM_pc2lr.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_pc2lr.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MM_process_neural.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_process_neural.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -134,7 +132,7 @@
       <workItem from="1690340694408" duration="166000" />
       <workItem from="1690340905274" duration="12343000" />
       <workItem from="1690354177579" duration="26959000" />
-      <workItem from="1690393520783" duration="14398000" />
+      <workItem from="1690393520783" duration="25404000" />
     </task>
     <task id="LOCAL-00001" summary="added open3d">
       <option name="closed" value="true" />
@@ -256,7 +254,23 @@
       <option name="project" value="LOCAL" />
       <updated>1690426390034</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Added functionality to close the iTwin engine on exit and as many background processes.&#10;Added folders for Lidar and NeuralRecon and updated paths accordingly.&#10;Added zip compresison for SurfaceRecon mesh once finished&#10;Updated the mesh visualization pane to refresh every 5 seconds and display from Photogrammetry, Lidar and NeuralRecon&#10;Resized Main Map Maker Window for better aesthetics.&#10;Cleaned up code&#10;&#10;TO DO&#10;&#10;Include .xyz and prj files on zip Nerf zip file&#10;Check how big can we tile a  mesh on cesium to itigate LOD loss">
+      <option name="closed" value="true" />
+      <created>1690427851900</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1690427851900</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Corrected compression algo to properly map zipped files.&#10;Added projection files (prj and xyz) to the zipped package.&#10;&#10;TO DO&#10;&#10;Fix decimation value&#10;Improve speed during Pose Triangulation.&#10;Improve resulting mesh quality">
+      <option name="closed" value="true" />
+      <created>1690435757574</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1690435757574</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -282,6 +296,8 @@
     <MESSAGE value="Updated Neural Surface Reconstruction Pipeline" />
     <MESSAGE value="Added functionality to close the iTwin engine on exit. cleaned up code." />
     <MESSAGE value="Added functionality to close the iTwin engine on exit and as many background processes.&#10;Added folders for Lidar and NeuralRecon and updated paths accordingly.&#10;Added zip compression for SurfaceRecon mesh once finished&#10;Updated the mesh visualization pane to refresh every 5 seconds and display from Photogrammetry, Lidar and NeuralRecon&#10;Resized Main Map Maker Window for better aesthetics.&#10;Cleaned up code&#10;&#10;TO DO&#10;&#10;Include .xyz and prj files on zip Nerf zip file" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added functionality to close the iTwin engine on exit and as many background processes.&#10;Added folders for Lidar and NeuralRecon and updated paths accordingly.&#10;Added zip compression for SurfaceRecon mesh once finished&#10;Updated the mesh visualization pane to refresh every 5 seconds and display from Photogrammetry, Lidar and NeuralRecon&#10;Resized Main Map Maker Window for better aesthetics.&#10;Cleaned up code&#10;&#10;TO DO&#10;&#10;Include .xyz and prj files on zip Nerf zip file" />
+    <MESSAGE value="Added functionality to close the iTwin engine on exit and as many background processes.&#10;Added folders for Lidar and NeuralRecon and updated paths accordingly.&#10;Added zip compresison for SurfaceRecon mesh once finished&#10;Updated the mesh visualization pane to refresh every 5 seconds and display from Photogrammetry, Lidar and NeuralRecon&#10;Resized Main Map Maker Window for better aesthetics.&#10;Cleaned up code&#10;&#10;TO DO&#10;&#10;Include .xyz and prj files on zip Nerf zip file&#10;Check how big can we tile a  mesh on cesium to itigate LOD loss" />
+    <MESSAGE value="Corrected compression algo to properly map zipped files.&#10;Added projection files (prj and xyz) to the zipped package.&#10;&#10;TO DO&#10;&#10;Fix decimation value&#10;Improve speed during Pose Triangulation.&#10;Improve resulting mesh quality" />
+    <option name="LAST_COMMIT_MESSAGE" value="Corrected compression algo to properly map zipped files.&#10;Added projection files (prj and xyz) to the zipped package.&#10;&#10;TO DO&#10;&#10;Fix decimation value&#10;Improve speed during Pose Triangulation.&#10;Improve resulting mesh quality" />
   </component>
 </project>

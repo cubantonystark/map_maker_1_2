@@ -682,6 +682,8 @@ class App(customtkinter.CTk):
 
     def find_folders_with_obj(self):
 
+        refresh_frame_iters = 30
+
         while True:
 
             directory = os.getcwd() + "/ARTAK_MM/POST"
@@ -708,6 +710,15 @@ class App(customtkinter.CTk):
                     for each_item in self.list_of_objs:  # add items with images
                         self.scrollable_label_button_frame.add_item(file=each_item, button_command=each_item)
                     previous_file_count = current_file_count
+                    refresh_frame_iters -= 1
+
+                    if refresh_frame_iters == 0:
+                        self.scrollable_label_button_frame.update()
+                        self.scrollable_label_button_frame = ScrollableLabelButtonFrame(master=self, width=300,
+                                                                                        command=self.label_button_frame_event,
+                                                                                        corner_radius=0)
+                        self.scrollable_label_button_frame.grid(row=0, column=2, padx=0, pady=0, sticky="nsew")
+                        refresh_frame_iters = 30
             time.sleep(10)
 
     def open_obj(self, path):

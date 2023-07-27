@@ -53,7 +53,7 @@ class neural_rendering_and_recon():
         base_dir = os.getcwd()
         tgt_dir = str(tgt_dir)+"/nerfacto"
         tgt_dir = max(pathlib.Path(tgt_dir).glob('*/'), key=os.path.getmtime)
-        cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/exporter.py poisson --load-config "+str(tgt_dir)+"/config.yml --output-dir "+str(tgt_dir)+"/mesh"
+        cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/exporter.py poisson --load-config "+str(tgt_dir)+"/config.yml --output-dir "+str(tgt_dir)+"/mesh --num-pixels-per-side 4096 --px-per-uv-triangle 8 --num-rays-per-batch 65536 --normal-method open3d  --target-num-faces 200000"
         os.system(cmd)
 
         if os.path.exists(base_dir + "/ARTAK_MM/LOGS/status_nr.log"):
@@ -179,7 +179,7 @@ class neural_rendering_and_recon():
             messagebox.showerror('ARTAK 3D Map Maker', 'Dataset could not be successfully processed.')
             sys.exit()
 
-    def process_data(self, to_process, base_dir, src_dir, tgt_dir):
+    def process_data(self, to_process, base_dir, src_dir, tgt_dir, post_dest_folder, model_dest_folder, mission):
         self.write_status(stats = 1)
 
         if to_process == "img":
@@ -218,10 +218,8 @@ class neural_rendering_and_recon():
         arg14 = "viewer_beta"
         arg15 = "--viewer.websocket-host"
         arg16 = "localhost"
-        arg17 = "--max-num-iterations"
-        arg18 = "1000"
 
-        a = subprocess.Popen(["python", arg1, arg2, arg3, arg4, arg5, arg6, arg7,arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18])
+        a = subprocess.Popen(["python", arg1, arg2, arg3, arg4, arg5, arg6, arg7,arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16])
 
         self.write_status(stats = 1)
         time.sleep(5)
