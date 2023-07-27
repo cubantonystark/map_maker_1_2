@@ -16,6 +16,11 @@ class neural_rendering_and_recon():
 
     def copy_obj_and_compress_into_zip(self, tgt_dir, post_dest_folder, model_dest_folder, mission):
 
+        # Lets move the ortho data files into the folder for compression
+
+        shutil.copy(os.getcwd() + "/configs/metadata.prj", str(tgt_dir)+"/mesh")
+        shutil.copy(os.getcwd() + "/configs/metadata.xyz", str(tgt_dir)+"/mesh")
+
         files = [f for f in glob.glob(str(tgt_dir) + "/mesh/*.*")]
 
         for file in files:
@@ -29,11 +34,15 @@ class neural_rendering_and_recon():
         compression = zipfile.ZIP_DEFLATED
 
         files = [f for f in glob.glob(model_dest_folder + "/*.*")]
-        zip_file = post_dest_folder+"/"+mission+'.zip'
+        zip_file = str(post_dest_folder)+"/"+str(mission)+'.zip'
 
-        with zipfile.ZipFile(zip_file, mode="w") as zf:
+        with zipfile.ZipFile(zip_file, mode = "w") as zf:
+
             for file in files:
-                zf.write(file,compress_type = compression, compresslevel = 9)
+
+                file_to_compress = file.split("/")
+                file_to_compress = file_to_compress[-1].split("\\")
+                zf.write(file, file_to_compress[-1],compress_type = compression, compresslevel = 9)
 
         #upload(zip_file, url="https://esp.eastus2.cloudapp.azure.com/")
 
@@ -210,7 +219,7 @@ class neural_rendering_and_recon():
         arg15 = "--viewer.websocket-host"
         arg16 = "localhost"
         arg17 = "--max-num-iterations"
-        arg18 = "35000"
+        arg18 = "1000"
 
         a = subprocess.Popen(["python", arg1, arg2, arg3, arg4, arg5, arg6, arg7,arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16, arg17, arg18])
 
