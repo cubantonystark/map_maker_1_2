@@ -2,6 +2,7 @@ import win32gui, win32con
 '''
 This snippet hides the console in non compiled scripts. Done for aesthetics
 '''
+
 this_program = win32gui.GetForegroundWindow()
 win32gui.ShowWindow(this_program, win32con.SW_HIDE)
 
@@ -9,16 +10,22 @@ from signal import SIGTERM
 import random
 from datetime import datetime
 from PIL import Image
-import os, shutil
+import os, shutil, stat
+
 '''
 This should take care  of the 'job cannot be accessed by this engine' error
 allowing for a clean start.
 '''
 
-user_path = os.path.expanduser('~')
-cc_path = r"Documents/Bentley/ContextCapture Desktop/Jobs"
-user_path = os.path.join(user_path, cc_path)
-shutil.rmtree(user_path)
+try:
+
+    user_path = os.path.expanduser('~')
+    cc_path = r"Documents/Bentley/ContextCapture Desktop/Jobs"
+    user_path = os.path.join(user_path, cc_path)
+    shutil.rmtree(user_path)
+
+except FileNotFoundError:
+    pass
 
 '''
 We will create the work folders on first run. This code serves as a check in case the one of the working folders gets
@@ -68,7 +75,7 @@ subprocess.Popen(["python", "MM_loop_check_files.py"])
 r = random.Random()
 session_id = r.randint(1, 10000000)
 session_logger = MM_logger.initialize_logger("SessionLog" + str(session_id))
-print = session_logger.info
+#print = session_logger.info
 
 class SdCardInsertionEvent(tk.Event):
     def __init__(self, drive_letter):
@@ -76,16 +83,15 @@ class SdCardInsertionEvent(tk.Event):
         self.drive_letter = drive_letter
 
 def play_sound_processing_error():
-    playsound.playsound(os.path.join(os.getcwd(), "error.wav"))
+    playsound.playsound("error.wav")
     print("playing sound: completed ")
 
 def play_sound_processing_complete():
-    print(os.getcwd())
-    playsound.playsound(os.path.join(os.getcwd(), "completed.wav"))
+    playsound.playsound("completed.wav")
     print("playing sound: completed ")
 
 def play_sound_processing_started():
-    playsound.playsound(os.path.join(os.getcwd(), "apocalypse_mission.wav"))
+    playsound.playsound("apocalypse_mission.wav")
     print("playing sound: started ")
 
 class ScrollableLabelButtonFrame(customtkinter.CTkScrollableFrame):
@@ -399,7 +405,7 @@ class App(customtkinter.CTk):
         print("Current thread PID is: "+str(process))
         os.system('taskkill /im iTwinCaptureModelerEngine.exe /F')
         os.remove(os.getcwd()+"/ARTAK_MM/LOGS/kill.mm")
-        os.kill(os.getpid(), SIGTERM)
+        os.system('killall.bat')
         sys.exit()
 
     def delete_all_source_data(self):
