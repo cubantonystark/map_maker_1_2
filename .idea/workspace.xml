@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Finetuned output mesh with less decimation&#10;Added a frame refresh catch (destroy and respawn after 30 iterations) to avoid GUI form freezing with self.scrollable_label_button_frame.update() after n iterations. scrollable_label_button_frame becomes unresponsive and bleeds out onto the right corner of the screen.&#10;Increased Texture resolution to 4096&#10;&#10;&#10;&#10;TO DO&#10;&#10;Improve speed during Pose Triangulation.&#10;Improve resulting mesh quality">
+    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Finetuned output mesh with less decimation">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MM_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_GUI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MM_process_neural.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_process_neural.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -132,7 +131,7 @@
       <workItem from="1690340694408" duration="166000" />
       <workItem from="1690340905274" duration="12343000" />
       <workItem from="1690354177579" duration="26959000" />
-      <workItem from="1690393520783" duration="31781000" />
+      <workItem from="1690393520783" duration="32762000" />
     </task>
     <task id="LOCAL-00001" summary="added open3d">
       <option name="closed" value="true" />
@@ -278,7 +277,15 @@
       <option name="project" value="LOCAL" />
       <updated>1690443873957</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Finetuned output mesh with less decimation">
+      <option name="closed" value="true" />
+      <created>1690464911284</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1690464911284</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -307,6 +314,7 @@
     <MESSAGE value="Added functionality to close the iTwin engine on exit and as many background processes.&#10;Added folders for Lidar and NeuralRecon and updated paths accordingly.&#10;Added zip compresison for SurfaceRecon mesh once finished&#10;Updated the mesh visualization pane to refresh every 5 seconds and display from Photogrammetry, Lidar and NeuralRecon&#10;Resized Main Map Maker Window for better aesthetics.&#10;Cleaned up code&#10;&#10;TO DO&#10;&#10;Include .xyz and prj files on zip Nerf zip file&#10;Check how big can we tile a  mesh on cesium to itigate LOD loss" />
     <MESSAGE value="Corrected compression algo to properly map zipped files.&#10;Added projection files (prj and xyz) to the zipped package.&#10;&#10;TO DO&#10;&#10;Fix decimation value&#10;Improve speed during Pose Triangulation.&#10;Improve resulting mesh quality" />
     <MESSAGE value="Finetuned output mesh with less decimation&#10;Added a frame refresh catch (destroy and respawn after 30 iterations) to avoid GUI form freezing with self.scrollable_label_button_frame.update() after n iterations. scrollable_label_button_frame becomes unresponsive and bleeds out onto the right corner of the screen.&#10;Increased Texture resolution to 4096&#10;&#10;&#10;&#10;TO DO&#10;&#10;Improve speed during Pose Triangulation.&#10;Improve resulting mesh quality" />
-    <option name="LAST_COMMIT_MESSAGE" value="Finetuned output mesh with less decimation&#10;Added a frame refresh catch (destroy and respawn after 30 iterations) to avoid GUI form freezing with self.scrollable_label_button_frame.update() after n iterations. scrollable_label_button_frame becomes unresponsive and bleeds out onto the right corner of the screen.&#10;Increased Texture resolution to 4096&#10;&#10;&#10;&#10;TO DO&#10;&#10;Improve speed during Pose Triangulation.&#10;Improve resulting mesh quality" />
+    <MESSAGE value="Finetuned output mesh with less decimation" />
+    <option name="LAST_COMMIT_MESSAGE" value="Finetuned output mesh with less decimation" />
   </component>
 </project>
