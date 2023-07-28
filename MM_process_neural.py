@@ -63,7 +63,7 @@ class neural_rendering_and_recon():
 
         self.copy_obj_and_compress_into_zip(tgt_dir, post_dest_folder, model_dest_folder, mission, src_dir)
 
-        messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction complete!\n. Mesh is located in '+str(model_dest_folder))
+        messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction complete!')
         sys.exit()
 
     def WindowExists(self, classname):
@@ -103,6 +103,7 @@ class neural_rendering_and_recon():
         # We need a root canvas to be able to display some stuff, this canvas will be hidden though.
         root = Tk()
         root.iconbitmap(default='gui_images/ARTAK_103_drk.ico')
+        root.after(1, lambda: root.focus_force())
         root.withdraw()
 
         # Get the source folder

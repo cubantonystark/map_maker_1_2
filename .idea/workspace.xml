@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Finetuned output mesh with less decimation">
+    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Went back to scrollable_label_button_frame.destroy() since scrollable_label_button_frame.update() causes bleed after a long execution period. The GUI becomes unresponsive as well. Now updates on the right pane will be every 20 seconds.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MM_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_GUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MM_pc2hr.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_pc2hr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MM_pc2lr.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_pc2lr.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MM_process_neural.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_process_neural.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -131,7 +133,8 @@
       <workItem from="1690340694408" duration="166000" />
       <workItem from="1690340905274" duration="12343000" />
       <workItem from="1690354177579" duration="26959000" />
-      <workItem from="1690393520783" duration="32762000" />
+      <workItem from="1690393520783" duration="32953000" />
+      <workItem from="1690509648535" duration="439000" />
     </task>
     <task id="LOCAL-00001" summary="added open3d">
       <option name="closed" value="true" />
@@ -285,7 +288,15 @@
       <option name="project" value="LOCAL" />
       <updated>1690464911284</updated>
     </task>
-    <option name="localTasksCounter" value="20" />
+    <task id="LOCAL-00020" summary="Went back to scrollable_label_button_frame.destroy() since scrollable_label_button_frame.update() causes bleed after a long execution period. The GUI becomes unresponsive as well. Now updates on the right pane will be every 20 seconds.">
+      <option name="closed" value="true" />
+      <created>1690505935198</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1690505935198</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -315,6 +326,7 @@
     <MESSAGE value="Corrected compression algo to properly map zipped files.&#10;Added projection files (prj and xyz) to the zipped package.&#10;&#10;TO DO&#10;&#10;Fix decimation value&#10;Improve speed during Pose Triangulation.&#10;Improve resulting mesh quality" />
     <MESSAGE value="Finetuned output mesh with less decimation&#10;Added a frame refresh catch (destroy and respawn after 30 iterations) to avoid GUI form freezing with self.scrollable_label_button_frame.update() after n iterations. scrollable_label_button_frame becomes unresponsive and bleeds out onto the right corner of the screen.&#10;Increased Texture resolution to 4096&#10;&#10;&#10;&#10;TO DO&#10;&#10;Improve speed during Pose Triangulation.&#10;Improve resulting mesh quality" />
     <MESSAGE value="Finetuned output mesh with less decimation" />
-    <option name="LAST_COMMIT_MESSAGE" value="Finetuned output mesh with less decimation" />
+    <MESSAGE value="Went back to scrollable_label_button_frame.destroy() since scrollable_label_button_frame.update() causes bleed after a long execution period. The GUI becomes unresponsive as well. Now updates on the right pane will be every 20 seconds." />
+    <option name="LAST_COMMIT_MESSAGE" value="Went back to scrollable_label_button_frame.destroy() since scrollable_label_button_frame.update() causes bleed after a long execution period. The GUI becomes unresponsive as well. Now updates on the right pane will be every 20 seconds." />
   </component>
 </project>

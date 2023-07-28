@@ -56,6 +56,8 @@ class meshing():
         root = Tk()
         
         root.iconbitmap(default = 'gui_images/ARTAK_103_drk.ico')
+
+        root.after(1, lambda: root.focus_force())
         
         root.withdraw()
         
