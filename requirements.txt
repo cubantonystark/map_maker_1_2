@@ -7,4 +7,7 @@ pymeshlab
 open3d
 utm
 open3d
-utm
+playsound
+pybrowser
+win32gui
+psutil
