@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Cosmetic change&#10;&#10;Added code to eliminate the Jobs folder to prevent 'job cannot be accessed by this engine' error, which happens when a job was interrupted and the project deleted before &#10;completing.&#10;&#10; Solved it by adding external instructions on killall.bat&#10; &#10;Re-disabled console screen when running Map Maker." />
+    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Cosmetic change&#10;&#10;Added code to eliminate the Jobs folder to prevent 'job cannot be accessed by this engine' error, which happens when a job was interrupted and the project deleted before &#10;completing.&#10;&#10; Solved it by adding external instructions on killall.bat&#10; &#10;Re-disabled console screen when running Map Maker.">
+      <change beforePath="$PROJECT_DIR$/killall.bat" beforeDir="false" afterPath="$PROJECT_DIR$/killall.bat" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -139,7 +141,7 @@
       <workItem from="1690537824019" duration="468000" />
       <workItem from="1690538309326" duration="228000" />
       <workItem from="1690538684665" duration="562000" />
-      <workItem from="1690539333823" duration="4061000" />
+      <workItem from="1690539333823" duration="4163000" />
     </task>
     <task id="LOCAL-00001" summary="added open3d">
       <option name="closed" value="true" />
@@ -357,7 +359,15 @@
       <option name="project" value="LOCAL" />
       <updated>1690555106257</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="Cosmetic change&#10;&#10;Added code to eliminate the Jobs folder to prevent 'job cannot be accessed by this engine' error, which happens when a job was interrupted and the project deleted before &#10;completing.&#10;&#10; Solved it by adding external instructions on killall.bat&#10; &#10;Re-disabled console screen when running Map Maker.">
+      <option name="closed" value="true" />
+      <created>1690555518157</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1690555518157</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
