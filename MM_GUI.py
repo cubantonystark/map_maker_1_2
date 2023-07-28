@@ -147,7 +147,7 @@ class App(customtkinter.CTk):
         self.session_logger = session_logger
         self.iconbitmap(default='gui_images/ARTAK_103.ico')
         self.title("ARTAK Map Maker, by Eolian")
-        self.geometry("1380x720")
+        self.geometry("1400x720")
         self.protocol('WM_DELETE_WINDOW', self.terminate)
 
         # set grid layout 1x2
@@ -529,7 +529,7 @@ class App(customtkinter.CTk):
         except:
             if mm_project.status == "Error":
                 print("Error processing 3D Map")
-                play_sound_processing_complete()
+                #play_sound_processing_complete()
         self.on_project_completed(progress_bar=progress_bar, path=each_folder, mm_project=mm_project)
 
     def label_button_frame_event(self, item):
@@ -698,12 +698,11 @@ class App(customtkinter.CTk):
     def find_folders_with_obj(self):
 
         while True:
-
             directory = os.getcwd() + "/ARTAK_MM/POST"
-            previous_file_count = 0
             self.list_of_objs = []
+            previous_file_count = 0
             current_file_count = len(os.listdir(directory))
-            if current_file_count != previous_file_count or current_file_count == 0:
+            if current_file_count != previous_file_count:
                 for root, dirs, files in os.walk(directory):
                     if "Model" in dirs:
                         output_model_folder = os.path.join(root, "Model")
@@ -722,7 +721,7 @@ class App(customtkinter.CTk):
                     self.scrollable_label_button_frame.grid(row=0, column=2, padx=0, pady=0, sticky="nsew")
                     for each_item in self.list_of_objs:  # add items with images
                         self.scrollable_label_button_frame.add_item(file=each_item, button_command=each_item)
-                    previous_file_count = current_file_count
+                    #previous_file_count = current_file_count
 
             time.sleep(20)
 
@@ -789,7 +788,7 @@ class App(customtkinter.CTk):
         print("on name change")
 
     def on_project_completed(self, progress_bar, path=None, mm_project=MapmakerProject()):
-        play_sound_processing_complete()
+        #play_sound_processing_complete()
         path = mm_project.completed_file_path
         session_project_number = mm_project.session_project_number
         if mm_project.status == "Error":
