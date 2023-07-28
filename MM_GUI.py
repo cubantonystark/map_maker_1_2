@@ -10,9 +10,10 @@ import random
 from datetime import datetime
 from PIL import Image
 import os, shutil
-
-# This should take care  of the 'job cannot be accessed by this engine' error
-# allowing for a clean start.
+'''
+This should take care  of the 'job cannot be accessed by this engine' error
+allowing for a clean start.
+'''
 
 user_path = os.path.expanduser('~')
 cc_path = r"Documents/Bentley/ContextCapture Desktop/Jobs"
