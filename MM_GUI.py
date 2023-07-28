@@ -9,7 +9,15 @@ from signal import SIGTERM
 import random
 from datetime import datetime
 from PIL import Image
-import os
+import os, shutil
+
+# This should take care  of the 'job cannot be accessed by this engine' error
+# allowing for a clean start.
+
+user_path = os.path.expanduser('~')
+cc_path = r"Documents/Bentley/ContextCapture Desktop/Jobs"
+user_path = os.path.join(user_path, cc_path)
+shutil.rmtree(user_path)
 
 '''
 We will create the work folders on first run. This code serves as a check in case the one of the working folders gets

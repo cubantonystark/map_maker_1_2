@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Went back to scrollable_label_button_frame.destroy() since scrollable_label_button_frame.update() causes bleed after a long execution period. The GUI becomes unresponsive as well. Now updates on the right pane will be every 20 seconds.">
+    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Few cosmetic changes:&#10;&#10;Messages generated from the child windows (neuralRecon, pc) will render fore screen instead of behind main window.&#10;&#10;Corrected text on messagebox for those processes as well.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MM_pc2hr.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_pc2hr.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MM_pc2lr.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_pc2lr.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MM_process_neural.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_process_neural.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MM_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_GUI.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -134,7 +132,8 @@
       <workItem from="1690340905274" duration="12343000" />
       <workItem from="1690354177579" duration="26959000" />
       <workItem from="1690393520783" duration="32953000" />
-      <workItem from="1690509648535" duration="439000" />
+      <workItem from="1690509648535" duration="1604000" />
+      <workItem from="1690537824019" duration="443000" />
     </task>
     <task id="LOCAL-00001" summary="added open3d">
       <option name="closed" value="true" />
@@ -296,7 +295,15 @@
       <option name="project" value="LOCAL" />
       <updated>1690505935198</updated>
     </task>
-    <option name="localTasksCounter" value="21" />
+    <task id="LOCAL-00021" summary="Few cosmetic changes:&#10;&#10;Messages generated from the child windows (neuralRecon, pc) will render fore screen instead of behind main window.&#10;&#10;Corrected text on messagebox for those processes as well.">
+      <option name="closed" value="true" />
+      <created>1690510629458</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1690510629458</updated>
+    </task>
+    <option name="localTasksCounter" value="22" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -327,6 +334,7 @@
     <MESSAGE value="Finetuned output mesh with less decimation&#10;Added a frame refresh catch (destroy and respawn after 30 iterations) to avoid GUI form freezing with self.scrollable_label_button_frame.update() after n iterations. scrollable_label_button_frame becomes unresponsive and bleeds out onto the right corner of the screen.&#10;Increased Texture resolution to 4096&#10;&#10;&#10;&#10;TO DO&#10;&#10;Improve speed during Pose Triangulation.&#10;Improve resulting mesh quality" />
     <MESSAGE value="Finetuned output mesh with less decimation" />
     <MESSAGE value="Went back to scrollable_label_button_frame.destroy() since scrollable_label_button_frame.update() causes bleed after a long execution period. The GUI becomes unresponsive as well. Now updates on the right pane will be every 20 seconds." />
-    <option name="LAST_COMMIT_MESSAGE" value="Went back to scrollable_label_button_frame.destroy() since scrollable_label_button_frame.update() causes bleed after a long execution period. The GUI becomes unresponsive as well. Now updates on the right pane will be every 20 seconds." />
+    <MESSAGE value="Few cosmetic changes:&#10;&#10;Messages generated from the child windows (neuralRecon, pc) will render fore screen instead of behind main window.&#10;&#10;Corrected text on messagebox for those processes as well." />
+    <option name="LAST_COMMIT_MESSAGE" value="Few cosmetic changes:&#10;&#10;Messages generated from the child windows (neuralRecon, pc) will render fore screen instead of behind main window.&#10;&#10;Corrected text on messagebox for those processes as well." />
   </component>
 </project>
