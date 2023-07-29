@@ -2,7 +2,6 @@ import win32gui, win32con
 '''
 This snippet hides the console in non compiled scripts. Done for aesthetics
 '''
-
 this_program = win32gui.GetForegroundWindow()
 win32gui.ShowWindow(this_program, win32con.SW_HIDE)
 
@@ -75,7 +74,7 @@ subprocess.Popen(["python", "MM_loop_check_files.py"])
 r = random.Random()
 session_id = r.randint(1, 10000000)
 session_logger = MM_logger.initialize_logger("SessionLog" + str(session_id))
-#print = session_logger.info
+print = session_logger.info
 
 class SdCardInsertionEvent(tk.Event):
     def __init__(self, drive_letter):
@@ -399,8 +398,6 @@ class App(customtkinter.CTk):
         #This will create a file in the logs forlder that will signal we are cloing shop
         with open(os.getcwd()+"/ARTAK_MM/LOGS/kill.mm", "w") as killer:
             pass
-        time.sleep(4)
-
         process = threading.current_thread()
         print("Current thread PID is: "+str(process))
         os.system('taskkill /im iTwinCaptureModelerEngine.exe /F')
@@ -697,12 +694,17 @@ class App(customtkinter.CTk):
 
     def find_folders_with_obj(self):
 
+        current_file_count = 0
+        previous_file_count = 0
+
         while True:
-            directory = os.getcwd() + "/ARTAK_MM/POST"
-            self.list_of_objs = []
-            previous_file_count = 0
-            current_file_count = len(os.listdir(directory))
+            current_file_count = 0
+            directory = ["ARTAK_MM/POST/Photogrammetry", "ARTAK_MM/POST/Lidar", "ARTAK_MM/POST/Neural"]
+            for dirs in directory:
+                current_file_count += len(os.listdir(dirs))
             if current_file_count != previous_file_count:
+                directory = os.getcwd() + "/ARTAK_MM/POST"
+                self.list_of_objs = []
                 for root, dirs, files in os.walk(directory):
                     if "Model" in dirs:
                         output_model_folder = os.path.join(root, "Model")
@@ -713,17 +715,18 @@ class App(customtkinter.CTk):
                             for obj_file in obj_files:
                                 print(os.path.join(output_model_folder, obj_file))
                             self.list_of_objs.append(output_model_folder)
-                if len(self.list_of_objs) != int(previous_file_count):
-                    self.scrollable_label_button_frame.destroy()
-                    self.scrollable_label_button_frame = ScrollableLabelButtonFrame(master=self, width=300,
-                                                                                    command=self.label_button_frame_event,
-                                                                                    corner_radius=0)
-                    self.scrollable_label_button_frame.grid(row=0, column=2, padx=0, pady=0, sticky="nsew")
-                    for each_item in self.list_of_objs:  # add items with images
-                        self.scrollable_label_button_frame.add_item(file=each_item, button_command=each_item)
-                    #previous_file_count = current_file_count
-
-            time.sleep(20)
+                            self.scrollable_label_button_frame.update()
+                self.scrollable_label_button_frame = ScrollableLabelButtonFrame(master=self, width=300,
+                                                                                command=self.label_button_frame_event,
+                                                                                corner_radius=0)
+                self.scrollable_label_button_frame.grid(row=0, column=2, padx=0, pady=0, sticky="nsew")
+                for each_item in self.list_of_objs:  # add items with images
+                    self.scrollable_label_button_frame.add_item(file=each_item, button_command=each_item)
+            else:
+                pass
+            previous_file_count = current_file_count
+            print(previous_file_count, current_file_count)
+            time.sleep(5)
 
     def open_obj(self, path):
         path = os.path.join(path + "/", "Model.obj")

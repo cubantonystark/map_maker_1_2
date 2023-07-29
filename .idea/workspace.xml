@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Cosmetic change&#10;&#10;Added comment to killall.bat&#10; &#10;Re-disabled console screen when running Map Maker.">
+    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Updated MM_GUI.py&#10;&#10;Might consider disable rendering while training and only allow rendering once there is a trained checkpoint.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MM_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_GUI.py" afterDir="false" />
     </list>
@@ -145,7 +145,9 @@
       <workItem from="1690539333823" duration="4304000" />
       <workItem from="1690555910452" duration="27000" />
       <workItem from="1690567921861" duration="1257000" />
-      <workItem from="1690569524732" duration="959000" />
+      <workItem from="1690569524732" duration="1130000" />
+      <workItem from="1690576523447" duration="594000" />
+      <workItem from="1690593548214" duration="4990000" />
     </task>
     <task id="LOCAL-00001" summary="added open3d">
       <option name="closed" value="true" />
@@ -395,7 +397,15 @@
       <option name="project" value="LOCAL" />
       <updated>1690555717211</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="Updated MM_GUI.py">
+      <option name="closed" value="true" />
+      <created>1690570595607</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1690570595607</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -431,6 +441,7 @@
     <MESSAGE value="Cosmetic change&#10;&#10;Added code to eliminate the Jobs folder to prevent 'job cannot be accessed by this engine' error, which happens when a job was interrupted and the project deleted before &#10;completing.&#10;&#10;Re-disabled console screen when runnig Map Maker." />
     <MESSAGE value="Cosmetic change&#10;&#10;Added code to eliminate the Jobs folder to prevent 'job cannot be accessed by this engine' error, which happens when a job was interrupted and the project deleted before &#10;completing.&#10;&#10; Solved it by adding external instructions on killall.bat&#10; &#10;Re-disabled console screen when running Map Maker." />
     <MESSAGE value="Cosmetic change&#10;&#10;Added comment to killall.bat&#10; &#10;Re-disabled console screen when running Map Maker." />
-    <option name="LAST_COMMIT_MESSAGE" value="Cosmetic change&#10;&#10;Added comment to killall.bat&#10; &#10;Re-disabled console screen when running Map Maker." />
+    <MESSAGE value="Updated MM_GUI.py" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated MM_GUI.py" />
   </component>
 </project>
