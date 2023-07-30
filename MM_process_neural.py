@@ -225,15 +225,18 @@ class neural_rendering_and_recon():
         a = subprocess.Popen(["python", arg1, arg2, arg3, arg4, arg5, arg6, arg7,arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15, arg16])
 
         self.write_status(stats = 1)
-        time.sleep(5)
+        time.sleep(6)
 
-        browsers.launch("chrome", url="http://localhost:7007")
+        with open("ARTAK_MM/LOGS/t_render.log", "w") as render_on:
+            pass
 
         while a.poll() is None:
             self.write_status(stats = 1)
             time.sleep(3)
 
         a.kill()
+
+        os.remove("ARTAK_MM/LOGS/t_render.log")
 
         tgt_dir = max(pathlib.Path(arg10).glob('*/'), key=os.path.getmtime)
 
@@ -252,7 +255,7 @@ class neural_rendering_and_recon():
 
         b = subprocess.Popen(["python", arg1, arg2, arg3, arg4, arg5, arg6, arg7])
 
-        time.sleep(5)
+        time.sleep(6)
 
         vis_url = "http://localhost:7007"
         mycmd = r'start chrome /new-tab {}'.format(vis_url)

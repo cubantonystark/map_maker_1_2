@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Updated MM_GUI.py&#10;&#10;Might consider disable rendering while training and only allow rendering once there is a trained checkpoint.">
+    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Updated MM_GUI.py&#10;&#10;Rewrote Right Pane refresh to trigger an update ONLY IF there are any changes on the directories (file/folder addition/deletion)&#10;&#10;Removed unnecessary time delay when closing the application.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MM_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_GUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MM_process_neural.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_process_neural.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -147,7 +148,9 @@
       <workItem from="1690567921861" duration="1257000" />
       <workItem from="1690569524732" duration="1130000" />
       <workItem from="1690576523447" duration="594000" />
-      <workItem from="1690593548214" duration="4990000" />
+      <workItem from="1690593548214" duration="5008000" />
+      <workItem from="1690629707580" duration="1203000" />
+      <workItem from="1690730282333" duration="3961000" />
     </task>
     <task id="LOCAL-00001" summary="added open3d">
       <option name="closed" value="true" />
@@ -405,7 +408,15 @@
       <option name="project" value="LOCAL" />
       <updated>1690570595607</updated>
     </task>
-    <option name="localTasksCounter" value="33" />
+    <task id="LOCAL-00033" summary="Updated MM_GUI.py&#10;&#10;Rewrote Right Pane refresh to trigger an update ONLY IF there are any changes on the directories (file/folder addition/deletion)&#10;&#10;Removed unnecessary time delay when closing the application.">
+      <option name="closed" value="true" />
+      <created>1690598585830</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1690598585830</updated>
+    </task>
+    <option name="localTasksCounter" value="34" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -442,6 +453,7 @@
     <MESSAGE value="Cosmetic change&#10;&#10;Added code to eliminate the Jobs folder to prevent 'job cannot be accessed by this engine' error, which happens when a job was interrupted and the project deleted before &#10;completing.&#10;&#10; Solved it by adding external instructions on killall.bat&#10; &#10;Re-disabled console screen when running Map Maker." />
     <MESSAGE value="Cosmetic change&#10;&#10;Added comment to killall.bat&#10; &#10;Re-disabled console screen when running Map Maker." />
     <MESSAGE value="Updated MM_GUI.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated MM_GUI.py" />
+    <MESSAGE value="Updated MM_GUI.py&#10;&#10;Rewrote Right Pane refresh to trigger an update ONLY IF there are any changes on the directories (file/folder addition/deletion)&#10;&#10;Removed unnecessary time delay when closing the application." />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated MM_GUI.py&#10;&#10;Rewrote Right Pane refresh to trigger an update ONLY IF there are any changes on the directories (file/folder addition/deletion)&#10;&#10;Removed unnecessary time delay when closing the application." />
   </component>
 </project>
