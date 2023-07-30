@@ -2,7 +2,6 @@ import win32gui, win32con
 '''
 This snippet hides the console in non compiled scripts. Done for aesthetics
 '''
-
 this_program = win32gui.GetForegroundWindow()
 win32gui.ShowWindow(this_program, win32con.SW_HIDE)
 
@@ -10,7 +9,7 @@ from signal import SIGTERM
 import random
 from datetime import datetime
 from PIL import Image
-import os, shutil, stat, browsers
+import os, shutil, stat, browsers, webview
 
 '''
 This should take care  of the 'job cannot be accessed by this engine' error
@@ -395,6 +394,13 @@ class App(customtkinter.CTk):
 
     # not working right now because of permissions
     # todo fix permissions
+
+    def show_training(self):
+
+        webview.create_window('ARTAK Map Maker, by Eolian - 3D Scene', 'http://localhost:7007', width = 1800, height = 1200)
+        webview.start()
+        return
+
     def terminate(self):
         #This will create a file in the logs forlder that will signal we are cloing shop
         with open(os.getcwd()+"/ARTAK_MM/LOGS/kill.mm", "w") as killer:
@@ -470,11 +476,6 @@ class App(customtkinter.CTk):
 
                 time.sleep(3)
 
-    def open_scene_in_browser(self):
-
-        browsers.launch("chrome", url="http://localhost:7007")
-        return
-
     def display_activity_on_nr_recon(self):
 
         # will check if neural recon is running. should it be running, the 'Browse' button is disabled'
@@ -495,7 +496,7 @@ class App(customtkinter.CTk):
 
                     if os.path.exists("ARTAK_MM/LOGS/t_render.log"):
                         self.browse_button_nr.configure(text = "View 3D Scene")
-                        self.browse_button_nr.configure(command = self.open_scene_in_browser)
+                        self.browse_button_nr.configure(command = self.show_training)
                         self.browse_button_nr.configure(state='normal')
 
                     else:

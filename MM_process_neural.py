@@ -5,7 +5,7 @@ For Enya, John and Willy.
 All rights reserved.
 '''
 
-import os, sys, browsers, glob, subprocess, time, win32ui, glob, psutil, shutil, zipfile, pathlib
+import os, sys, browsers, glob, subprocess, time, win32ui, glob, psutil, shutil, zipfile, pathlib, webview
 from datetime import date, datetime
 from tkinter import Tk
 from tkinter import filedialog, messagebox
@@ -186,7 +186,7 @@ class neural_rendering_and_recon():
         self.write_status(stats = 1)
 
         if to_process == "img":
-            cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/process_data.py images --data " + str(src_dir) + " --output-dir " + str(tgt_dir)
+            cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/process_data.py images --data " + str(src_dir) + " --output-dir " + str(tgt_dir)+" --num-downscales 0"
             stats = 1
             self.write_status(stats)
             os.system(cmd)
@@ -194,7 +194,7 @@ class neural_rendering_and_recon():
             self.train(tgt_dir, src_dir, post_dest_folder, model_dest_folder, mission, src_dir)
 
         if to_process == "vid":
-            cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/process_data.py video --data " + str(src_dir) + " --output-dir " + str(tgt_dir)
+            cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/process_data.py video --data " + str(src_dir) + " --output-dir " + str(tgt_dir)+" --num-downscales 0"
             stats = 1
             self.write_status(stats)
             os.system(cmd)
@@ -255,11 +255,16 @@ class neural_rendering_and_recon():
 
         b = subprocess.Popen(["python", arg1, arg2, arg3, arg4, arg5, arg6, arg7])
 
-        time.sleep(6)
+        time.sleep(5)
 
+        webview.create_window('ARTAK Map Maker, by Eolian', 'http://localhost:7007', width = 1800, height = 1200)
+        webview.start()
+
+        '''
         vis_url = "http://localhost:7007"
         mycmd = r'start chrome /new-tab {}'.format(vis_url)
         c = subprocess.Popen(mycmd, shell=True)
+        '''
 
         def if_process_is_running_by_exename(exename='chrome.exe'):
             for proc in psutil.process_iter(['pid', 'name']):
