@@ -171,7 +171,7 @@ class neural_rendering_and_recon():
             messagebox.showerror('ARTAK 3D Map Maker', 'No suitable datasets found.')
             sys.exit()
 
-    def check_for_transforms(self, tgt_dir):
+    def check_for_transforms(self, tgt_dir, base_dir):
 
         try:
             with open(tgt_dir+"/transforms.json", "r") as check:
@@ -180,6 +180,8 @@ class neural_rendering_and_recon():
         except FileNotFoundError:
             self.write_status(stats=0)
             messagebox.showerror('ARTAK 3D Map Maker', 'Dataset could not be successfully processed.')
+            if os.path.exists(base_dir + "/ARTAK_MM/LOGS/status_nr.log"):
+                os.remove(base_dir + "/ARTAK_MM/LOGS/status_nr.log")
             sys.exit()
 
     def process_data(self, to_process, base_dir, src_dir, tgt_dir, post_dest_folder, model_dest_folder, mission):
@@ -190,7 +192,7 @@ class neural_rendering_and_recon():
             stats = 1
             self.write_status(stats)
             os.system(cmd)
-            self.check_for_transforms(tgt_dir)
+            self.check_for_transforms(tgt_dir, base_dir)
             self.train(tgt_dir, src_dir, post_dest_folder, model_dest_folder, mission, src_dir)
 
         if to_process == "vid":
@@ -198,7 +200,7 @@ class neural_rendering_and_recon():
             stats = 1
             self.write_status(stats)
             os.system(cmd)
-            self.check_for_transforms(tgt_dir)
+            self.check_for_transforms(tgt_dir, base_dir)
             self.train(tgt_dir, base_dir, post_dest_folder, model_dest_folder, mission, src_dir)
 
     def train(self, tgt_dir, base_dir, post_dest_folder, model_dest_folder, mission, src_dir):

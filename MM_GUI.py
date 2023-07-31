@@ -729,7 +729,7 @@ class App(customtkinter.CTk):
                             for obj_file in obj_files:
                                 print(os.path.join(output_model_folder, obj_file))
                             self.list_of_objs.append(output_model_folder)
-                            self.scrollable_label_button_frame.update()
+                            self.scrollable_label_button_frame.destroy()
                 self.scrollable_label_button_frame = ScrollableLabelButtonFrame(master=self, width=300,
                                                                                 command=self.label_button_frame_event,
                                                                                 corner_radius=0)
@@ -968,6 +968,9 @@ if __name__ == "__main__":
 
     if os.path.exists("ARTAK_MM/LOGS/status_nr.log"):
         os.remove("ARTAK_MM/LOGS/status_nr.log")
+
+    if os.path.exists("ARTAK_MM/LOGS/t_render.log"):
+        os.remove("ARTAK_MM/LOGS/t_render.log")
 
     app = App()
     # threading.Thread(target=app.sd_card_monitor).start()
