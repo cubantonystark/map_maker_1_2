@@ -5,11 +5,10 @@ This snippet hides the console in non compiled scripts. Done for aesthetics
 this_program = win32gui.GetForegroundWindow()
 win32gui.ShowWindow(this_program, win32con.SW_HIDE)
 
-from signal import SIGTERM
 import random
 from datetime import datetime
 from PIL import Image
-import os, shutil, stat, browsers, webview
+import os, shutil, webview
 
 '''
 This should take care  of the 'job cannot be accessed by this engine' error
@@ -60,6 +59,8 @@ import jobqueue_monitor_sample
 from tkhtmlview import HTMLLabel
 from pathlib import Path
 import playsound
+
+sys.setrecursionlimit(1999999999)
 
 customtkinter.set_appearance_mode("Dark")  # Modes: system (default), light, dark
 customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
@@ -396,7 +397,7 @@ class App(customtkinter.CTk):
     # todo fix permissions
 
     def show_training(self):
-
+        time.sleep(2)
         webview.create_window('ARTAK Map Maker, by Eolian - 3D Scene', 'http://localhost:7007', width = 1800, height = 1200)
         webview.start()
         return
@@ -445,7 +446,7 @@ class App(customtkinter.CTk):
 
     def display_activity_on_pc_recon(self):
 
-        # will check if recon is running. should it be runing, the 'Browse' button is disabled'
+        # will check if recon is running. should it be running, the 'Browse' button is disabled'
 
         self.progressbar_pc = customtkinter.CTkProgressBar(self.home_frame)
 
@@ -739,7 +740,7 @@ class App(customtkinter.CTk):
             else:
                 pass
             previous_file_count = current_file_count
-            time.sleep(5)
+            time.sleep(2)
 
     def open_obj(self, path):
         path = os.path.join(path + "/", "Model.obj")

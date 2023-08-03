@@ -46,7 +46,7 @@ class neural_rendering_and_recon():
                 file_to_compress = file_to_compress[-1].split("\\")
                 zf.write(file, file_to_compress[-1],compress_type = compression, compresslevel = 9)
 
-        #upload(zip_file, url="https://esp.eastus2.cloudapp.azure.com/")
+        #upload(zip_file, url="https://esp.eastus2.cloudapp.azure.com/")S
 
         return
 
@@ -64,6 +64,7 @@ class neural_rendering_and_recon():
         self.copy_obj_and_compress_into_zip(tgt_dir, post_dest_folder, model_dest_folder, mission, src_dir)
 
         messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction complete!')
+        os.remove()
         sys.exit()
 
     def WindowExists(self, classname):
@@ -126,12 +127,6 @@ class neural_rendering_and_recon():
 
         model_dest_folder = "ARTAK_MM/POST/Neural/"+str(mission)+"/Data/Model"
 
-        if not os.path.exists(post_dest_folder):
-            os.makedirs(post_dest_folder)
-
-        if not os.path.exists(model_dest_folder):
-            os.makedirs(model_dest_folder)
-
         # Get the source data folder contents
         base_dir = os.getcwd()
         files = []
@@ -142,22 +137,26 @@ class neural_rendering_and_recon():
 
             if files[0].endswith(".jpg") or files[0].endswith('.JPG'):
                 to_process = "img"
+                self.make_post_dest_folders(post_dest_folder, model_dest_folder)
                 tgt_dir = self.create_t_folder(src_dir)
                 self.process_data(to_process, base_dir, src_dir, tgt_dir, post_dest_folder, model_dest_folder, mission)
 
             elif files[0].endswith(".png") or files[0].endswith('.PNG'):
                 to_process = "img"
+                self.make_post_dest_folders(post_dest_folder, model_dest_folder)
                 tgt_dir = self.create_t_folder(src_dir)
                 self.process_data(to_process, base_dir, src_dir, tgt_dir, post_dest_folder, model_dest_folder, mission)
 
             elif files[0].endswith(".mp4") or files[0].endswith('.MP4'):
                 to_process = "vid"
+                self.make_post_dest_folders(post_dest_folder, model_dest_folder)
                 tgt_dir = self.create_t_folder(src_dir)
                 src_dir = files[0]
                 self.process_data(to_process, base_dir, src_dir, tgt_dir, post_dest_folder, model_dest_folder, mission)
 
             elif "transforms.json" in files[0]:
                 tgt_dir = src_dir
+                self.make_post_dest_folders(post_dest_folder, model_dest_folder)
                 self.train(tgt_dir, base_dir, post_dest_folder, model_dest_folder, mission, src_dir)
 
             elif files[0].endswith(".yml") or files[0].endswith('.YML'):
@@ -170,6 +169,16 @@ class neural_rendering_and_recon():
         except IndexError:
             messagebox.showerror('ARTAK 3D Map Maker', 'No suitable datasets found.')
             sys.exit()
+
+    def make_post_dest_folders(self, post_dest_folder, model_dest_folder):
+
+        if not os.path.exists(post_dest_folder):
+            os.makedirs(post_dest_folder)
+
+        if not os.path.exists(model_dest_folder):
+            os.makedirs(model_dest_folder)
+
+        return
 
     def check_for_transforms(self, tgt_dir, base_dir):
 
