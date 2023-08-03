@@ -6,11 +6,11 @@ This snippet hides the console in non compiled scripts. Done for aesthetics
 # this_program = win32gui.GetForegroundWindow()
 # win32gui.ShowWindow(this_program, win32con.SW_HIDE)
 
-from signal import SIGTERM
+
 import random
 from datetime import datetime
 from PIL import Image
-import os, shutil, stat
+import os, shutil, webview
 
 '''
 This should take care  of the 'job cannot be accessed by this engine' error
@@ -62,6 +62,8 @@ from tkhtmlview import HTMLLabel
 from pathlib import Path
 import playsound
 
+sys.setrecursionlimit(1999999999)
+
 customtkinter.set_appearance_mode("Dark")  # Modes: system (default), light, dark
 customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-blue, green
 
@@ -75,7 +77,7 @@ subprocess.Popen(["python", "MM_loop_check_files.py"])
 r = random.Random()
 session_id = r.randint(1, 10000000)
 session_logger = MM_logger.initialize_logger("SessionLog" + str(session_id))
-#print = session_logger.info
+print = session_logger.info
 
 class SdCardInsertionEvent(tk.Event):
     def __init__(self, drive_letter):
@@ -147,7 +149,7 @@ class App(customtkinter.CTk):
         self.session_logger = session_logger
         self.iconbitmap(default='gui_images/ARTAK_103.ico')
         self.title("ARTAK Map Maker, by Eolian")
-        self.geometry("1380x720")
+        self.geometry("1400x720")
         self.protocol('WM_DELETE_WINDOW', self.terminate)
 
         # set grid layout 1x2
@@ -395,12 +397,17 @@ class App(customtkinter.CTk):
 
     # not working right now because of permissions
     # todo fix permissions
+
+    def show_training(self):
+        time.sleep(2)
+        webview.create_window('ARTAK Map Maker, by Eolian - 3D Scene', 'http://localhost:7007', width = 1800, height = 1200)
+        webview.start()
+        return
+
     def terminate(self):
         #This will create a file in the logs forlder that will signal we are cloing shop
         with open(os.getcwd()+"/ARTAK_MM/LOGS/kill.mm", "w") as killer:
             pass
-        time.sleep(4)
-
         process = threading.current_thread()
         print("Current thread PID is: "+str(process))
         os.system('taskkill /im iTwinCaptureModelerEngine.exe /F')
@@ -441,7 +448,7 @@ class App(customtkinter.CTk):
 
     def display_activity_on_pc_recon(self):
 
-        # will check if recon is running. should it be runing, the 'Browse' button is disabled'
+        # will check if recon is running. should it be running, the 'Browse' button is disabled'
 
         self.progressbar_pc = customtkinter.CTkProgressBar(self.home_frame)
 
@@ -490,7 +497,14 @@ class App(customtkinter.CTk):
 
                 if os.path.exists("ARTAK_MM/LOGS/status_nr.log"):
 
-                    self.browse_button_nr.configure(state='disabled')
+                    if os.path.exists("ARTAK_MM/LOGS/t_render.log"):
+                        self.browse_button_nr.configure(text = "View 3D Scene")
+                        self.browse_button_nr.configure(command = self.show_training)
+                        self.browse_button_nr.configure(state='normal')
+
+                    else:
+                        self.browse_button_nr.configure(text="Browse")
+                        self.browse_button_nr.configure(state='disabled')
 
                     self.progressbar_nr.grid(row=10, column=2, padx=20, pady=10, sticky="ew")
                     self.progressbar_nr.set(0)
@@ -529,7 +543,7 @@ class App(customtkinter.CTk):
         except:
             if mm_project.status == "Error":
                 print("Error processing 3D Map")
-                play_sound_processing_complete()
+                #play_sound_processing_complete()
         self.on_project_completed(progress_bar=progress_bar, path=each_folder, mm_project=mm_project)
 
     def label_button_frame_event(self, item):
@@ -697,13 +711,17 @@ class App(customtkinter.CTk):
 
     def find_folders_with_obj(self):
 
-        while True:
+        current_file_count = 0
+        previous_file_count = 0
 
-            directory = os.getcwd() + "/ARTAK_MM/POST"
-            previous_file_count = 0
-            self.list_of_objs = []
-            current_file_count = len(os.listdir(directory))
-            if current_file_count != previous_file_count or current_file_count == 0:
+        while True:
+            current_file_count = 0
+            directory = ["ARTAK_MM/POST/Photogrammetry", "ARTAK_MM/POST/Lidar", "ARTAK_MM/POST/Neural"]
+            for dirs in directory:
+                current_file_count += len(os.listdir(dirs))
+            if current_file_count != previous_file_count:
+                directory = os.getcwd() + "/ARTAK_MM/POST"
+                self.list_of_objs = []
                 for root, dirs, files in os.walk(directory):
                     if "Model" in dirs:
                         output_model_folder = os.path.join(root, "Model")
@@ -714,17 +732,17 @@ class App(customtkinter.CTk):
                             for obj_file in obj_files:
                                 print(os.path.join(output_model_folder, obj_file))
                             self.list_of_objs.append(output_model_folder)
-                if len(self.list_of_objs) != int(previous_file_count):
-                    self.scrollable_label_button_frame.destroy()
-                    self.scrollable_label_button_frame = ScrollableLabelButtonFrame(master=self, width=300,
-                                                                                    command=self.label_button_frame_event,
-                                                                                    corner_radius=0)
-                    self.scrollable_label_button_frame.grid(row=0, column=2, padx=0, pady=0, sticky="nsew")
-                    for each_item in self.list_of_objs:  # add items with images
-                        self.scrollable_label_button_frame.add_item(file=each_item, button_command=each_item)
-                    previous_file_count = current_file_count
-
-            time.sleep(20)
+                            self.scrollable_label_button_frame.destroy()
+                self.scrollable_label_button_frame = ScrollableLabelButtonFrame(master=self, width=300,
+                                                                                command=self.label_button_frame_event,
+                                                                                corner_radius=0)
+                self.scrollable_label_button_frame.grid(row=0, column=2, padx=0, pady=0, sticky="nsew")
+                for each_item in self.list_of_objs:  # add items with images
+                    self.scrollable_label_button_frame.add_item(file=each_item, button_command=each_item)
+            else:
+                pass
+            previous_file_count = current_file_count
+            time.sleep(2)
 
     def open_obj(self, path):
         path = os.path.join(path + "/", "Model.obj")
@@ -789,7 +807,7 @@ class App(customtkinter.CTk):
         print("on name change")
 
     def on_project_completed(self, progress_bar, path=None, mm_project=MapmakerProject()):
-        play_sound_processing_complete()
+        #play_sound_processing_complete()
         path = mm_project.completed_file_path
         session_project_number = mm_project.session_project_number
         if mm_project.status == "Error":
@@ -953,6 +971,9 @@ if __name__ == "__main__":
 
     if os.path.exists("ARTAK_MM/LOGS/status_nr.log"):
         os.remove("ARTAK_MM/LOGS/status_nr.log")
+
+    if os.path.exists("ARTAK_MM/LOGS/t_render.log"):
+        os.remove("ARTAK_MM/LOGS/t_render.log")
 
     app = App()
     # threading.Thread(target=app.sd_card_monitor).start()

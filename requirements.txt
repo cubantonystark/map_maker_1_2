@@ -11,3 +11,4 @@ playsound
 pybrowser
 win32gui
 psutil
+pywebview
