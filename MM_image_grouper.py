@@ -54,7 +54,7 @@ def group_images(source, logger=None, image_spacing=60):
 
     videos = get_video_files(source)
     for each_video in videos:
-        MM_video.extract_frames(each_video, os.getcwd()+'/ARTAK_MM/DATA/Raw_Images/UNZIPPED/video-test')
+        MM_video.extract_frames(each_video, os.path.join(os.getcwd(), '/ARTAK_MM/DATA/Raw_Images/UNZIPPED/', each_video))
         folder_name_paths.append("video-test")
     if image_spacing == "":
         image_spacing = 60
