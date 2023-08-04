@@ -159,8 +159,8 @@ def group_images(source, logger=None, image_spacing=60):
                     logger.info ("copied " + source_path + " + to " + destination_path)
                 metadata = {'total_photos': num_files, 'photos': photo_data}
                 metadata_file = os.path.join(folder_path, 'metadata.json')
-                with open(metadata_file, 'w') as f:
-                    json.dump(dict(metadata), f, indent=4)
+                #with open(metadata_file, 'w') as f:
+                #    json.dump(dict(metadata), f, indent=4)
             else:
                 print ("exif non-existent")
 

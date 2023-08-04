@@ -30,7 +30,7 @@ projectDir = os.getcwd()+'/ARTAK_MM/POST/Photogrammetry/'
 
 class ProcessingPhotogrammetry:
 
-    def __init__(self, file_name, logger, _cesium=False, mm_project=MapmakerProject):
+    def __init__(self, file_name, logger, _cesium=False, mm_project=MapmakerProject()):
 
         self.projecDirPath = projectDir + file_name + str(random.randint(1,1000))
         self.photosDirPath = os.path.join(os.getcwd()+'/ARTAK_MM/DATA/Raw_Images/UNZIPPED/', file_name)
@@ -41,6 +41,7 @@ class ProcessingPhotogrammetry:
         self.mm_project = mm_project
         self.artak_server = self.mm_project.artak_server
         self.logger.info (mm_project.as_dict())
+        self.exif_data_exists = True
 
     def _test_login(self, url):
         # Add Eolian API key "x-api-key" and "x-login-from" to headers to be able to get a session key
@@ -105,7 +106,6 @@ class ProcessingPhotogrammetry:
         # create project
         # --------------------------------------------------------------------
         projectName = os.path.basename(self.projecDirPath)
-
         project = ccmasterkernel.Project()
         project.setName(projectName)
         project.setDescription('Automatically generated from python script')
@@ -132,15 +132,14 @@ class ProcessingPhotogrammetry:
 
         for file in files:
             file = os.path.join(self.photosDirPath, file)
-
             # add photo, create a new photogroup if needed
             lastPhoto = photogroups.addPhotoInAutoMode(file)
-
             if lastPhoto is None:
                 self.logger.info('Could not add photo %s.' % file)
                 continue
 
             # upgrade block positioningLevel if a photo with position is found (GPS tag)
+            # update exif data exists flag if photo with position is found
             if not lastPhoto.pose.center is None:
                 block.setPositioningLevel(ccmasterkernel.PositioningLevel.PositioningLevel_georeferenced)
 
@@ -158,6 +157,8 @@ class ProcessingPhotogrammetry:
             for photo_i in photogroups.getPhotogroup(i_pg).getPhotoArray():
                 self.logger.info('image: %s' % photo_i.imageFilePath)
             print('')
+
+        # handle exception where anafi thermal EO images are thought to be thermal. here we change this manually
         if photogroups.getPhotogroup(i_pg).cameraModelBand == ccmasterkernel.CameraModelBand.CameraModelBand_thermal:
             photogroups.getPhotogroup(i_pg).cameraModelBand = ccmasterkernel.CameraModelBand.CameraModelBand_visible
             photogroups.getPhotogroup(i_pg).CameraModelType = ccmasterkernel.CameraModelType.CameraModelType_perspective
@@ -209,12 +210,20 @@ class ProcessingPhotogrammetry:
         at_settings.keyPointsDensity = ccmasterkernel.KeyPointsDensity.KeyPointsDensity_normal
         at_settings.splatsPreprocessing = ccmasterkernel.SplatsPreprocessing.SplatsPreprocessing_none
         at_settings.adjustmentConstraints = ccmasterkernel.AdjustmentAndPositioning.Positioning_PositionMetadata
-        # at_settings.loadPreset("configs/AT_preset.cfg")
-        at_settings.loadPreset("configs/AT_preset_no_exif.cfg")
-        #turning off for thermal
-       # at_settings.ColorEqualizationPreprocessing = ccmasterkernel.ColorEqualizationPreprocessing.ColorEqualizationPreprocessing_none
-
-
+        if blockAT.isGeoreferenced():
+            self.logger.info("Block is georefrenced")
+            self.exif_data_exists = True
+        else:
+            self.logger.info("Block is NOT georeferenced")
+            self.exif_data_exists = False
+        if self.exif_data_exists:
+            self.logger.info("EXIF data exists")
+            at_settings.loadPreset("configs/AT_preset.cfg")
+        else:
+            self.logger.info("EXIF data DOES NOT exist")
+            at_settings.loadPreset("configs/AT_preset_no_exif.cfg")
+        # turning off for thermal and for faster processing
+        # at_settings.ColorEqualizationPreprocessing = ccmasterkernel.ColorEqualizationPreprocessing.ColorEqualizationPreprocessing_none
         if not blockAT.getAT().setSettings(at_settings):
             self.logger.info("Error: Failed to set settings for aerotriangulation")
             self.mm_project.status = "Error"
@@ -295,8 +304,10 @@ class ProcessingPhotogrammetry:
 
         # todo add logic to use a different present if there is no exif
         # todo add logic to use the proper cfg when there is exif
-      #  reconsettings.loadPreset("configs/Recons_preset.cfg")
-        reconsettings.loadPreset("configs/Recons_preset_no_exif.cfg")
+        if self.exif_data_exists:
+            reconsettings.loadPreset("configs/Recons_preset.cfg")
+        else:
+            reconsettings.loadPreset("configs/Recons_preset_no_exif.cfg")
         reconstruction.setSettings(reconsettings)
         blockAT.addReconstruction(reconstruction)
 
