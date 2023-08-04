@@ -28,8 +28,7 @@ projectDir = os.getcwd()+'/ARTAK_MM/POST/Photogrammetry/'
 # dit_host = "https://esp.eastus2.cloudapp.azure.com/dit/v1/"
 
 
-
-class processing_photogrammetry():
+class ProcessingPhotogrammetry:
 
     def __init__(self, file_name, logger, _cesium=False, mm_project=MapmakerProject):
 
@@ -266,8 +265,8 @@ class processing_photogrammetry():
 
         if not blockAT.canGenerateQualityReport():
             self.logger.info("Error: BlockAT can't generate Quality report")
-            sys.exit(0)
             self.mm_project.status = "Error"
+            sys.exit(0)
 
         if not blockAT.generateQualityReport(True):
             self.logger.info("Error: failed to generate Quality report")
@@ -293,7 +292,11 @@ class processing_photogrammetry():
         # --------------------------------------------------------------------
         reconstruction = ccmasterkernel.Reconstruction(blockAT)
         reconsettings = reconstruction.getSettings()
-        reconsettings.loadPreset("configs/Recons_preset.cfg")
+
+        # todo add logic to use a different present if there is no exif
+        # todo add logic to use the proper cfg when there is exif
+      #  reconsettings.loadPreset("configs/Recons_preset.cfg")
+        reconsettings.loadPreset("configs/Recons_preset_no_exif.cfg")
         reconstruction.setSettings(reconsettings)
         blockAT.addReconstruction(reconstruction)
 
@@ -311,6 +314,7 @@ class processing_photogrammetry():
 
         reconstruction.addProduction(production)
 
+        # handle if the mapmaker was set to process as cesium
         if self.cesium:
             production.setDriverName('Cesium 3D Tiles')
             production.setDestination(os.path.join(project.getProductionsDirPath(), production.getName()))
@@ -320,6 +324,7 @@ class processing_photogrammetry():
             driverOptions.put_int('TextureCompressionQuality', 75)
             driverOptions.writeXML(os.path.join(project.getProductionsDirPath(), "options.xml"))
 
+        # handle if the mapmaker was set not to process as cesium
         else:
             production.setDriverName('OBJ')	
             production.setDestination(os.path.join(project.getProductionsDirPath(), production.getName()))
@@ -405,23 +410,24 @@ class processing_photogrammetry():
         if not os.path.exists(output_folder):
             os.makedirs(output_folder)
 
-        x = str(eval(str(metadata['SRSOrigin'])[0]))
-        y = str(eval(metadata['SRSOrigin'])[1])
-        z = str("101.000")
-        with open(output_folder + "/metadata.xyz",
-                  'w') as xyz:
-            xyz.write(x + " " + y + " " + z)
-        shutil.copy("configs/WGS84.prj", production.getDestination()  + "/Data/Model/metadata.prj")
-
-
+        try:
+            x = str(eval(str(metadata['SRSOrigin'])[0]))
+            y = str(eval(metadata['SRSOrigin'])[1])
+            z = str("101.000")
+            print ("outputting metadata.xyz")
+            with open(output_folder + "/metadata.xyz",
+                      'w') as xyz:
+                xyz.write(x + " " + y + " " + z)
+        except:
+            print ("error accessing metadata, writing fake xyz")
+            with open(output_folder + "/metadata.xyz",
+                      'w') as xyz:
+                xyz.write("0 0 0")
+        print ("attempting to copy prj")
+        shutil.copy("configs/WGS84.prj", os.path.join(production.getDestination(), "Data/Model/metadata.prj"))
+        print("copied prj")
         # set the output file name based on the input file name
         output_file = os.path.join(output_folder, os.path.splitext(os.path.basename(input_file))[0] + ".obj")
-
-        # # create a MeshSet object and load the input OBJ file
-     #   ms = pymeshlab.MeshSet()
-     #   ms.load_new_mesh(input_file)
-        # # save the MeshSet object to the output file
-     #   ms.save_current_mesh(output_file)
         inp_folder = production.getDestination() + "/Data/"
         self.mm_project.completed_file_path = os.path.join(inp_folder, "Model/Model.obj")
         #shutil.copytree(inp_folder, output_folder + "/")
@@ -444,7 +450,7 @@ class processing_photogrammetry():
         self.logger.info ("Sending zip file to ARTAK Content Repository. File = " + str(a))
 
         # rename zip if manually set
-        if self.mm_project.manually_made_name:
+        if self.mm_project. manually_made_name:
             if self.mm_project.manually_made_name != "":
                 manually_set_filename = self.mm_project.manually_made_name + ".zip"
                 new_path = os.path.join(zip_location, manually_set_filename)

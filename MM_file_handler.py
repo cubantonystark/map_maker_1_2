@@ -3,7 +3,7 @@ import os
 from zipfile import ZipFile
 import shutil
 import MM_logger
-from MM_processing_photogrammetry import processing_photogrammetry
+from MM_processing_photogrammetry import ProcessingPhotogrammetry
 # UNZIP
 # DO PRE-PROCESSING -- coming soon
 # PROCESS

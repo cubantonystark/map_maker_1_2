@@ -79,28 +79,32 @@ session_id = r.randint(1, 10000000)
 session_logger = MM_logger.initialize_logger("SessionLog" + str(session_id))
 print = session_logger.info
 
+
 class SdCardInsertionEvent(tk.Event):
     def __init__(self, drive_letter):
         super().__init__()
         self.drive_letter = drive_letter
 
+
 def play_sound_processing_error():
     playsound.playsound("error.wav")
     print("playing sound: completed ")
+
 
 def play_sound_processing_complete():
     playsound.playsound("completed.wav")
     print("playing sound: completed ")
 
+
 def play_sound_processing_started():
     playsound.playsound("apocalypse_mission.wav")
     print("playing sound: started ")
+
 
 class ScrollableLabelButtonFrame(customtkinter.CTkScrollableFrame):
     def __init__(self, master, command=None, **kwargs):
         super().__init__(master, **kwargs)
         self.grid_columnconfigure(0, weight=1)
-
         self.command = command
         self.radiobutton_variable = customtkinter.StringVar()
         self.label_list = []
@@ -140,6 +144,7 @@ class ScrollableLabelButtonFrame(customtkinter.CTkScrollableFrame):
         for label, button in zip(self.label_list, self.button_list):
             label.destroy()
             button.destroy()
+
 
 class App(customtkinter.CTk):
 
@@ -398,11 +403,13 @@ class App(customtkinter.CTk):
     # not working right now because of permissions
     # todo fix permissions
 
+
     def show_training(self):
         time.sleep(2)
         webview.create_window('ARTAK Map Maker, by Eolian - 3D Scene', 'http://localhost:7007', width = 1800, height = 1200)
         webview.start()
         return
+
 
     def terminate(self):
         #This will create a file in the logs forlder that will signal we are cloing shop
@@ -415,17 +422,21 @@ class App(customtkinter.CTk):
         os.system('killall.bat')
         sys.exit()
 
+
     def delete_all_source_data(self):
         directory = os.path.join(os.getcwd(), 'ARTAK_MM/DATA/Raw_Images/UNZIPPED')
         for f in os.listdir(directory):
             os.remove(os.path.join(directory, f))
 
+
     def add_radio_button_set(self, button_label, button_option1, button_option2):
         print("WIP")
+
 
     def process_for_nr(self):
 
         subprocess.Popen(["python", "MM_process_neural.py"])
+
 
     def open_pc_folder(self):
 
@@ -537,8 +548,8 @@ class App(customtkinter.CTk):
                                                session_project_number=session_project_number)
         mm_project.manually_made_name = "ManualNameTest"
         try:
-            a = MM_processing_photogrammetry.processing_photogrammetry(each_folder, logger=logger,
-                                                                       mm_project=mm_project)
+            a = MM_processing_photogrammetry.ProcessingPhotogrammetry(each_folder, logger=logger,
+                                                                      mm_project=mm_project)
             status = a.do_photogrammetry()
         except:
             if mm_project.status == "Error":
@@ -718,7 +729,7 @@ class App(customtkinter.CTk):
             current_file_count = 0
             directory = ["ARTAK_MM/POST/Photogrammetry", "ARTAK_MM/POST/Lidar", "ARTAK_MM/POST/Neural"]
             for dirs in directory:
-                current_file_count += len(os.listdir(dirs))
+                current_file_count += len(os.listdir(os.path.join(os.getcwd(), dirs)))
             if current_file_count != previous_file_count:
                 directory = os.getcwd() + "/ARTAK_MM/POST"
                 self.list_of_objs = []

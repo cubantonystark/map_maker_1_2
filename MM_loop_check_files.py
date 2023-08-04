@@ -53,7 +53,7 @@ def main_loop(frequency=3, logger=""):
                 file_handler.unzip()
                 logger.info('Completed the UNZIP of file. Filename = '+ each_file)
                 logger.info('Starting photogrammetry processing = '+ each_file)
-                a = MM_processing_photogrammetry.processing_photogrammetry(each_file, logger)
+                a = MM_processing_photogrammetry.ProcessingPhotogrammetry(each_file, logger)
                 a.do_photogrammetry()
         time.sleep(frequency)
 

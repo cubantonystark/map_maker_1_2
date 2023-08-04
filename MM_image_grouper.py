@@ -62,6 +62,7 @@ def group_images(source, logger=None, image_spacing=60):
     # get a list of all video files in the folder
     videos = get_video_files(source)
     print (videos)
+    exif_exists = False
 
     # for each video in the list
     for each_video in videos:
@@ -78,6 +79,7 @@ def group_images(source, logger=None, image_spacing=60):
 
         # add the path of the extracted frames to the folder paths array to be returned to mapmaker for processing
         folder_name_paths.append(video_name)
+
 
     # Part 2 Handle Images
 
@@ -103,7 +105,6 @@ def group_images(source, logger=None, image_spacing=60):
 
     # Create a list of lists containing the file names of photos taken within the time interval
     grouped_files = []
-    exif_exists = False
     for i in range(len(file_list)):
         if i == 0:
             grouped_files.append([file_list[i]])
@@ -169,14 +170,14 @@ def group_images(source, logger=None, image_spacing=60):
             logger.warning ("Files already processed")
 
     # now handle the case in which there is no exif data
-    if not exif_exists:
+    if not exif_exists and len(file_list) > 0:
 
         print("exif does not non-existent")
-        folder_name = "VIDEO"
-        logger.info ("Folder name = " + folder_name)
-        folder_name_paths.append(folder_name)
-        folder_path = os.path.join(destination_folder, folder_name)
-        print (folder_path)
+        # folder_name = "VIDEO"
+        # logger.info ("Folder name = " + folder_name)
+        # folder_name_paths.append(folder_name)
+        # folder_path = os.path.join(destination_folder, folder_name)
+        # print (folder_path)
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
         for each_file in file_list:

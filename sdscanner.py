@@ -62,9 +62,9 @@ def print_sd_card_files(drive_letter):
             for f in files:
                 os.remove(path+f)
         if themap == "1":
-            a = MM_processing_photogrammetry.processing_photogrammetry(foldename, logger=logger)
+            a = MM_processing_photogrammetry.ProcessingPhotogrammetry(foldename, logger=logger)
         if themap == "2":
-            a = MM_processing_photogrammetry.processing_photogrammetry(foldename, logger=logger, _cesium=True)
+            a = MM_processing_photogrammetry.ProcessingPhotogrammetry(foldename, logger=logger, _cesium=True)
         a.do_photogrammetry()
 
 
