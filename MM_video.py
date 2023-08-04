@@ -2,8 +2,12 @@ import cv2
 import os
 
 
-def extract_frames(input_video, output_folder, frame_interval=1):
+def extract_frames(input_video, output_folder, frame_interval=5):
+
+    print ("extracting frames")
     # Create the output folder if it doesn't exist
+
+
     os.makedirs(output_folder, exist_ok=True)
 
     # Open the video file
@@ -38,13 +42,13 @@ def extract_frames(input_video, output_folder, frame_interval=1):
     cap.release()
     cv2.destroyAllWindows()
 
-
-if __name__ == "__main__":
-    # Replace 'input_video_path' with the path to your input video file
-    input_video_path = "C:/Users/micha/Downloads/SHERMAN2.MP4"
-
-    # Replace 'output_folder_path' with the desired output folder path
-    output_folder_path = "C:/test"
-
-    # Extract frames every 1 second (change 'frame_interval' as needed)
-    extract_frames(input_video_path, output_folder_path, frame_interval=1)
+#
+# if __name__ == "__main__":
+#     # Replace 'input_video_path' with the path to your input video file
+#     input_video_path = "C:/MapMaker-SapmleDatasets/PhotogrammetryDatasets/Outdoors/Videos/EO-Anafi/Sherman/SHERMAN2.MP4"
+#
+#     # Replace 'output_folder_path' with the desired output folder path
+#     output_folder_path = "C:/test"
+#
+#     # Extract frames every 1 second (change 'frame_interval' as needed)
+#     extract_frames(input_video_path, output_folder_path, frame_interval=1)

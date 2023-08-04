@@ -6,7 +6,6 @@ import json
 import random
 import MM_logger
 import MM_video
-# Set the time interval (in seconds) between photos
 
 
 def get_image_files(folder):
@@ -20,6 +19,7 @@ def get_image_files(folder):
 
     return image_files
 
+
 def get_video_files(folder):
     video_extensions = ['.mp4']  # Add more extensions if needed
     video_files = []
@@ -31,8 +31,10 @@ def get_video_files(folder):
 
     return video_files
 
+
 def remove_mp4_elements(lst):
     lst[:] = [element for element in lst if "MP4" not in element]
+
 
 def find_mp4_elements(lst):
     lst[:] = [element for element in lst if "MP4" in element]
@@ -45,44 +47,60 @@ def sort_files_by_datetime(file_list):
         print("no exif data")
     return file_list
 
+
 def handle_video():
     print("handling video")
 
 
 def group_images(source, logger=None, image_spacing=60):
+
+    # Part 1 handle any videos
+
+    # empty array to later append and return to mapmaker for processing said folders
     folder_name_paths = []
 
+    # get a list of all video files in the folder
     videos = get_video_files(source)
+    print (videos)
+
+    # for each video in the list
     for each_video in videos:
-        MM_video.extract_frames(each_video, os.path.join(os.getcwd(), '/ARTAK_MM/DATA/Raw_Images/UNZIPPED/', each_video))
-        folder_name_paths.append("video-test")
+        # get filename
+        video_file_name = str(os.path.basename(each_video))
+
+        # remove .mp4 from filename
+        video_name = video_file_name.split(".")[0]
+
+        # extract the frames from the video
+        MM_video.extract_frames(each_video, os.path.join(os.getcwd(),
+                                                         'ARTAK_MM/DATA/Raw_Images/UNZIPPED/',
+                                                         video_name))
+
+        # add the path of the extracted frames to the folder paths array to be returned to mapmaker for processing
+        folder_name_paths.append(video_name)
+
+    # Part 2 Handle Images
+
+    # Handle exception if image spacing is incorrectly set by user as an empty string
     if image_spacing == "":
         image_spacing = 60
+
     # Define the path to the source folder containing the photos
     file_list = get_image_files(source)
+
     # Define the path to the destination folder where the photos will be moved
     destination_folder = os.getcwd()+'/ARTAK_MM/DATA/Raw_Images/UNZIPPED/'
     
     # Create the destination folder if it does not exist
     if not os.path.exists(destination_folder):
         os.makedirs(destination_folder)
-    
-    # Get a list of all the files in the source folder
-
-    # for each_file in file_list:
-    #     if "MP4" in str(each_file):
-    #         print ("Found MP4.")
-    #         print ("Count =" + str(count))
-    #         file_list.remove(count)
-    #         print("MP4 removed")
-    #     count = count+1
-
-    # Example usage
 
     remove_mp4_elements(file_list)
+
     # Sort the files by creation time from the EXIF data
     file_list = sort_files_by_datetime(file_list)
     image_spacing = int(image_spacing)
+
     # Create a list of lists containing the file names of photos taken within the time interval
     grouped_files = []
     exif_exists = False
@@ -101,7 +119,8 @@ def group_images(source, logger=None, image_spacing=60):
             except:
                 grouped_files.append([file_list[i]])
     print(len(grouped_files))
-    # Move the photos into new folders based on the time interval and create a JSON file for each folder    
+
+    # Move the photos into new folders based on the time interval and create a JSON file for each folder
     for i, files in enumerate(grouped_files):
         try:
             folder_name = datetime.strptime(Image.open(os.path.join(files[0]))._getexif()[36867], '%Y:%m:%d %H:%M:%S').strftime('%Y-%m-%d_%H-%M-%S')
@@ -148,6 +167,8 @@ def group_images(source, logger=None, image_spacing=60):
             folder_name_paths.append(folder_name)
         except FileExistsError:
             logger.warning ("Files already processed")
+
+    # now handle the case in which there is no exif data
     if not exif_exists:
 
         print("exif does not non-existent")
@@ -155,7 +176,6 @@ def group_images(source, logger=None, image_spacing=60):
         logger.info ("Folder name = " + folder_name)
         folder_name_paths.append(folder_name)
         folder_path = os.path.join(destination_folder, folder_name)
-
         print (folder_path)
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
@@ -170,4 +190,3 @@ def group_images(source, logger=None, image_spacing=60):
             logger.info("copied " + each_file + " + to " + destination_path)
     logger.info("FNP " + str(folder_name_paths))
     return folder_name_paths
-#group_images("E:\\DCIM\\101MEDIA\\")
