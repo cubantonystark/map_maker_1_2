@@ -7,7 +7,7 @@ import sys
 import os
 import time
 import array as arr
-
+import statistics
 import itwincapturemodeler
 import random
 
@@ -308,7 +308,9 @@ class ProcessingPhotogrammetry:
             reconsettings.loadPreset("configs/Recons_preset.cfg")
         else:
             reconsettings.loadPreset("configs/Recons_preset_no_exif.cfg")
+
         reconstruction.setSettings(reconsettings)
+        reconstruction.setSRS("EPSG:3395")
         blockAT.addReconstruction(reconstruction)
 
         if reconstruction.getNumInternalTiles() == 0:
@@ -317,12 +319,10 @@ class ProcessingPhotogrammetry:
             sys.exit(0)
 
         self.logger.info('Reconstruction item created.')
-
         # --------------------------------------------------------------------
         # Production
         # --------------------------------------------------------------------
         production = ccmasterkernel.Production(reconstruction)
-
         reconstruction.addProduction(production)
 
         # handle if the mapmaker was set to process as cesium
@@ -340,14 +340,41 @@ class ProcessingPhotogrammetry:
             production.setDriverName('OBJ')	
             production.setDestination(os.path.join(project.getProductionsDirPath(), production.getName()))
             driverOptions = production.getDriverOptions()
-            self.logger.info (driverOptions)
+            self.logger.info(driverOptions)
+            driverOptions.writeXML(os.path.join(project.getProductionsDirPath(), "options_premod.xml"))
+            print ("ROI xMax =" + str(production.getROI().getBoundingBox().xMax))
+            print ("ROI xMin =" + str(production.getROI().getBoundingBox().xMin))
+            print ("ROI yMax =" + str(production.getROI().getBoundingBox().yMax))
+            print ("ROI yMin =" + str(production.getROI().getBoundingBox().yMin))
+            print ("ROI zMax =" + str(production.getROI().getBoundingBox().zMax))
+            print ("ROI zMin =" + str(production.getROI().getBoundingBox().zMin))
+
+            roi_center = (statistics.median((production.getROI().getBoundingBox().xMax,
+                                           production.getROI().getBoundingBox().xMin)),
+                          statistics.median((production.getROI().getBoundingBox().yMax,
+                                             production.getROI().getBoundingBox().yMin)),
+                          statistics.median((production.getROI().getBoundingBox().zMax,
+                                            production.getROI().getBoundingBox().zMin))
+                          )
+
+            srs_origin = str(roi_center[0]) + "," + str(roi_center[1]) + "," + str(roi_center[2])
+            # print ("AUTOMATIC ROI =" + str(production.getAutomaticROI()))
+            # print ("DEFAULT ROI =" + str(production.getDefaultROI()))
             driverOptions.put_bool('TextureEnabled', True)
+            driverOptions.put_string('SRSOrigin', srs_origin)
             driverOptions.put_bool('DoublePrecision', True)
             driverOptions.put_int('TextureCompressionQuality', 75)
             driverOptions.put_int('MaximumTextureSize', 4096)
             #driverOptions.put_int('TextureColorSource', ccmasterkernel.CameraModelBand.CameraModelBand_thermal)
-            #driverOptions.put_string('SRS', 'EPSG:32617')
-            driverOptions.writeXML(os.path.join(project.getProductionsDirPath(), "options.xml"))
+
+            # manaully set to WGS 84 / World Mercator (EPSG:3395)
+            driverOptions.put_string('SRS', 'EPSG:3395')
+            # we use the PRJ file in the configs folder which has the data for this projection
+            # we also change the metadata.xyz file to match the x y data from a file we create named metadata.xml
+            # todo change xy data in metadata.xyz to match metadata.xml
+
+            # driverOptions.put_string('SRS', 'EPSG:32617')
+            driverOptions.writeXML(os.path.join(project.getProductionsDirPath(), "options_postmod.xml"))
 
         production.setDriverOptions(driverOptions)
 
@@ -422,6 +449,7 @@ class ProcessingPhotogrammetry:
             os.makedirs(output_folder)
 
         try:
+            # get center coordinate from metadata
             x = str(eval(str(metadata['SRSOrigin'])[0]))
             y = str(eval(metadata['SRSOrigin'])[1])
             z = str("101.000")
@@ -433,7 +461,11 @@ class ProcessingPhotogrammetry:
             print ("error accessing metadata, writing fake xyz")
             with open(output_folder + "/metadata.xyz",
                       'w') as xyz:
-                xyz.write("0 0 0")
+                try:
+                    xyz.write(str(roi_center[0]) + " " + str(roi_center[1]) + " " + str(roi_center[2]))
+                except:
+                    xyz.write(str("0 0 0"))
+
         print ("attempting to copy prj")
         shutil.copy("configs/WGS84.prj", os.path.join(production.getDestination(), "Data/Model/metadata.prj"))
         print("copied prj")
