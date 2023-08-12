@@ -11,7 +11,7 @@ o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel.Error)
 import pymeshlab
 from datetime import date, datetime
 from PIL import Image
-import os, platform, shutil, zipfile, logging, sys, glob, utm
+import os, platform, shutil, zipfile, logging, sys, glob, utm, time
 from tkinter import Tk
 from tkinter import filedialog, messagebox
 
@@ -541,16 +541,17 @@ class meshing():
         # copy the obj to the post folder
         shutil.copy(newpath_texturized, model_dest_folder + "/Model.obj")
 
+        messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction Complete.')
+        # logging.info('Process complete.\r')
+        message = 'Reconstruction Complete.'
+        time.sleep(10)
         # Once done, we will cleanup
         try:
-            shutil.rmtree("ARTAK_MM/DATA/PointClouds/"+ folder_type + separator + pc_folder)
+            shutil.rmtree("ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
             # Remove the status flag for MM_GUI progressbar
             os.remove(log_folder + "/status.log")
         except FileNotFoundError:
             pass
-        messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction Complete.')
-        # logging.info('Process complete.\r')
-        message = 'Reconstruction Complete.'
         sys.exit()
 
     def compress_into_zip(self, with_texture_output_folder, newpath):
