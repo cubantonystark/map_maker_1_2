@@ -210,7 +210,8 @@ class processing_photogrammetry():
         at_settings.keyPointsDensity = ccmasterkernel.KeyPointsDensity.KeyPointsDensity_normal
         at_settings.splatsPreprocessing = ccmasterkernel.SplatsPreprocessing.SplatsPreprocessing_none
         at_settings.adjustmentConstraints = ccmasterkernel.AdjustmentAndPositioning.Positioning_PositionMetadata
-        at_settings.loadPreset("configs/AT_preset.cfg")
+        # at_settings.loadPreset("configs/AT_preset.cfg")
+        at_settings.loadPreset("configs/AT_preset_no_exif.cfg")
         #turning off for thermal
        # at_settings.ColorEqualizationPreprocessing = ccmasterkernel.ColorEqualizationPreprocessing.ColorEqualizationPreprocessing_none
 
