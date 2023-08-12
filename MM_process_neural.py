@@ -5,7 +5,7 @@ For Enya, John and Willy.
 All rights reserved.
 '''
 
-import os, sys, browsers, glob, subprocess, time, win32ui, glob, psutil, shutil, zipfile, pathlib, webview
+import os, sys, time, win32ui, glob, psutil, shutil, zipfile, pathlib, webview, subprocess
 from datetime import date, datetime
 from tkinter import Tk
 from tkinter import filedialog, messagebox
@@ -62,7 +62,7 @@ class neural_rendering_and_recon():
 
         messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction complete!')
 
-        time.sleep(10)
+        time.sleep(5)
 
         if os.path.exists(base_dir + "/ARTAK_MM/LOGS/status_nr.log"):
             os.remove(base_dir + "/ARTAK_MM/LOGS/status_nr.log")
@@ -257,7 +257,6 @@ class neural_rendering_and_recon():
 
     def render(self, tgt_dir, base_dir):
 
-
         arg1 = str(base_dir)+"/nerfstudio/nerfstudio/scripts/viewer/run_viewer.py"
         arg2 = "--load_config"
         arg3 = str(tgt_dir)
@@ -299,7 +298,6 @@ class neural_rendering_and_recon():
                 break
 
         b.kill()
-        c.kill()
 
         sys.exit()
 

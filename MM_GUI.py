@@ -1,10 +1,10 @@
 import win32gui, win32con
 '''
 This snippet hides the console in non compiled scripts. Done for aesthetics
-
+'''
 this_program = win32gui.GetForegroundWindow()
 win32gui.ShowWindow(this_program, win32con.SW_HIDE)
-'''
+
 import random
 from datetime import datetime
 from PIL import Image
@@ -75,7 +75,7 @@ subprocess.Popen(["python", "MM_loop_check_files.py"])
 r = random.Random()
 session_id = r.randint(1, 10000000)
 session_logger = MM_logger.initialize_logger("SessionLog" + str(session_id))
-#print = session_logger.info
+print = session_logger.info
 
 class SdCardInsertionEvent(tk.Event):
     def __init__(self, drive_letter):
@@ -403,7 +403,7 @@ class App(customtkinter.CTk):
         return
 
     def terminate(self):
-        #This will create a file in the logs forlder that will signal we are cloing shop
+        #This will create a file in the logs folder that will signal we are cloing shop
         with open(os.getcwd()+"/ARTAK_MM/LOGS/kill.mm", "w") as killer:
             pass
         process = threading.current_thread()
@@ -446,8 +446,6 @@ class App(customtkinter.CTk):
             with open('ARTAK_MM/LOGS/pc_type.log', 'w') as pc_type:
                 pc_type.write('hr')
             subprocess.Popen(["python", "MM_gen_pc.py"])
-
-
 
     def display_activity_on_pc_recon(self):
 
@@ -750,6 +748,8 @@ class App(customtkinter.CTk):
             time.sleep(20)
 
     def find_folders_with_obj_once(self):
+
+        self.list_of_objs = []
 
         if not os.path.exists("ARTAK_MM/LOGS/status.log") and not os.path.exists("ARTAK_MM/LOGS/status_nr.log"):
             pass

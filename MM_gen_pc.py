@@ -30,8 +30,16 @@ class meshing():
 
         global swap_axis, path, filename, mesh_output_folder, simplified_output_folder, with_texture_output_folder, obj_file, separator, c, log_name, lat, lon, utm_easting, utm_northing, zone, log_name, log_folder, pc_folder, post_dest_folder, model_dest_folder, face_number, designator, folder_type, folder_suffix
 
+        root = Tk()
+        root.iconbitmap(default='gui_images/ARTAK_103_drk.ico')
+        root.after(1, lambda: root.focus_force())
+        root.withdraw()
+        fullpath = filedialog.askopenfile(filetypes=(("PointClouds", "*.ply;*.pts;"), ("All files", "*.*")))
+        fullpath = str(fullpath)
+
         with open('ARTAK_MM/LOGS/pc_type.log', 'r') as pc_type:
             pc = pc_type.read()
+
         if 'hr' in pc:
             face_number = 9500000
             designator = 'hr_'
@@ -58,12 +66,6 @@ class meshing():
         # Define o3d data object to handle PointCloud
         ply_point_cloud = o3d.data.PLYPointCloud()
 
-        root = Tk()
-        root.iconbitmap(default='gui_images/ARTAK_103_drk.ico')
-        root.after(1, lambda: root.focus_force())
-        root.withdraw()
-        fullpath = filedialog.askopenfile(filetypes=(("PointClouds", "*.ply;*.pts;"), ("All files", "*.*")))
-        fullpath = str(fullpath)
         lat = "0"
         lon = "0"
 
@@ -544,7 +546,7 @@ class meshing():
         messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction Complete.')
         # logging.info('Process complete.\r')
         message = 'Reconstruction Complete.'
-        time.sleep(10)
+        time.sleep(5)
         # Once done, we will cleanup
         try:
             shutil.rmtree("ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
