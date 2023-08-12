@@ -440,12 +440,12 @@ class App(customtkinter.CTk):
 
             with open('ARTAK_MM/LOGS/pc_type.log', 'w') as pc_type:
                 pc_type.write('leg')
-            subprocess.Popen(["python", "gen_pc.py"])
+            subprocess.Popen(["python", "MM_gen_pc.py"])
 
         else:
             with open('ARTAK_MM/LOGS/pc_type.log', 'w') as pc_type:
                 pc_type.write('hr')
-            subprocess.Popen(["python", "gen_pc.py"])
+            subprocess.Popen(["python", "MM_gen_pc.py"])
 
 
 
