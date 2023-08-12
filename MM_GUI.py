@@ -802,7 +802,6 @@ class App(customtkinter.CTk):
                                                          text=f"Process SD in {sd_drive}",
                                                          command=lambda: self.process_sd_card(sd_drive,
                                                                                               self.process_sd_button))
-
         if self.auto_process_sd_var.get():
             self.process_sd_card(sd_drive, self.process_sd_button)
 
