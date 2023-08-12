@@ -5,9 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Updated MM_GUI.py&#10;&#10;Added a branded NERF visualizer for training and rendering instances">
+      <change afterPath="$PROJECT_DIR$/gen_pc.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/map_maker_1_2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/map_maker_1_2.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MM_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_GUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MM_pc2hr.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MM_pc2lr.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/MM_process_neural.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_process_neural.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -46,7 +49,7 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="ProjectErrors" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectId" id="2SiL05sM28XorlM5hVlXwoiUmTa" />
   <component name="ProjectLevelVcsManager">
@@ -157,6 +160,16 @@
       <workItem from="1690931955144" duration="5003000" />
       <workItem from="1690993450662" duration="4577000" />
       <workItem from="1690999091000" duration="148000" />
+      <workItem from="1691081030655" duration="2192000" />
+      <workItem from="1691200381267" duration="1553000" />
+      <workItem from="1691362220194" duration="7463000" />
+      <workItem from="1691423147002" duration="20256000" />
+      <workItem from="1691562287157" duration="899000" />
+      <workItem from="1691628503529" duration="9802000" />
+      <workItem from="1691711179454" duration="23000" />
+      <workItem from="1691712546429" duration="2693000" />
+      <workItem from="1691772077932" duration="15685000" />
+      <workItem from="1691820395154" duration="3105000" />
     </task>
     <task id="LOCAL-00001" summary="added open3d">
       <option name="closed" value="true" />
@@ -446,7 +459,15 @@
       <option name="project" value="LOCAL" />
       <updated>1690772668842</updated>
     </task>
-    <option name="localTasksCounter" value="37" />
+    <task id="LOCAL-00037" summary="Updated MM_GUI.py&#10;&#10;Added a branded NERF visualizer for training and rendering instances">
+      <option name="closed" value="true" />
+      <created>1691081142552</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1691081142552</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

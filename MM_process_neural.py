@@ -64,7 +64,6 @@ class neural_rendering_and_recon():
         self.copy_obj_and_compress_into_zip(tgt_dir, post_dest_folder, model_dest_folder, mission, src_dir)
 
         messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction complete!')
-        os.remove()
         sys.exit()
 
     def WindowExists(self, classname):
@@ -197,7 +196,7 @@ class neural_rendering_and_recon():
         self.write_status(stats = 1)
 
         if to_process == "img":
-            cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/process_data.py images --data " + str(src_dir) + " --output-dir " + str(tgt_dir)+" --num-downscales 0"
+            cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/process_data.py images --data " + str(src_dir) + " --output-dir " + str(tgt_dir)+" --num-downscales 3"
             stats = 1
             self.write_status(stats)
             os.system(cmd)
@@ -205,7 +204,7 @@ class neural_rendering_and_recon():
             self.train(tgt_dir, src_dir, post_dest_folder, model_dest_folder, mission, src_dir)
 
         if to_process == "vid":
-            cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/process_data.py video --data " + str(src_dir) + " --output-dir " + str(tgt_dir)+" --num-downscales 0"
+            cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/process_data.py video --data " + str(src_dir) + " --output-dir " + str(tgt_dir)+" --num-downscales 3"
             stats = 1
             self.write_status(stats)
             os.system(cmd)
