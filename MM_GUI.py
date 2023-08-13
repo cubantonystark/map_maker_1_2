@@ -479,7 +479,7 @@ class App(customtkinter.CTk):
                     self.progressbar_pc.set(1)
                     app.find_folders_with_obj_once()
 
-                time.sleep(10)
+                time.sleep(15)
 
     def display_activity_on_nr_recon(self):
         # will check if neural recon is running. should it be running, the 'Browse' button is disabled'
@@ -520,7 +520,7 @@ class App(customtkinter.CTk):
                     self.progressbar_nr.set(1)
                     app.find_folders_with_obj_once()
 
-                time.sleep(10)
+                time.sleep(15)
 
     def browse_directory(self):
         path = filedialog.askdirectory()
@@ -745,7 +745,7 @@ class App(customtkinter.CTk):
             else:
                 pass
             previous_file_count = current_file_count
-            time.sleep(20)
+            time.sleep(30)
 
     def find_folders_with_obj_once(self):
 

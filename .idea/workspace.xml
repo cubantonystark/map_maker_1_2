@@ -7,8 +7,6 @@
     <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Combined both Legacy (Holoens) and New (Cesium) pipelines into only one file, bounding the type of resulting package to the settings page.&#10;&#10;Fine-tuned the raw mesh cleaning process before passing it to the decimation section.&#10;&#10;Added code to update the right pane upon mesh or nerf processing complete.&#10;&#10;Added time delay once reconstruction is complete to allow the right pane to update.&#10;&#10;Adjusted PointCloud file name to naming convention">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/MM_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_GUI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MM_gen_pc.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_gen_pc.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MM_process_neural.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_process_neural.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -107,7 +105,7 @@
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="WORKING_DIRECTORY" value="" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
@@ -167,6 +165,7 @@
       <workItem from="1691712546429" duration="2693000" />
       <workItem from="1691772077932" duration="15685000" />
       <workItem from="1691820395154" duration="7357000" />
+      <workItem from="1691880397390" duration="1174000" />
     </task>
     <task id="LOCAL-00001" summary="added open3d">
       <option name="closed" value="true" />
