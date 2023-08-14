@@ -5,10 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Combined both Legacy (Holoens) and New (Cesium) pipelines into only one file, bounding the type of resulting package to the settings page.&#10;&#10;Fine-tuned the raw mesh cleaning process before passing it to the decimation section.&#10;&#10;Added code to update the right pane upon mesh or nerf processing complete and added time delay once reconstruction is complete to allow the right pane to update.&#10;&#10;Adjusted PointCloud file name to naming convention">
-      <change beforePath="$PROJECT_DIR$/.idea/map_maker_1_2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/map_maker_1_2.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MM_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_GUI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MM_process_neural.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_process_neural.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nerfstudio/docs/nerfology/model_components/visualize_encoders.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/nerfstudio/docs/nerfology/model_components/visualize_encoders.ipynb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,22 +55,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Projects/map_maker_1_2&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;yarn&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;Errors&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "dev__neural__surface__recon__pipeline",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "D:/Projects/map_maker_1_2",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "yarn",
+    "settings.editor.selected.configurable": "Errors",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="Push.Settings">
     <force-push-targets>
       <force-push-target remote-path="origin" branch="dev_neural_surface_recon_pipeline" />
