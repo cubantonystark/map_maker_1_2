@@ -5,16 +5,29 @@ For Enya, John and Willy.
 All rights reserved.
 '''
 
-import os, sys, time, win32ui, glob, psutil, shutil, zipfile, pathlib, webview, subprocess
+import os, sys, time, win32ui, glob, psutil, shutil, zipfile, pathlib, webview, subprocess, pymeshlab, random
 from datetime import date, datetime
 from tkinter import Tk
 from tkinter import filedialog, messagebox
+import MM_logger
 
-global post_dest_folder, model_dest_folder, mission
+global post_dest_folder, model_dest_folder, mission, session_logger
+
+# We will initialize a logger and create a file name
+
+today = date.today()
+now = datetime.now()
+mission = "nerf_"+str(today.strftime("%Y-%m-%d"))
+current_time = now.strftime("%H-%M-%S")
+mission = mission+"_"+str(current_time)
+session_logger = MM_logger.initialize_logger("SessionLog_" + str(mission))
+print = session_logger.info
 
 class neural_rendering_and_recon():
 
     def copy_obj_and_compress_into_zip(self, tgt_dir, post_dest_folder, model_dest_folder, mission, src_dir):
+
+        session_logger.info("Compressing into Zip File.")
 
         # Lets move the ortho data files into the folder for compression
 
@@ -33,6 +46,24 @@ class neural_rendering_and_recon():
 
         os.rename(model_dest_folder+"/mesh.obj", model_dest_folder+"/Model.obj")
 
+        ms = pymeshlab.MeshSet()
+
+        ms.load_new_mesh(model_dest_folder+"/Model.obj")
+
+        ms.apply_filter('compute_matrix_from_scaling_or_normalization',
+                        axisx = 3008,
+                        uniformflag = True,
+                        freeze = True)
+
+        ms.save_current_mesh(model_dest_folder+"/Model.obj",
+                             save_vertex_color=True,
+                             save_vertex_coord=True,
+                             save_vertex_normal=True,
+                             save_face_color=True,
+                             save_wedge_texcoord=True,
+                             save_wedge_normal=True,
+                             save_polygonal=True)
+
         compression = zipfile.ZIP_DEFLATED
 
         files = [f for f in glob.glob(model_dest_folder + "/*.*")]
@@ -46,11 +77,13 @@ class neural_rendering_and_recon():
                 file_to_compress = file_to_compress[-1].split("\\")
                 zf.write(file, file_to_compress[-1],compress_type = compression, compresslevel = 9)
 
-        #upload(zip_file, url="https://esp.eastus2.cloudapp.azure.com/")S
+        #upload(zip_file, url="https://esp.eastus2.cloudapp.azure.com/")
 
         return
 
     def recon(self, tgt_dir, post_dest_folder, model_dest_folder, mission, src_dir):
+
+        session_logger.info("Starting Reconstruction.")
 
         base_dir = os.getcwd()
         tgt_dir = str(tgt_dir)+"/nerfacto"
@@ -66,6 +99,8 @@ class neural_rendering_and_recon():
 
         if os.path.exists(base_dir + "/ARTAK_MM/LOGS/status_nr.log"):
             os.remove(base_dir + "/ARTAK_MM/LOGS/status_nr.log")
+
+        session_logger.info("Reconstruction Complete.")
 
         sys.exit()
 
@@ -114,15 +149,6 @@ class neural_rendering_and_recon():
         if len(src_dir) == 0:
             sys.exit()
 
-        today = date.today()
-        now = datetime.now()
-
-        mission = "nerf_"+str(today.strftime("%Y-%m-%d"))
-
-        current_time = now.strftime("%H-%M-%S")
-
-        mission = mission+"_"+str(current_time)
-
         # Derive destination folders for posting from the source folder
 
         post_dest_folder = "ARTAK_MM/POST/Neural/"+str(mission)+"/Data"
@@ -170,6 +196,7 @@ class neural_rendering_and_recon():
 
         except IndexError:
             messagebox.showerror('ARTAK 3D Map Maker', 'No suitable datasets found.')
+            session_logger.info("Error. No suitable datasets found. Quitting.")
             sys.exit()
 
     def make_post_dest_folders(self, post_dest_folder, model_dest_folder):
@@ -191,6 +218,7 @@ class neural_rendering_and_recon():
         except FileNotFoundError:
             self.write_status(stats=0)
             messagebox.showerror('ARTAK 3D Map Maker', 'Dataset could not be successfully processed.')
+            session_logger.info("Error. Dataset could not be successfully processed.")
             if os.path.exists(base_dir + "/ARTAK_MM/LOGS/status_nr.log"):
                 os.remove(base_dir + "/ARTAK_MM/LOGS/status_nr.log")
             sys.exit()
@@ -199,6 +227,7 @@ class neural_rendering_and_recon():
         self.write_status(stats = 1)
 
         if to_process == "img":
+            session_logger.info("Processing Image Dataset.")
             cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/process_data.py images --data " + str(src_dir) + " --output-dir " + str(tgt_dir)+" --num-downscales 3"
             stats = 1
             self.write_status(stats)
@@ -207,6 +236,7 @@ class neural_rendering_and_recon():
             self.train(tgt_dir, src_dir, post_dest_folder, model_dest_folder, mission, src_dir)
 
         if to_process == "vid":
+            session_logger.info("Extracting Frames.")
             cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/process_data.py video --data " + str(src_dir) + " --output-dir " + str(tgt_dir)+" --num-downscales 3"
             stats = 1
             self.write_status(stats)
@@ -215,6 +245,8 @@ class neural_rendering_and_recon():
             self.train(tgt_dir, base_dir, post_dest_folder, model_dest_folder, mission, src_dir)
 
     def train(self, tgt_dir, base_dir, post_dest_folder, model_dest_folder, mission, src_dir):
+
+        session_logger.info("Training Started.")
 
         base_dir = os.getcwd()
 
@@ -253,9 +285,13 @@ class neural_rendering_and_recon():
 
         tgt_dir = max(pathlib.Path(arg10).glob('*/'), key=os.path.getmtime)
 
+        session_logger.info("Training Ended.")
+
         self.recon(tgt_dir, post_dest_folder, model_dest_folder, mission, src_dir)
 
     def render(self, tgt_dir, base_dir):
+
+        session_logger.info("Rendering.")
 
         arg1 = str(base_dir)+"/nerfstudio/nerfstudio/scripts/viewer/run_viewer.py"
         arg2 = "--load_config"

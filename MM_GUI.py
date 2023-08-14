@@ -1,14 +1,15 @@
 import win32gui, win32con
 '''
 This snippet hides the console in non compiled scripts. Done for aesthetics
-'''
+
 this_program = win32gui.GetForegroundWindow()
 win32gui.ShowWindow(this_program, win32con.SW_HIDE)
-
+'''
 import random
 from datetime import datetime
 from PIL import Image
 import os, shutil, webview
+import open3d as o3d
 
 '''
 This should take care  of the 'job cannot be accessed by this engine' error
@@ -45,7 +46,7 @@ for dir in dirs1:
     else:
         continue
 
-import sys, time, threading, win32file, subprocess
+import sys, time, threading, win32file, subprocess, pymeshlab
 import MM_image_grouper
 import MM_objects
 import MM_processing_photogrammetry
@@ -791,7 +792,7 @@ class App(customtkinter.CTk):
         subprocess.Popen(['start', ' ', path], shell=True)
 
     def open_obj_new(self, path):
-        print("opening obj" + path)
+        print("opening obj " + path)
         subprocess.Popen(['start', ' ', path], shell=True)
 
     def on_sd_card_insertion(self, event):
