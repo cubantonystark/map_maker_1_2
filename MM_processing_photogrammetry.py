@@ -326,7 +326,7 @@ class ProcessingPhotogrammetry:
         reconstruction.addProduction(production)
 
         # handle if the mapmaker was set to process as cesium
-        if self.cesium:
+        if self.mm_project.map_type == "TILES":
             production.setDriverName('Cesium 3D Tiles')
             production.setDestination(os.path.join(project.getProductionsDirPath(), production.getName()))
             driverOptions = production.getDriverOptions()
@@ -336,7 +336,7 @@ class ProcessingPhotogrammetry:
             driverOptions.writeXML(os.path.join(project.getProductionsDirPath(), "options.xml"))
 
         # handle if the mapmaker was set not to process as cesium
-        else:
+        elif self.mm_project.map_type == "OBJ":
             production.setDriverName('OBJ')	
             production.setDestination(os.path.join(project.getProductionsDirPath(), production.getName()))
             driverOptions = production.getDriverOptions()
@@ -371,9 +371,6 @@ class ProcessingPhotogrammetry:
             driverOptions.put_string('SRS', 'EPSG:3395')
             # we use the PRJ file in the configs folder which has the data for this projection
             # we also change the metadata.xyz file to match the x y data from a file we create named metadata.xml
-            # todo change xy data in metadata.xyz to match metadata.xml
-
-            # driverOptions.put_string('SRS', 'EPSG:32617')
             driverOptions.writeXML(os.path.join(project.getProductionsDirPath(), "options_postmod.xml"))
 
         production.setDriverOptions(driverOptions)
@@ -425,87 +422,85 @@ class ProcessingPhotogrammetry:
         self.logger.info('Production completed.')
         self.logger.info('Output directory: %s' % production.getDestination())
 
-        with open(production.getDestination() + '/metadata.xml',
-                  'r+') as f:
-            xml_string = f.read()
-
-        root = ET.fromstring(xml_string)
-
-        # Extract the attributes and values of the XML elements as key-value pairs
-        metadata = {}
-        for child in root:
-            metadata[child.tag] = child.text
 
         # Print the resulting dictionary
 
-        # path to the input OBJ file
-        input_file = production.getDestination() + "/Data/Model/Model.obj"
+        if self.mm_project.map_type == "OBJ":
+            with open(production.getDestination() + '/metadata.xml',
+                      'r+') as f:
+                xml_string = f.read()
 
-        # path to the output folder
-        output_folder = production.getDestination() + "/Data/Model/"
-        zip_location = production.getDestination() + "/Data/"
-        # create the output folder if it doesn't exist
-        if not os.path.exists(output_folder):
-            os.makedirs(output_folder)
+            root = ET.fromstring(xml_string)
 
-        try:
-            # get center coordinate from metadata
-            x = str(eval(str(metadata['SRSOrigin'])[0]))
-            y = str(eval(metadata['SRSOrigin'])[1])
-            z = str("101.000")
-            print ("outputting metadata.xyz")
-            with open(output_folder + "/metadata.xyz",
-                      'w') as xyz:
-                xyz.write(x + " " + y + " " + z)
-        except:
-            print ("error accessing metadata, writing fake xyz")
-            with open(output_folder + "/metadata.xyz",
-                      'w') as xyz:
-                try:
-                    xyz.write(str(roi_center[0]) + " " + str(roi_center[1]) + " " + str(roi_center[2]))
-                except:
-                    xyz.write(str("0 0 0"))
+            # Extract the attributes and values of the XML elements as key-value pairs
+            metadata = {}
+            for child in root:
+                metadata[child.tag] = child.text
+            # path to the input OBJ file
+            input_file = production.getDestination() + "/Data/Model/Model.obj"
 
-        print ("attempting to copy prj")
-        shutil.copy("configs/WGS84.prj", os.path.join(production.getDestination(), "Data/Model/metadata.prj"))
-        print("copied prj")
-        # set the output file name based on the input file name
-        output_file = os.path.join(output_folder, os.path.splitext(os.path.basename(input_file))[0] + ".obj")
-        inp_folder = production.getDestination() + "/Data/"
-        self.mm_project.completed_file_path = os.path.join(inp_folder, "Model/Model.obj")
-        #shutil.copytree(inp_folder, output_folder + "/")
-        # print a message when the process is complete
-        self.logger.info("Output file saved to:" + output_file)
-        self.logger.info("Filename:" + self.filename[:len(self.filename)-4])
-        self.logger.info("Output folder:" + output_folder)
-        a = os.path.join(zip_location + self.filename)
-        self.logger.info ("Zip filename path : " + a)
-        if len(self.filename) > 19:
-            shutil.make_archive(zip_location+self.filename[:len(self.filename)-4], 'zip', inp_folder)
-            self.logger.info("cutting filename")
-        else:
-            shutil.make_archive(zip_location+self.filename, 'zip', production.getDestination() + "/Data/Model/")
-        if ".zip" in a:
-            self.logger.info("already has .zip in upload filename")
-        else:
-            a = a + ".zip"
-        self.mm_project.time_processing_complete = time.time()
-        self.logger.info ("Sending zip file to ARTAK Content Repository. File = " + str(a))
+            # path to the output folder
+            output_folder = production.getDestination() + "/Data/Model/"
+            zip_location = production.getDestination() + "/Data/"
+            # create the output folder if it doesn't exist
+            if not os.path.exists(output_folder):
+                os.makedirs(output_folder)
 
-        # rename zip if manually set
-        if self.mm_project. manually_made_name:
-            if self.mm_project.manually_made_name != "":
-                manually_set_filename = self.mm_project.manually_made_name + ".zip"
-                new_path = os.path.join(zip_location, manually_set_filename)
-                self.logger.info("Name has been set manually. Name = " + manually_set_filename)
-                self.logger.info("New Path = " + new_path)
-                self.logger.info("Renaming " + a + " to " + new_path)
-                os.rename(a, new_path)
-                a = new_path
-        if self.cesium:
-            self.logger.info("Not Sending Cesium Tile Anywhere")
-            #Todo add upload to cesium
-        else:
+            try:
+                # get center coordinate from metadata
+                x = str(eval(str(metadata['SRSOrigin'])[0]))
+                y = str(eval(metadata['SRSOrigin'])[1])
+                z = str("101.000")
+                print ("outputting metadata.xyz")
+                with open(output_folder + "/metadata.xyz",
+                          'w') as xyz:
+                    xyz.write(x + " " + y + " " + z)
+            except:
+                print ("error accessing metadata, writing fake xyz")
+                with open(output_folder + "/metadata.xyz",
+                          'w') as xyz:
+                    try:
+                        xyz.write(str(roi_center[0]) + " " + str(roi_center[1]) + " " + str(roi_center[2]))
+                    except:
+                        xyz.write(str("0 0 0"))
+
+            print ("attempting to copy prj")
+            shutil.copy("configs/WGS84.prj", os.path.join(production.getDestination(), "Data/Model/metadata.prj"))
+            print("copied prj")
+            # set the output file name based on the input file name
+            output_file = os.path.join(output_folder, os.path.splitext(os.path.basename(input_file))[0] + ".obj")
+            inp_folder = production.getDestination() + "/Data/"
+            self.mm_project.completed_file_path = os.path.join(inp_folder, "Model/Model.obj")
+            #shutil.copytree(inp_folder, output_folder + "/")
+            # print a message when the process is complete
+            self.logger.info("Output file saved to:" + output_file)
+            self.logger.info("Filename:" + self.filename[:len(self.filename)-4])
+            self.logger.info("Output folder:" + output_folder)
+            a = os.path.join(zip_location + self.filename)
+            self.logger.info ("Zip filename path : " + a)
+            if len(self.filename) > 19:
+                shutil.make_archive(zip_location+self.filename[:len(self.filename)-4], 'zip', inp_folder)
+                self.logger.info("cutting filename")
+            else:
+                shutil.make_archive(zip_location+self.filename, 'zip', production.getDestination() + "/Data/Model/")
+            if ".zip" in a:
+                self.logger.info("already has .zip in upload filename")
+            else:
+                a = a + ".zip"
+            self.mm_project.time_processing_complete = time.time()
+            self.mm_project.zip_payload_location = a
+            self.logger.info ("Sending zip file to ARTAK Content Repository. File = " + str(a))
+
+            # rename zip if manually set
+            if self.mm_project.manually_made_name:
+                if self.mm_project.manually_made_name != "":
+                    manually_set_filename = self.mm_project.manually_made_name + ".zip"
+                    new_path = os.path.join(zip_location, manually_set_filename)
+                    self.logger.info("Name has been set manually. Name = " + manually_set_filename)
+                    self.logger.info("New Path = " + new_path)
+                    self.logger.info("Renaming " + a + " to " + new_path)
+                    os.rename(a, new_path)
+                    a = new_path
             try:
                 self.logger.info("Attempting to upload " + a + " to " + str(self.artak_server))
                 response = self.upload(a, url=self.artak_server)
@@ -518,6 +513,28 @@ class ProcessingPhotogrammetry:
                 self.logger.info(self.mm_project)
             except:
                 self.logger.info("Uncaught exception attempting to upload file. File = " + str(a) + "URL = " + self.artak_server)
+        if self.mm_project.map_type == "TILES":
+            self.logger.info("Attempting to Zip Cesium Tiles.")
+            archive_location = production.getDestination() + "payload"
+            archive_location_with_extension = archive_location + ".zip"
+            shutil.make_archive(archive_location, 'zip', production.getDestination() + "/scene/")
+            if self.mm_project.manually_made_name:
+                if self.mm_project.manually_made_name != "":
+                    manually_set_filename = self.mm_project.manually_made_name + ".zip"
+                    new_path = os.path.join(production.getDestination(), manually_set_filename)
+                    self.logger.info("Name has been set manually. Name = " + manually_set_filename)
+                    self.logger.info("New Path = " + new_path)
+                    self.logger.info("Renaming " + archive_location + " to " + new_path)
+                    os.rename(archive_location_with_extension, new_path)
+                    archive_location_with_extension = new_path
+            self.mm_project.zip_payload_location = archive_location_with_extension
+            self.logger.info("Attempting to Upload Cesium Tiles.")
+            self.mm_project.upload_to_world()
+            self.mm_project.time_accepted_by_artak = time.time()
+            self.mm_project.status = "Complete"
+
+        else:
+            pass
         return self.mm_project.status
 #supload("C:/ARTAK_MM/POST/Photogrammetry/Ztest5.zip388\Productions\Production_1/Data/Model/Preprocessed" + "/" + "Ztest5.zip" + ".zip")
 #upload("C:/ARTAK_MM/POST/Photogrammetry/2023-06-13_18-26-02921/Productions/Production_1/Data/Model/2023-06-13_18-2.zip")

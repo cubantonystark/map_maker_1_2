@@ -631,7 +631,8 @@ class App(customtkinter.CTk):
                                                   time_mm_start=time.time(),
                                                   image_folder=each_folder, total_images=file_count, logger=logger,
                                                   artak_server=artak_server,
-                                                  session_project_number=session_project_number)
+                                                  session_project_number=session_project_number, map_type="OBJ"
+                                                  )
 
                     self.list_of_projects.append(new_project)
                     print(new_project.as_dict())
@@ -650,7 +651,7 @@ class App(customtkinter.CTk):
                                                   time_mm_start=time.time(),
                                                   image_folder=each_folder, total_images=file_count, logger=logger,
                                                   artak_server=artak_server,
-                                                  session_project_number=session_project_number
+                                                  session_project_number=session_project_number,  map_type="TILES"
                                                   )
                     self.list_of_projects.append(new_project)
                     print(new_project.as_dict())
