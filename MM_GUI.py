@@ -453,7 +453,7 @@ class App(customtkinter.CTk):
             with open('ARTAK_MM/LOGS/pc_type.log', 'w') as pc_type:
                 pc_type.write('hr')
 
-         subprocess.Popen(["python", "MM_gen_pc.py"])
+        subprocess.Popen(["python", "MM_gen_pc.py"])
 
     def process_med_obj(self):
 
