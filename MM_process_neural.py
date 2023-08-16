@@ -47,14 +47,14 @@ class neural_rendering_and_recon():
         os.rename(model_dest_folder+"/mesh.obj", model_dest_folder+"/Model.obj")
 
         ms = pymeshlab.MeshSet()
-
         ms.load_new_mesh(model_dest_folder+"/Model.obj")
-
         ms.apply_filter('compute_matrix_from_scaling_or_normalization',
                         axisx = 3008,
                         uniformflag = True,
                         freeze = True)
-
+        p = pymeshlab.Percentage(2.5)
+        ms.apply_filter('meshing_remove_connected_component_by_diameter',
+                        mincomponentdiag=p)
         ms.save_current_mesh(model_dest_folder+"/Model.obj",
                              save_vertex_color=True,
                              save_vertex_coord=True,
@@ -88,14 +88,14 @@ class neural_rendering_and_recon():
         base_dir = os.getcwd()
         tgt_dir = str(tgt_dir)+"/nerfacto"
         tgt_dir = max(pathlib.Path(tgt_dir).glob('*/'), key=os.path.getmtime)
-        cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/exporter.py poisson --load-config "+str(tgt_dir)+"/config.yml --output-dir "+str(tgt_dir)+"/mesh"
+        cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/exporter.py poisson --load-config "+str(tgt_dir)+"/config.yml --output-dir "+str(tgt_dir)+"/mesh --bounding-box-min -1.5 -1.5 -1.5 --bounding-box-max 1.5 1.5 1.5 --num-points 25000000 --target-num-faces 100000"
         os.system(cmd)
 
         self.copy_obj_and_compress_into_zip(tgt_dir, post_dest_folder, model_dest_folder, mission, src_dir)
 
-        messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction complete!')
-
         time.sleep(5)
+
+        messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction complete!')
 
         if os.path.exists(base_dir + "/ARTAK_MM/LOGS/status_nr.log"):
             os.remove(base_dir + "/ARTAK_MM/LOGS/status_nr.log")

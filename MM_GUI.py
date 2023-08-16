@@ -1,10 +1,10 @@
 import win32gui, win32con
 '''
 This snippet hides the console in non compiled scripts. Done for aesthetics
-'''
+
 this_program = win32gui.GetForegroundWindow()
 win32gui.ShowWindow(this_program, win32con.SW_HIDE)
-
+'''
 import random
 from datetime import datetime
 from PIL import Image
@@ -332,6 +332,13 @@ class App(customtkinter.CTk):
                                                         state="normal")
         self.browse_button_nr.grid(row=10, column=1, padx=20, pady=10)
 
+        self.browse_label_nr = customtkinter.CTkLabel(self.home_frame, text="Process Med OBJ")
+        self.browse_label_nr.grid(row=12, column=0, padx=20, pady=10)
+
+        self.browse_button_nr = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.process_med_obj,
+                                                        state="normal")
+        self.browse_button_nr.grid(row=12, column=1, padx=20, pady=10)
+
         # create second frame
         self.second_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.second_frame.grid_rowconfigure(0, weight=1)  # configure grid system
@@ -441,12 +448,28 @@ class App(customtkinter.CTk):
 
             with open('ARTAK_MM/LOGS/pc_type.log', 'w') as pc_type:
                 pc_type.write('leg')
-            subprocess.Popen(["python", "MM_gen_pc.py"])
 
         else:
             with open('ARTAK_MM/LOGS/pc_type.log', 'w') as pc_type:
                 pc_type.write('hr')
-            subprocess.Popen(["python", "MM_gen_pc.py"])
+
+         subprocess.Popen(["python", "MM_gen_pc.py"])
+
+    def process_med_obj(self):
+
+        global hr_proc, lr_proc
+
+        value = self.radio_var1_pc.get()
+
+        if 'leg' in value:
+
+            with open('ARTAK_MM/LOGS/pc_type.log', 'w') as pc_type:
+                pc_type.write('leg')
+        else:
+            with open('ARTAK_MM/LOGS/pc_type.log', 'w') as pc_type:
+                pc_type.write('hr')
+
+        subprocess.Popen(["python", "MM_process_med_obj.py"])
 
     def display_activity_on_pc_recon(self):
 
