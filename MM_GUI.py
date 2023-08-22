@@ -2,15 +2,15 @@ import win32gui, win32con
 '''
 This snippet hides the console in non compiled scripts. Done for aesthetics
 '''
-
-# this_program = win32gui.GetForegroundWindow()
-# win32gui.ShowWindow(this_program, win32con.SW_HIDE)
+this_program = win32gui.GetForegroundWindow()
+win32gui.ShowWindow(this_program, win32con.SW_HIDE)
 
 
 import random
 from datetime import datetime
 from PIL import Image
 import os, shutil, webview
+import open3d as o3d
 
 '''
 This should take care  of the 'job cannot be accessed by this engine' error
@@ -47,7 +47,7 @@ for dir in dirs1:
     else:
         continue
 
-import sys, time, threading, win32file, subprocess
+import sys, time, threading, win32file, subprocess, pymeshlab
 import MM_image_grouper
 import MM_objects
 import MM_processing_photogrammetry
@@ -76,7 +76,7 @@ subprocess.Popen(["python", "MM_loop_check_files.py"])
 
 r = random.Random()
 session_id = r.randint(1, 10000000)
-session_logger = MM_logger.initialize_logger("SessionLog" + str(session_id))
+session_logger = MM_logger.initialize_logger("SessionLog_App_" + str(session_id))
 print = session_logger.info
 
 
@@ -338,6 +338,13 @@ class App(customtkinter.CTk):
                                                         state="normal")
         self.browse_button_nr.grid(row=10, column=1, padx=20, pady=10)
 
+        self.browse_label_med = customtkinter.CTkLabel(self.home_frame, text="Process Med OBJ")
+        self.browse_label_med.grid(row=12, column=0, padx=20, pady=10)
+
+        self.browse_button_med = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.process_med_obj,
+                                                        state="normal")
+        self.browse_button_med.grid(row=12, column=1, padx=20, pady=10)
+
         # create second frame
         self.second_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
         self.second_frame.grid_rowconfigure(0, weight=1)  # configure grid system
@@ -412,7 +419,7 @@ class App(customtkinter.CTk):
 
 
     def terminate(self):
-        #This will create a file in the logs forlder that will signal we are cloing shop
+        #This will create a file in the logs folder that will signal we are cloing shop
         with open(os.getcwd()+"/ARTAK_MM/LOGS/kill.mm", "w") as killer:
             pass
         process = threading.current_thread()
@@ -451,11 +458,30 @@ class App(customtkinter.CTk):
 
         if 'leg' in value:
 
-            subprocess.Popen(["python", "MM_pc2lr.py"])
+            with open('ARTAK_MM/LOGS/pc_type.log', 'w') as pc_type:
+                pc_type.write('leg')
 
         else:
+            with open('ARTAK_MM/LOGS/pc_type.log', 'w') as pc_type:
+                pc_type.write('hr')
 
-            subprocess.Popen(["python", "MM_pc2hr.py"])
+        subprocess.Popen(["python", "MM_gen_pc.py"])
+
+    def process_med_obj(self):
+
+        global hr_proc, lr_proc
+
+        value = self.radio_var1_pc.get()
+
+        if 'leg' in value:
+
+            with open('ARTAK_MM/LOGS/pc_type.log', 'w') as pc_type:
+                pc_type.write('leg')
+        else:
+            with open('ARTAK_MM/LOGS/pc_type.log', 'w') as pc_type:
+                pc_type.write('hr')
+
+        subprocess.Popen(["python", "MM_process_med_obj.py"])
 
     def display_activity_on_pc_recon(self):
 
@@ -488,10 +514,20 @@ class App(customtkinter.CTk):
                     self.progressbar_pc.configure(mode="determinate", progress_color="green")
                     self.progressbar_pc.set(1)
 
-                time.sleep(3)
+                    try:
+                        with open('ARTAK_MM/LOGS/status.log') as status:
+                            status_finished = status.read().rstrip()
+                        if 'done' in status_finished:
+                            app.find_folders_with_obj_once()
+                        else:
+                            pass
+
+                    except FileNotFoundError:
+                        pass
+
+                time.sleep(2)
 
     def display_activity_on_nr_recon(self):
-
         # will check if neural recon is running. should it be running, the 'Browse' button is disabled'
 
         self.progressbar_nr = customtkinter.CTkProgressBar(self.home_frame)
@@ -509,8 +545,8 @@ class App(customtkinter.CTk):
                 if os.path.exists("ARTAK_MM/LOGS/status_nr.log"):
 
                     if os.path.exists("ARTAK_MM/LOGS/t_render.log"):
-                        self.browse_button_nr.configure(text = "View 3D Scene")
-                        self.browse_button_nr.configure(command = self.show_training)
+                        self.browse_button_nr.configure(text="View 3D Scene")
+                        self.browse_button_nr.configure(command=self.show_training)
                         self.browse_button_nr.configure(state='normal')
 
                     else:
@@ -523,12 +559,24 @@ class App(customtkinter.CTk):
 
                 else:
 
+                    self.browse_button_nr.configure(command=self.process_for_nr)
                     self.browse_button_nr.configure(state='normal')
                     self.progressbar_nr.stop()
                     self.progressbar_nr.configure(mode="determinate", progress_color="green")
                     self.progressbar_nr.set(1)
 
-                time.sleep(3)
+                    try:
+                        with open('ARTAK_MM/LOGS/status.log') as status:
+                            status_finished = status.read().rstrip()
+                        if 'done' in status_finished:
+                            app.find_folders_with_obj_once()
+                        else:
+                            pass
+
+                    except FileNotFoundError:
+                        pass
+
+                time.sleep(2)
 
     def browse_directory(self):
         path = filedialog.askdirectory()
@@ -744,7 +792,7 @@ class App(customtkinter.CTk):
                             for obj_file in obj_files:
                                 print(os.path.join(output_model_folder, obj_file))
                             self.list_of_objs.append(output_model_folder)
-                            self.scrollable_label_button_frame.destroy()
+                            self.scrollable_label_button_frame.update()
                 self.scrollable_label_button_frame = ScrollableLabelButtonFrame(master=self, width=300,
                                                                                 command=self.label_button_frame_event,
                                                                                 corner_radius=0)
@@ -754,7 +802,22 @@ class App(customtkinter.CTk):
             else:
                 pass
             previous_file_count = current_file_count
-            time.sleep(2)
+            time.sleep(5)
+
+    def find_folders_with_obj_once(self):
+
+        self.list_of_objs = []
+
+        if not os.path.exists("ARTAK_MM/LOGS/status.log") and not os.path.exists("ARTAK_MM/LOGS/status_nr.log"):
+            pass
+
+        else:
+            previous_file_count = 0
+            current_file_count = 0
+            directory = ["ARTAK_MM/POST/Photogrammetry", "ARTAK_MM/POST/Lidar", "ARTAK_MM/POST/Neural"]
+            for dirs in directory:
+                current_file_count += len(os.listdir(os.path.join(os.getcwd(), dirs)))
+        return
 
     def open_obj(self, path):
         path = os.path.join(path + "/", "Model.obj")
@@ -762,7 +825,7 @@ class App(customtkinter.CTk):
         subprocess.Popen(['start', ' ', path], shell=True)
 
     def open_obj_new(self, path):
-        print("opening obj" + path)
+        print("opening obj " + path)
         subprocess.Popen(['start', ' ', path], shell=True)
 
     def on_sd_card_insertion(self, event):
@@ -773,7 +836,6 @@ class App(customtkinter.CTk):
                                                          text=f"Process SD in {sd_drive}",
                                                          command=lambda: self.process_sd_card(sd_drive,
                                                                                               self.process_sd_button))
-
         if self.auto_process_sd_var.get():
             self.process_sd_card(sd_drive, self.process_sd_button)
 
@@ -836,7 +898,6 @@ class App(customtkinter.CTk):
             progress_bar.configure(mode="determinate", progress_color="green")
             progress_bar.set(1)
             progress_bar.stop()
-        # self.find_folders_with_obj()
 
     def process_sd_card(self, drive_letter, button):
         threading.Thread(name = 't11', target=self.process_files, kwargs=({'drive_letter': drive_letter})).start()
@@ -936,7 +997,6 @@ class StatusObject:
         self.name_entry_field = name_entry_field
         self.progress_bar = progress_bar
 
-
 def detect_sd_card():
     drive_list = []
     drives = win32file.GetLogicalDrives()
@@ -962,7 +1022,6 @@ def detect_sd_card():
 
     return drive_list
 
-
 def get_image_files(folder):
     image_extensions = ['.jpg', '.jpeg', '.png', '.gif']  # Add more extensions if needed
     image_files = []
@@ -981,6 +1040,9 @@ def button_click_event():
 
 if __name__ == "__main__":
 
+    if os.path.exists("ARTAK_MM/LOGS/pc_type.log"):
+        os.remove("ARTAK_MM/LOGS/pc_type.log")
+
     if os.path.exists("ARTAK_MM/LOGS/status_nr.log"):
         os.remove("ARTAK_MM/LOGS/status_nr.log")
 
@@ -991,7 +1053,7 @@ if __name__ == "__main__":
     # threading.Thread(target=app.sd_card_monitor).start()
     threading.Thread(target=app.job_queue_monitor, name = 't1').start()
     threading.Thread(target=app.mm_project_monitor, name = 't2').start()
-    threading.Thread(target=app.find_folders_with_obj, name = 't3').start()
+    threading.Thread(target=app.find_folders_with_obj,name = 't3').start()
     threading.Thread(target=app.display_activity_on_pc_recon, name = 't4').start()
     threading.Thread(target=app.display_activity_on_nr_recon, name = 't5').start()
     app.run_executable()
