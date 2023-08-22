@@ -7,7 +7,7 @@ import sys
 import os
 import time
 import array as arr
-
+import statistics
 import itwincapturemodeler
 import random
 
@@ -28,10 +28,9 @@ projectDir = os.getcwd()+'/ARTAK_MM/POST/Photogrammetry/'
 # dit_host = "https://esp.eastus2.cloudapp.azure.com/dit/v1/"
 
 
+class ProcessingPhotogrammetry:
 
-class processing_photogrammetry():
-
-    def __init__(self, file_name, logger, _cesium=False, mm_project=MapmakerProject):
+    def __init__(self, file_name, logger, _cesium=False, mm_project=MapmakerProject()):
 
         self.projecDirPath = projectDir + file_name + str(random.randint(1,1000))
         self.photosDirPath = os.path.join(os.getcwd()+'/ARTAK_MM/DATA/Raw_Images/UNZIPPED/', file_name)
@@ -42,6 +41,7 @@ class processing_photogrammetry():
         self.mm_project = mm_project
         self.artak_server = self.mm_project.artak_server
         self.logger.info (mm_project.as_dict())
+        self.exif_data_exists = True
 
     def _test_login(self, url):
         # Add Eolian API key "x-api-key" and "x-login-from" to headers to be able to get a session key
@@ -106,7 +106,6 @@ class processing_photogrammetry():
         # create project
         # --------------------------------------------------------------------
         projectName = os.path.basename(self.projecDirPath)
-
         project = ccmasterkernel.Project()
         project.setName(projectName)
         project.setDescription('Automatically generated from python script')
@@ -133,15 +132,14 @@ class processing_photogrammetry():
 
         for file in files:
             file = os.path.join(self.photosDirPath, file)
-
             # add photo, create a new photogroup if needed
             lastPhoto = photogroups.addPhotoInAutoMode(file)
-
             if lastPhoto is None:
                 self.logger.info('Could not add photo %s.' % file)
                 continue
 
             # upgrade block positioningLevel if a photo with position is found (GPS tag)
+            # update exif data exists flag if photo with position is found
             if not lastPhoto.pose.center is None:
                 block.setPositioningLevel(ccmasterkernel.PositioningLevel.PositioningLevel_georeferenced)
 
@@ -159,6 +157,8 @@ class processing_photogrammetry():
             for photo_i in photogroups.getPhotogroup(i_pg).getPhotoArray():
                 self.logger.info('image: %s' % photo_i.imageFilePath)
             print('')
+
+        # handle exception where anafi thermal EO images are thought to be thermal. here we change this manually
         if photogroups.getPhotogroup(i_pg).cameraModelBand == ccmasterkernel.CameraModelBand.CameraModelBand_thermal:
             photogroups.getPhotogroup(i_pg).cameraModelBand = ccmasterkernel.CameraModelBand.CameraModelBand_visible
             photogroups.getPhotogroup(i_pg).CameraModelType = ccmasterkernel.CameraModelType.CameraModelType_perspective
@@ -210,12 +210,20 @@ class processing_photogrammetry():
         at_settings.keyPointsDensity = ccmasterkernel.KeyPointsDensity.KeyPointsDensity_normal
         at_settings.splatsPreprocessing = ccmasterkernel.SplatsPreprocessing.SplatsPreprocessing_none
         at_settings.adjustmentConstraints = ccmasterkernel.AdjustmentAndPositioning.Positioning_PositionMetadata
-        # at_settings.loadPreset("configs/AT_preset.cfg")
-        at_settings.loadPreset("configs/AT_preset_no_exif.cfg")
-        #turning off for thermal
-       # at_settings.ColorEqualizationPreprocessing = ccmasterkernel.ColorEqualizationPreprocessing.ColorEqualizationPreprocessing_none
-
-
+        if blockAT.isGeoreferenced():
+            self.logger.info("Block is georefrenced")
+            self.exif_data_exists = True
+        else:
+            self.logger.info("Block is NOT georeferenced")
+            self.exif_data_exists = False
+        if self.exif_data_exists:
+            self.logger.info("EXIF data exists")
+            at_settings.loadPreset("configs/AT_preset.cfg")
+        else:
+            self.logger.info("EXIF data DOES NOT exist")
+            at_settings.loadPreset("configs/AT_preset_no_exif.cfg")
+        # turning off for thermal and for faster processing
+        # at_settings.ColorEqualizationPreprocessing = ccmasterkernel.ColorEqualizationPreprocessing.ColorEqualizationPreprocessing_none
         if not blockAT.getAT().setSettings(at_settings):
             self.logger.info("Error: Failed to set settings for aerotriangulation")
             self.mm_project.status = "Error"
@@ -266,8 +274,8 @@ class processing_photogrammetry():
 
         if not blockAT.canGenerateQualityReport():
             self.logger.info("Error: BlockAT can't generate Quality report")
-            sys.exit(0)
             self.mm_project.status = "Error"
+            sys.exit(0)
 
         if not blockAT.generateQualityReport(True):
             self.logger.info("Error: failed to generate Quality report")
@@ -293,8 +301,16 @@ class processing_photogrammetry():
         # --------------------------------------------------------------------
         reconstruction = ccmasterkernel.Reconstruction(blockAT)
         reconsettings = reconstruction.getSettings()
-        reconsettings.loadPreset("configs/Recons_preset.cfg")
+
+        # todo add logic to use a different present if there is no exif
+        # todo add logic to use the proper cfg when there is exif
+        if self.exif_data_exists:
+            reconsettings.loadPreset("configs/Recons_preset.cfg")
+        else:
+            reconsettings.loadPreset("configs/Recons_preset_no_exif.cfg")
+
         reconstruction.setSettings(reconsettings)
+        reconstruction.setSRS("EPSG:3395")
         blockAT.addReconstruction(reconstruction)
 
         if reconstruction.getNumInternalTiles() == 0:
@@ -303,15 +319,14 @@ class processing_photogrammetry():
             sys.exit(0)
 
         self.logger.info('Reconstruction item created.')
-
         # --------------------------------------------------------------------
         # Production
         # --------------------------------------------------------------------
         production = ccmasterkernel.Production(reconstruction)
-
         reconstruction.addProduction(production)
 
-        if self.cesium:
+        # handle if the mapmaker was set to process as cesium
+        if self.mm_project.map_type == "TILES":
             production.setDriverName('Cesium 3D Tiles')
             production.setDestination(os.path.join(project.getProductionsDirPath(), production.getName()))
             driverOptions = production.getDriverOptions()
@@ -320,18 +335,43 @@ class processing_photogrammetry():
             driverOptions.put_int('TextureCompressionQuality', 75)
             driverOptions.writeXML(os.path.join(project.getProductionsDirPath(), "options.xml"))
 
-        else:
+        # handle if the mapmaker was set not to process as cesium
+        elif self.mm_project.map_type == "OBJ":
             production.setDriverName('OBJ')	
             production.setDestination(os.path.join(project.getProductionsDirPath(), production.getName()))
             driverOptions = production.getDriverOptions()
-            self.logger.info (driverOptions)
+            self.logger.info(driverOptions)
+            driverOptions.writeXML(os.path.join(project.getProductionsDirPath(), "options_premod.xml"))
+            print ("ROI xMax =" + str(production.getROI().getBoundingBox().xMax))
+            print ("ROI xMin =" + str(production.getROI().getBoundingBox().xMin))
+            print ("ROI yMax =" + str(production.getROI().getBoundingBox().yMax))
+            print ("ROI yMin =" + str(production.getROI().getBoundingBox().yMin))
+            print ("ROI zMax =" + str(production.getROI().getBoundingBox().zMax))
+            print ("ROI zMin =" + str(production.getROI().getBoundingBox().zMin))
+
+            roi_center = (statistics.median((production.getROI().getBoundingBox().xMax,
+                                           production.getROI().getBoundingBox().xMin)),
+                          statistics.median((production.getROI().getBoundingBox().yMax,
+                                             production.getROI().getBoundingBox().yMin)),
+                          statistics.median((production.getROI().getBoundingBox().zMax,
+                                            production.getROI().getBoundingBox().zMin))
+                          )
+
+            srs_origin = str(roi_center[0]) + "," + str(roi_center[1]) + "," + str(roi_center[2])
+            # print ("AUTOMATIC ROI =" + str(production.getAutomaticROI()))
+            # print ("DEFAULT ROI =" + str(production.getDefaultROI()))
             driverOptions.put_bool('TextureEnabled', True)
+            driverOptions.put_string('SRSOrigin', srs_origin)
             driverOptions.put_bool('DoublePrecision', True)
             driverOptions.put_int('TextureCompressionQuality', 75)
             driverOptions.put_int('MaximumTextureSize', 4096)
             #driverOptions.put_int('TextureColorSource', ccmasterkernel.CameraModelBand.CameraModelBand_thermal)
-            #driverOptions.put_string('SRS', 'EPSG:32617')
-            driverOptions.writeXML(os.path.join(project.getProductionsDirPath(), "options.xml"))
+
+            # manaully set to WGS 84 / World Mercator (EPSG:3395)
+            driverOptions.put_string('SRS', 'EPSG:3395')
+            # we use the PRJ file in the configs folder which has the data for this projection
+            # we also change the metadata.xyz file to match the x y data from a file we create named metadata.xml
+            driverOptions.writeXML(os.path.join(project.getProductionsDirPath(), "options_postmod.xml"))
 
         production.setDriverOptions(driverOptions)
 
@@ -382,81 +422,85 @@ class processing_photogrammetry():
         self.logger.info('Production completed.')
         self.logger.info('Output directory: %s' % production.getDestination())
 
-        with open(production.getDestination() + '/metadata.xml',
-                  'r+') as f:
-            xml_string = f.read()
-
-        root = ET.fromstring(xml_string)
-
-        # Extract the attributes and values of the XML elements as key-value pairs
-        metadata = {}
-        for child in root:
-            metadata[child.tag] = child.text
 
         # Print the resulting dictionary
 
-        # path to the input OBJ file
-        input_file = production.getDestination() + "/Data/Model/Model.obj"
+        if self.mm_project.map_type == "OBJ":
+            with open(production.getDestination() + '/metadata.xml',
+                      'r+') as f:
+                xml_string = f.read()
 
-        # path to the output folder
-        output_folder = production.getDestination() + "/Data/Model/"
-        zip_location = production.getDestination() + "/Data/"
-        # create the output folder if it doesn't exist
-        if not os.path.exists(output_folder):
-            os.makedirs(output_folder)
+            root = ET.fromstring(xml_string)
 
-        x = str(eval(str(metadata['SRSOrigin'])[0]))
-        y = str(eval(metadata['SRSOrigin'])[1])
-        z = str("101.000")
-        with open(output_folder + "/metadata.xyz",
-                  'w') as xyz:
-            xyz.write(x + " " + y + " " + z)
-        shutil.copy("configs/WGS84.prj", production.getDestination()  + "/Data/Model/metadata.prj")
+            # Extract the attributes and values of the XML elements as key-value pairs
+            metadata = {}
+            for child in root:
+                metadata[child.tag] = child.text
+            # path to the input OBJ file
+            input_file = production.getDestination() + "/Data/Model/Model.obj"
 
+            # path to the output folder
+            output_folder = production.getDestination() + "/Data/Model/"
+            zip_location = production.getDestination() + "/Data/"
+            # create the output folder if it doesn't exist
+            if not os.path.exists(output_folder):
+                os.makedirs(output_folder)
 
-        # set the output file name based on the input file name
-        output_file = os.path.join(output_folder, os.path.splitext(os.path.basename(input_file))[0] + ".obj")
+            try:
+                # get center coordinate from metadata
+                x = str(eval(str(metadata['SRSOrigin'])[0]))
+                y = str(eval(metadata['SRSOrigin'])[1])
+                z = str("101.000")
+                print ("outputting metadata.xyz")
+                with open(output_folder + "/metadata.xyz",
+                          'w') as xyz:
+                    xyz.write(x + " " + y + " " + z)
+            except:
+                print ("error accessing metadata, writing fake xyz")
+                with open(output_folder + "/metadata.xyz",
+                          'w') as xyz:
+                    try:
+                        xyz.write(str(roi_center[0]) + " " + str(roi_center[1]) + " " + str(roi_center[2]))
+                    except:
+                        xyz.write(str("0 0 0"))
 
-        # # create a MeshSet object and load the input OBJ file
-     #   ms = pymeshlab.MeshSet()
-     #   ms.load_new_mesh(input_file)
-        # # save the MeshSet object to the output file
-     #   ms.save_current_mesh(output_file)
-        inp_folder = production.getDestination() + "/Data/"
-        self.mm_project.completed_file_path = os.path.join(inp_folder, "Model/Model.obj")
-        #shutil.copytree(inp_folder, output_folder + "/")
-        # print a message when the process is complete
-        self.logger.info("Output file saved to:" + output_file)
-        self.logger.info("Filename:" + self.filename[:len(self.filename)-4])
-        self.logger.info("Output folder:" + output_folder)
-        a = os.path.join(zip_location + self.filename)
-        self.logger.info ("Zip filename path : " + a)
-        if len(self.filename) > 19:
-            shutil.make_archive(zip_location+self.filename[:len(self.filename)-4], 'zip', inp_folder)
-            self.logger.info("cutting filename")
-        else:
-            shutil.make_archive(zip_location+self.filename, 'zip', production.getDestination() + "/Data/Model/")
-        if ".zip" in a:
-            self.logger.info("already has .zip in upload filename")
-        else:
-            a = a + ".zip"
-        self.mm_project.time_processing_complete = time.time()
-        self.logger.info ("Sending zip file to ARTAK Content Repository. File = " + str(a))
+            print ("attempting to copy prj")
+            shutil.copy("configs/WGS84.prj", os.path.join(production.getDestination(), "Data/Model/metadata.prj"))
+            print("copied prj")
+            # set the output file name based on the input file name
+            output_file = os.path.join(output_folder, os.path.splitext(os.path.basename(input_file))[0] + ".obj")
+            inp_folder = production.getDestination() + "/Data/"
+            self.mm_project.completed_file_path = os.path.join(inp_folder, "Model/Model.obj")
+            #shutil.copytree(inp_folder, output_folder + "/")
+            # print a message when the process is complete
+            self.logger.info("Output file saved to:" + output_file)
+            self.logger.info("Filename:" + self.filename[:len(self.filename)-4])
+            self.logger.info("Output folder:" + output_folder)
+            a = os.path.join(zip_location + self.filename)
+            self.logger.info ("Zip filename path : " + a)
+            if len(self.filename) > 19:
+                shutil.make_archive(zip_location+self.filename[:len(self.filename)-4], 'zip', inp_folder)
+                self.logger.info("cutting filename")
+            else:
+                shutil.make_archive(zip_location+self.filename, 'zip', production.getDestination() + "/Data/Model/")
+            if ".zip" in a:
+                self.logger.info("already has .zip in upload filename")
+            else:
+                a = a + ".zip"
+            self.mm_project.time_processing_complete = time.time()
+            self.mm_project.zip_payload_location = a
+            self.logger.info ("Sending zip file to ARTAK Content Repository. File = " + str(a))
 
-        # rename zip if manually set
-        if self.mm_project.manually_made_name:
-            if self.mm_project.manually_made_name != "":
-                manually_set_filename = self.mm_project.manually_made_name + ".zip"
-                new_path = os.path.join(zip_location, manually_set_filename)
-                self.logger.info("Name has been set manually. Name = " + manually_set_filename)
-                self.logger.info("New Path = " + new_path)
-                self.logger.info("Renaming " + a + " to " + new_path)
-                os.rename(a, new_path)
-                a = new_path
-        if self.cesium:
-            self.logger.info("Not Sending Cesium Tile Anywhere")
-            #Todo add upload to cesium
-        else:
+            # rename zip if manually set
+            if self.mm_project.manually_made_name:
+                if self.mm_project.manually_made_name != "":
+                    manually_set_filename = self.mm_project.manually_made_name + ".zip"
+                    new_path = os.path.join(zip_location, manually_set_filename)
+                    self.logger.info("Name has been set manually. Name = " + manually_set_filename)
+                    self.logger.info("New Path = " + new_path)
+                    self.logger.info("Renaming " + a + " to " + new_path)
+                    os.rename(a, new_path)
+                    a = new_path
             try:
                 self.logger.info("Attempting to upload " + a + " to " + str(self.artak_server))
                 response = self.upload(a, url=self.artak_server)
@@ -469,6 +513,28 @@ class processing_photogrammetry():
                 self.logger.info(self.mm_project)
             except:
                 self.logger.info("Uncaught exception attempting to upload file. File = " + str(a) + "URL = " + self.artak_server)
+        if self.mm_project.map_type == "TILES":
+            self.logger.info("Attempting to Zip Cesium Tiles.")
+            archive_location = production.getDestination() + "payload"
+            archive_location_with_extension = archive_location + ".zip"
+            shutil.make_archive(archive_location, 'zip', production.getDestination() + "/scene/")
+            if self.mm_project.manually_made_name:
+                if self.mm_project.manually_made_name != "":
+                    manually_set_filename = self.mm_project.manually_made_name + ".zip"
+                    new_path = os.path.join(production.getDestination(), manually_set_filename)
+                    self.logger.info("Name has been set manually. Name = " + manually_set_filename)
+                    self.logger.info("New Path = " + new_path)
+                    self.logger.info("Renaming " + archive_location + " to " + new_path)
+                    os.rename(archive_location_with_extension, new_path)
+                    archive_location_with_extension = new_path
+            self.mm_project.zip_payload_location = archive_location_with_extension
+            self.logger.info("Attempting to Upload Cesium Tiles.")
+            self.mm_project.upload_to_world()
+            self.mm_project.time_accepted_by_artak = time.time()
+            self.mm_project.status = "Complete"
+
+        else:
+            pass
         return self.mm_project.status
 #supload("C:/ARTAK_MM/POST/Photogrammetry/Ztest5.zip388\Productions\Production_1/Data/Model/Preprocessed" + "/" + "Ztest5.zip" + ".zip")
 #upload("C:/ARTAK_MM/POST/Photogrammetry/2023-06-13_18-26-02921/Productions/Production_1/Data/Model/2023-06-13_18-2.zip")

@@ -1,30 +1,14 @@
 import os
 import time
 import threading
+from random import random
+
 import win32file
 import MM_image_grouper
 import MM_processing_photogrammetry
 import logging
 
-
-def initialize_logger():
-    # Create a logger object
-    logger = logging.getLogger(__name__)
-
-    # Set the log level
-    logger.setLevel(logging.DEBUG)
-
-    # Create a file handler
-    handler = logging.FileHandler('log.txt')
-
-    # Set the log message format
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-
-    # Add the file handler to the logger
-    logger.addHandler(handler)
-
-    return logger
+from map_maker_1_2 import MM_logger
 
 
 def detect_sd_card():
@@ -53,7 +37,9 @@ def print_sd_card_files(drive_letter):
         for file in files:
             print(file)
         foldename = MM_image_grouper.group_images(path)
-        logger = initialize_logger()
+        r = random.Random()
+        session_id = r.randint(1, 10000000)
+        logger = MM_logger.initialize_logger("SessionLog" + str(session_id))
         themap = input("(1) OBJ or (2) Cesium :")
         print(themap)
         delete_after = input("Delete from SD Card after Transfer? (Y) YES or (N) NO :")
@@ -62,9 +48,9 @@ def print_sd_card_files(drive_letter):
             for f in files:
                 os.remove(path+f)
         if themap == "1":
-            a = MM_processing_photogrammetry.processing_photogrammetry(foldename, logger=logger)
+            a = MM_processing_photogrammetry.ProcessingPhotogrammetry(foldename, logger=logger)
         if themap == "2":
-            a = MM_processing_photogrammetry.processing_photogrammetry(foldename, logger=logger, _cesium=True)
+            a = MM_processing_photogrammetry.ProcessingPhotogrammetry(foldename, logger=logger, _cesium=True)
         a.do_photogrammetry()
 
 

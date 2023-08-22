@@ -4,8 +4,6 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Updated MM_GUI.py&#10;&#10;Added support for e57 format.&#10;&#10;Added signal to trigger folder update upon finishing reconstruction rather that having it running from the beginning.&#10;&#10;Fine-tuned surface reconstruction parameters for Point Clouds.">
-      <change beforePath="$PROJECT_DIR$/MM_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_GUI.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -156,20 +154,6 @@
       <workItem from="1690993450662" duration="4577000" />
       <workItem from="1690999091000" duration="148000" />
       <workItem from="1692341870503" duration="210000" />
-      <workItem from="1692342134328" duration="302000" />
-      <workItem from="1692342623276" duration="38000" />
-      <workItem from="1692342734969" duration="294000" />
-      <workItem from="1692421133912" duration="2847000" />
-      <workItem from="1692485565696" duration="2891000" />
-      <workItem from="1692546255474" duration="16835000" />
-      <workItem from="1692593956183" duration="5229000" />
-      <workItem from="1692641947417" duration="87000" />
-      <workItem from="1692642683539" duration="1841000" />
-      <workItem from="1692648977418" duration="183000" />
-      <workItem from="1692657750877" duration="505000" />
-      <workItem from="1692659432755" duration="4466000" />
-      <workItem from="1692670318244" duration="1757000" />
-      <workItem from="1692674279809" duration="4283000" />
     </task>
     <task id="LOCAL-00001" summary="added open3d">
       <option name="closed" value="true" />
