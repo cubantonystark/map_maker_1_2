@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Updated MM_GUI.py&#10;&#10;Added support for e57 format.&#10;&#10;Added signal to trigger folder update upon finishing reconstruction rather that having it running from the beginning." />
+    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Updated MM_GUI.py&#10;&#10;Added support for e57 format.&#10;&#10;Added signal to trigger folder update upon finishing reconstruction rather that having it running from the beginning.">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MM_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_GUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/MM_gen_pc.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_gen_pc.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -166,6 +170,8 @@
       <workItem from="1692648977418" duration="183000" />
       <workItem from="1692657750877" duration="505000" />
       <workItem from="1692659432755" duration="4466000" />
+      <workItem from="1692670318244" duration="1757000" />
+      <workItem from="1692674279809" duration="4149000" />
     </task>
     <task id="LOCAL-00001" summary="added open3d">
       <option name="closed" value="true" />
@@ -471,7 +477,15 @@
       <option name="project" value="LOCAL" />
       <updated>1692670255444</updated>
     </task>
-    <option name="localTasksCounter" value="39" />
+    <task id="LOCAL-00039" summary="Updated MM_GUI.py&#10;&#10;Added support for e57 format.&#10;&#10;Added signal to trigger folder update upon finishing reconstruction rather that having it running from the beginning.">
+      <option name="closed" value="true" />
+      <created>1692670337369</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1692670337369</updated>
+    </task>
+    <option name="localTasksCounter" value="40" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

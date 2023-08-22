@@ -23,11 +23,11 @@ handlers = [logging.StreamHandler()]
 logging.basicConfig(level=level, format='%(asctime)s \033[1;34;40m%(levelname)-8s \033[1;37;40m%(message)s',
                     datefmt='%H:%M:%S', handlers=handlers)
 
-mesh_depth = 11
+mesh_depth = 12
 class meshing():
 
     def load_e57(self, e57path):
-        mesh_depth= 9
+        mesh_depth= 11
         ms = pymeshlab.MeshSet()
         ms.load_new_mesh(e57path)
         fullpath = e57path.replace("e57", "ply")
@@ -86,9 +86,6 @@ class meshing():
         lat = "0"
         lon = "0"
 
-        with open("ARTAK_MM/LOGS/status.log", "w") as status:
-            pass
-
         # We will encode the lat and lon into utm compliant coordinates for the xyz file and retrieve the utm zone for the prj file
 
         utm_easting, utm_northing, zone, zone_letter = utm.from_latlon(float(lat), float(lon))
@@ -104,6 +101,9 @@ class meshing():
 
         if 'None' in fullpath:
             quit()
+
+        with open("ARTAK_MM/LOGS/status.log", "w") as status:
+            pass
 
         if '.e57' in fullpath:
             fullpath, mesh_depth = self.load_e57(fullpath)
@@ -231,7 +231,7 @@ class meshing():
         self.write_to_log(path, separator, message)
         mesh_file_size = int(os.path.getsize(generated_mesh))
         if mesh_file_size > 6000000000:
-            mesh_depth = 9
+            mesh_depth = 10
             # logging.info("Mesh is not memory friedly. Retrying with safer parameters.\r")
             message = 'Mesh is not memory friedly. Retrying with safer parameters.'
             self.write_to_log(path, separator, message)
@@ -260,7 +260,7 @@ class meshing():
                 diag = boundingbox.diagonal()
                 t_hold = diag / 200
                 file_size = int(os.path.getsize(generated_mesh))
-                p = pymeshlab.Percentage(10)
+                p = pymeshlab.Percentage(25)
 
                 # logging.info('Refining.\r')
                 message = 'Refining'
@@ -274,14 +274,14 @@ class meshing():
                                 mincomponentdiag=p)
                 # if this is a generated file from exyn sensors, then we need to use 'safe' values different from the leica ones.
 
-                if "exyn" in filename:
-                    t_hold = 0.6
+                if ".ply" in filename:
+                    t_hold = 0.09
 
-                elif "leica" in filename:
-                    t_hold = 0.3
+                elif ".pts" in filename:
+                    t_hold = 0.09
 
                 else:
-                    t_hold = 0.6
+                    t_hold = 0.1
 
                 # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
 
@@ -316,7 +316,7 @@ class meshing():
                     boundingbox = ms.current_mesh().bounding_box()
                     diag = boundingbox.diagonal()
                     t_hold = diag / 200
-                    p = pymeshlab.Percentage(10)
+                    p = pymeshlab.Percentage(25)
                     # logging.info('Refining.\r')
                     message = 'Refining'
                     self.write_to_log(path, separator, message)
@@ -329,14 +329,14 @@ class meshing():
                     ms.apply_filter('meshing_remove_connected_component_by_diameter',
                                     mincomponentdiag=p)
 
-                    if "exyn" in filename:
-                        t_hold = 0.7
+                    if ".ply" in filename:
+                        t_hold = 0.095
 
-                    elif "leica" in filename:
-                        t_hold = 0.4
+                    elif ".pts" in filename:
+                        t_hold = 0.095
 
                     else:
-                        t_hold = 0.7
+                        t_hold = 0.2
 
                     # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
                     ms.apply_filter('compute_selection_by_edge_length',
@@ -368,7 +368,7 @@ class meshing():
                     boundingbox = ms.current_mesh().bounding_box()
                     diag = boundingbox.diagonal()
                     t_hold = diag / 200
-                    p = pymeshlab.Percentage(10)
+                    p = pymeshlab.Percentage(25)
                     # logging.info('Refining.\r')
                     message = 'Refining'
                     self.write_to_log(path, separator, message)
@@ -380,13 +380,13 @@ class meshing():
                     ms.apply_filter('meshing_remove_connected_component_by_diameter',
                                     mincomponentdiag=p)
                     if "exyn" in filename:
-                        t_hold = 0.8
+                        t_hold = 0.099
 
                     elif "leica" in filename:
-                        t_hold = 0.5
+                        t_hold = 0.099
 
                     else:
-                        t_hold = 0.8
+                        t_hold = 0.3
 
                     # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
                     ms.apply_filter('compute_selection_by_edge_length',

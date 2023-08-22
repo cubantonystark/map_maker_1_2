@@ -514,7 +514,7 @@ class App(customtkinter.CTk):
                     except FileNotFoundError:
                         pass
 
-                time.sleep(5)
+                time.sleep(2)
 
     def display_activity_on_nr_recon(self):
         # will check if neural recon is running. should it be running, the 'Browse' button is disabled'
@@ -565,7 +565,7 @@ class App(customtkinter.CTk):
                     except FileNotFoundError:
                         pass
 
-                time.sleep(5)
+                time.sleep(2)
 
     def browse_directory(self):
         path = filedialog.askdirectory()
@@ -790,7 +790,7 @@ class App(customtkinter.CTk):
             else:
                 pass
             previous_file_count = current_file_count
-            time.sleep(15)
+            time.sleep(5)
 
     def find_folders_with_obj_once(self):
 
