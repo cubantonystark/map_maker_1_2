@@ -463,7 +463,13 @@ class meshing():
         messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction Complete.')
         # logging.info('Process complete.\r')
         message = 'Reconstruction Complete.'
-        time.sleep(5)
+
+        with open(log_folder + "/status.log", "w") as status:
+            status.write("done")
+        time.sleep(2)
+
+        os.remove(log_folder + "/status.log")
+
         # Once done, we will cleanup
         try:
             shutil.rmtree("ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
@@ -471,6 +477,10 @@ class meshing():
             os.remove(log_folder + "/status.log")
         except FileNotFoundError:
             pass
+
+        stats = "done"
+        self.write_to_log(stats)
+        time.sleep(2)
         sys.exit()
 
     def compress_into_zip(self, with_texture_output_folder, newpath):

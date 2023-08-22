@@ -91,9 +91,11 @@ class neural_rendering_and_recon():
         cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/exporter.py poisson --load-config "+str(tgt_dir)+"/config.yml --output-dir "+str(tgt_dir)+"/mesh --bounding-box-min -1.5 -1.5 -1.5 --bounding-box-max 1.5 1.5 1.5 --num-points 25000000 --target-num-faces 100000"
         os.system(cmd)
 
-        self.copy_obj_and_compress_into_zip(tgt_dir, post_dest_folder, model_dest_folder, mission, src_dir)
+        stats = "done"
+        self.write_status(stas)
+        time.sleep(2)
 
-        time.sleep(5)
+        self.copy_obj_and_compress_into_zip(tgt_dir, post_dest_folder, model_dest_folder, mission, src_dir)
 
         messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction complete!')
 
@@ -133,7 +135,6 @@ class neural_rendering_and_recon():
         base_dir = os.getcwd()
         with open(base_dir + "/ARTAK_MM/LOGS/status_nr.log", "w") as status:
             status.write(str(stats))
-
         return
 
     def get_target_folder(self):
@@ -146,7 +147,12 @@ class neural_rendering_and_recon():
 
         # Get the source folder
         src_dir = filedialog.askdirectory()
+
+        with open("ARTAK_MM/LOGS/t_render.log", "w") as render_on:
+            pass
+
         if len(src_dir) == 0:
+
             sys.exit()
 
         # Derive destination folders for posting from the source folder
@@ -271,9 +277,6 @@ class neural_rendering_and_recon():
 
         self.write_status(stats = 1)
         time.sleep(6)
-
-        with open("ARTAK_MM/LOGS/t_render.log", "w") as render_on:
-            pass
 
         while a.poll() is None:
             self.write_status(stats = 1)

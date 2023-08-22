@@ -23,8 +23,24 @@ handlers = [logging.StreamHandler()]
 logging.basicConfig(level=level, format='%(asctime)s \033[1;34;40m%(levelname)-8s \033[1;37;40m%(message)s',
                     datefmt='%H:%M:%S', handlers=handlers)
 
-mesh_depth = 12
+mesh_depth = 11
 class meshing():
+
+    def load_e57(self, e57path):
+        mesh_depth= 9
+        ms = pymeshlab.MeshSet()
+        ms.load_new_mesh(e57path)
+        fullpath = e57path.replace("e57", "ply")
+
+        ms.save_current_mesh(fullpath,
+                             save_vertex_color=True,
+                             save_vertex_coord=True,
+                             save_vertex_normal=True,
+                             save_face_color=True,
+                             save_wedge_texcoord=True,
+                             save_wedge_normal=True)
+
+        return fullpath, mesh_depth
 
     def get_PointCloud(self):
 
@@ -34,7 +50,8 @@ class meshing():
         root.iconbitmap(default='gui_images/ARTAK_103_drk.ico')
         root.after(1, lambda: root.focus_force())
         root.withdraw()
-        fullpath = filedialog.askopenfile(filetypes=(("PointClouds", "*.ply;*.pts;"), ("All files", "*.*")))
+
+        fullpath = filedialog.askopenfile(filetypes=(("PointClouds", "*.ply;*.pts;*.e57"), ("All files", "*.*")))
         fullpath = str(fullpath)
 
         with open('ARTAK_MM/LOGS/pc_type.log', 'r') as pc_type:
@@ -69,23 +86,33 @@ class meshing():
         lat = "0"
         lon = "0"
 
+        with open("ARTAK_MM/LOGS/status.log", "w") as status:
+            pass
+
         # We will encode the lat and lon into utm compliant coordinates for the xyz file and retrieve the utm zone for the prj file
 
         utm_easting, utm_northing, zone, zone_letter = utm.from_latlon(float(lat), float(lon))
         utm_easting = "%.2f" % utm_easting
         utm_northing = "%.2f" % utm_northing
+
         # Separate source path from filename
         path, filename = os.path.split(fullpath)
         path = path.replace("<_io.TextIOWrapper name='", '')
         filename = filename.replace("' mode='r' encoding='cp1252'>", '')
+
         fullpath = path + separator + filename
 
         if 'None' in fullpath:
             quit()
 
-        logfilename = filename.replace('.ply', '').replace('.pts', '').replace('.obj', '')
+        if '.e57' in fullpath:
+            fullpath, mesh_depth = self.load_e57(fullpath)
+
+        path, filename = os.path.split(fullpath)
+
+        logfilename = filename.replace('.ply', '').replace('.pts', '').replace('.obj', '').replace('.e57', '')
         pc_folder = logfilename
-        log_name = designator + filename.replace('.ply', '').replace('.pts', '').replace('.obj', '') + "_" + str(
+        log_name = designator + filename.replace('.ply', '').replace('.pts', '').replace('.obj', '').replace('.e57', '') + "_" + str(
             d) + "_" + str(ct) + ".log"
 
         # Derive destination folders from source path
@@ -132,9 +159,6 @@ class meshing():
 
         preview = 0
 
-        with open("ARTAK_MM/LOGS/status.log", "w") as status:
-            pass
-
         # logging.info('Loading PointCloud.\r')
         message = 'Loading PointCloud. ' + str(fullpath)
         self.write_to_log(path, separator, message)
@@ -148,7 +172,7 @@ class meshing():
         else:
             pass
 
-            # This will output the Point count
+        # This will output the Point count
         # logging.info(str(pcd)+"\r")
         message = str(pcd)
         self.write_to_log(path, separator, message)
@@ -159,7 +183,7 @@ class meshing():
         # logging.info("Downsampling.\r")
         message = 'Downsampling.'
         self.write_to_log(path, separator, message)
-        downpcd = pcd.voxel_down_sample(voxel_size=0.01)
+        downpcd = pcd.voxel_down_sample(voxel_size=0.02)
         # logging.info(str(downpcd)+"\r")
         message = str(downpcd)
         self.write_to_log(path, separator, message)
@@ -168,6 +192,7 @@ class meshing():
             message = 'Optimized PointCloud'
             self.visualize(target, message)
         self.compute_normals_and_generate_mesh(preview, downpcd, swap_axis, mesh_depth)
+
 
     def compute_normals_and_generate_mesh(self, preview, downpcd, swap_axis, mesh_depth):
 
@@ -182,9 +207,6 @@ class meshing():
         self.write_to_log(path, separator, message)
         mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(downpcd, depth=mesh_depth, width=0, scale=1.1,
                                                                          linear_fit=False)[0]
-
-        ##logging.info(mesh)
-
         generated_mesh = mesh_output_folder + separator + filename.replace('ply', 'obj').replace('pts', 'obj')
 
         if preview == 1:
@@ -208,8 +230,8 @@ class meshing():
         message = 'Exporting Mesh'
         self.write_to_log(path, separator, message)
         mesh_file_size = int(os.path.getsize(generated_mesh))
-        if mesh_file_size > 4000000000:
-            mesh_depth = 11
+        if mesh_file_size > 6000000000:
+            mesh_depth = 9
             # logging.info("Mesh is not memory friedly. Retrying with safer parameters.\r")
             message = 'Mesh is not memory friedly. Retrying with safer parameters.'
             self.write_to_log(path, separator, message)
@@ -251,14 +273,15 @@ class meshing():
                 ms.apply_filter('meshing_remove_connected_component_by_diameter',
                                 mincomponentdiag=p)
                 # if this is a generated file from exyn sensors, then we need to use 'safe' values different from the leica ones.
-                if ".ply" in filename:
 
-                    t_hold = 0.1
-                    p = pymeshlab.Percentage(10)
+                if "exyn" in filename:
+                    t_hold = 0.6
+
+                elif "leica" in filename:
+                    t_hold = 0.3
 
                 else:
-                    t_hold = 0.06
-                    p = pymeshlab.Percentage(25)
+                    t_hold = 0.6
 
                 # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
 
@@ -287,56 +310,43 @@ class meshing():
                 try:
 
                     ms.load_new_mesh(generated_mesh)
-
                     # logging.info('Mesh not optimal. Retargeting parameters (1).\r')
-
                     message = 'Mesh not optimal. Retargeting parameters (1).'
-
                     self.write_to_log(path, separator, message)
-
                     boundingbox = ms.current_mesh().bounding_box()
-
                     diag = boundingbox.diagonal()
-
                     t_hold = diag / 200
-
                     p = pymeshlab.Percentage(10)
-
                     # logging.info('Refining.\r')
-
                     message = 'Refining'
-
                     self.write_to_log(path, separator, message)
-
                     # We will select faces that are long based on the bounding box calculation and then remove them
-
                     ms.apply_filter('compute_selection_by_edge_length',
                                     threshold=t_hold)
-
                     ms.apply_filter('meshing_remove_selected_faces')
 
                     # The selection process and removal of long faces will reate floaters, we will remove isolated faces
-
                     ms.apply_filter('meshing_remove_connected_component_by_diameter',
                                     mincomponentdiag=p)
 
-                    if ".ply" in filename:
+                    if "exyn" in filename:
+                        t_hold = 0.7
 
-                        t_hold = 0.9
-                        p = pymeshlab.Percentage(10)
+                    elif "leica" in filename:
+                        t_hold = 0.4
 
                     else:
-                        t_hold = 0.075
-                        p = pymeshlab.Percentage(10)
+                        t_hold = 0.7
 
                     # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
                     ms.apply_filter('compute_selection_by_edge_length',
                                     threshold=t_hold)
                     ms.apply_filter('meshing_remove_selected_faces')
+
                     # Then we remove any isolated faces (floaters) that might still be laying around
                     ms.apply_filter('meshing_remove_connected_component_by_diameter',
                                     mincomponentdiag=p)
-                    # logging.info("Exporting Mesh.")
+
                     message = 'Exporting Mesh.'
                     self.write_to_log(path, separator, message)
                     newpath = simplified_output_folder + separator + filename.replace('ply', 'obj').replace('pts',
@@ -369,13 +379,14 @@ class meshing():
                     # The selection process and removal of long faces will reate floaters, we will remove isolated faces
                     ms.apply_filter('meshing_remove_connected_component_by_diameter',
                                     mincomponentdiag=p)
-                    if ".ply" in filename:
-                        t_hold = 1.6
-                        p = pymeshlab.Percentage(10)
+                    if "exyn" in filename:
+                        t_hold = 0.8
+
+                    elif "leica" in filename:
+                        t_hold = 0.5
 
                     else:
-                        t_hold = 0.08
-                        p = pymeshlab.Percentage(10)
+                        t_hold = 0.8
 
                     # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
                     ms.apply_filter('compute_selection_by_edge_length',
@@ -533,7 +544,6 @@ class meshing():
         img = img.convert("P", palette=Image.WEB, colors=256)
         img.save(newpath_texturized.replace('.obj', '.png'), optimize=True)
 
-
         # Let's compress
         self.compress_into_zip(with_texture_output_folder, newpath)
         files = [f for f in glob.glob(with_texture_output_folder + "/*.zip")]
@@ -546,14 +556,18 @@ class meshing():
         messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction Complete.')
         # logging.info('Process complete.\r')
         message = 'Reconstruction Complete.'
-        time.sleep(5)
+
         # Once done, we will cleanup
         try:
             shutil.rmtree("ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
             # Remove the status flag for MM_GUI progressbar
-            os.remove(log_folder + "/status.log")
         except FileNotFoundError:
             pass
+
+        with open(log_folder + "/status.log", "w") as status:
+            status.write("done")
+        time.sleep(2)
+        os.remove(log_folder + "/status.log")
         sys.exit()
 
     def compress_into_zip(self, with_texture_output_folder, newpath):

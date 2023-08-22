@@ -5,6 +5,7 @@ This snippet hides the console in non compiled scripts. Done for aesthetics
 this_program = win32gui.GetForegroundWindow()
 win32gui.ShowWindow(this_program, win32con.SW_HIDE)
 '''
+
 import random
 from datetime import datetime
 from PIL import Image
@@ -76,7 +77,7 @@ subprocess.Popen(["python", "MM_loop_check_files.py"])
 r = random.Random()
 session_id = r.randint(1, 10000000)
 session_logger = MM_logger.initialize_logger("SessionLog_App_" + str(session_id))
-print = session_logger.info
+#print = session_logger.info
 
 class SdCardInsertionEvent(tk.Event):
     def __init__(self, drive_letter):
@@ -332,12 +333,12 @@ class App(customtkinter.CTk):
                                                         state="normal")
         self.browse_button_nr.grid(row=10, column=1, padx=20, pady=10)
 
-        self.browse_label_nr = customtkinter.CTkLabel(self.home_frame, text="Process Med OBJ")
-        self.browse_label_nr.grid(row=12, column=0, padx=20, pady=10)
+        self.browse_label_med = customtkinter.CTkLabel(self.home_frame, text="Process Med OBJ")
+        self.browse_label_med.grid(row=12, column=0, padx=20, pady=10)
 
-        self.browse_button_nr = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.process_med_obj,
+        self.browse_button_med = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.process_med_obj,
                                                         state="normal")
-        self.browse_button_nr.grid(row=12, column=1, padx=20, pady=10)
+        self.browse_button_med.grid(row=12, column=1, padx=20, pady=10)
 
         # create second frame
         self.second_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
@@ -501,9 +502,19 @@ class App(customtkinter.CTk):
                     self.progressbar_pc.stop()
                     self.progressbar_pc.configure(mode="determinate", progress_color="green")
                     self.progressbar_pc.set(1)
-                    app.find_folders_with_obj_once()
 
-                time.sleep(15)
+                    try:
+                        with open('ARTAK_MM/LOGS/status.log') as status:
+                            status_finished = status.read().rstrip()
+                        if 'done' in status_finished:
+                            app.find_folders_with_obj_once()
+                        else:
+                            pass
+
+                    except FileNotFoundError:
+                        pass
+
+                time.sleep(5)
 
     def display_activity_on_nr_recon(self):
         # will check if neural recon is running. should it be running, the 'Browse' button is disabled'
@@ -542,9 +553,19 @@ class App(customtkinter.CTk):
                     self.progressbar_nr.stop()
                     self.progressbar_nr.configure(mode="determinate", progress_color="green")
                     self.progressbar_nr.set(1)
-                    app.find_folders_with_obj_once()
 
-                time.sleep(15)
+                    try:
+                        with open('ARTAK_MM/LOGS/status.log') as status:
+                            status_finished = status.read().rstrip()
+                        if 'done' in status_finished:
+                            app.find_folders_with_obj_once()
+                        else:
+                            pass
+
+                    except FileNotFoundError:
+                        pass
+
+                time.sleep(5)
 
     def browse_directory(self):
         path = filedialog.askdirectory()
@@ -759,7 +780,7 @@ class App(customtkinter.CTk):
                             for obj_file in obj_files:
                                 print(os.path.join(output_model_folder, obj_file))
                             self.list_of_objs.append(output_model_folder)
-                            self.scrollable_label_button_frame.destroy()
+                            self.scrollable_label_button_frame.update()
                 self.scrollable_label_button_frame = ScrollableLabelButtonFrame(master=self, width=300,
                                                                                 command=self.label_button_frame_event,
                                                                                 corner_radius=0)
@@ -769,7 +790,7 @@ class App(customtkinter.CTk):
             else:
                 pass
             previous_file_count = current_file_count
-            time.sleep(30)
+            time.sleep(15)
 
     def find_folders_with_obj_once(self):
 
