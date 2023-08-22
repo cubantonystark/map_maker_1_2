@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Updated MM_GUI.py&#10;&#10;Added support for e57 format.&#10;&#10;Added signal to trigger folder update upon finishing reconstruction rather that having it running from the beginning.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="0b20e7b8-e2aa-42bc-beb3-1908e38e3b7c" name="Changes" comment="Updated MM_GUI.py&#10;&#10;Added support for e57 format.&#10;&#10;Added signal to trigger folder update upon finishing reconstruction rather that having it running from the beginning.&#10;&#10;Fine-tuned surface reconstruction parameters for Point Clouds.">
       <change beforePath="$PROJECT_DIR$/MM_GUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_GUI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MM_gen_pc.py" beforeDir="false" afterPath="$PROJECT_DIR$/MM_gen_pc.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -171,7 +169,7 @@
       <workItem from="1692657750877" duration="505000" />
       <workItem from="1692659432755" duration="4466000" />
       <workItem from="1692670318244" duration="1757000" />
-      <workItem from="1692674279809" duration="4149000" />
+      <workItem from="1692674279809" duration="4283000" />
     </task>
     <task id="LOCAL-00001" summary="added open3d">
       <option name="closed" value="true" />
@@ -485,7 +483,31 @@
       <option name="project" value="LOCAL" />
       <updated>1692670337369</updated>
     </task>
-    <option name="localTasksCounter" value="40" />
+    <task id="LOCAL-00040" summary="Updated MM_GUI.py&#10;&#10;Added support for e57 format.&#10;&#10;Added signal to trigger folder update upon finishing reconstruction rather that having it running from the beginning.&#10;&#10;Fine-tunes surface reconstruction parameters for Point Clouds.">
+      <option name="closed" value="true" />
+      <created>1692690942812</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1692690942812</updated>
+    </task>
+    <task id="LOCAL-00041" summary="Updated MM_GUI.py&#10;&#10;Added support for e57 format.&#10;&#10;Added signal to trigger folder update upon finishing reconstruction rather that having it running from the beginning.&#10;&#10;Fine-tuned surface reconstruction parameters for Point Clouds.">
+      <option name="closed" value="true" />
+      <created>1692690958079</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1692690958079</updated>
+    </task>
+    <task id="LOCAL-00042" summary="Updated MM_GUI.py&#10;&#10;Added support for e57 format.&#10;&#10;Added signal to trigger folder update upon finishing reconstruction rather that having it running from the beginning.&#10;&#10;Fine-tuned surface reconstruction parameters for Point Clouds.">
+      <option name="closed" value="true" />
+      <created>1692690961718</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1692690961718</updated>
+    </task>
+    <option name="localTasksCounter" value="43" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -526,6 +548,8 @@
     <MESSAGE value="Updated MM_GUI.py&#10;&#10;Added option to View 3D Scene while training is running instead of automatically opening the browser. Once training is complete, the Browse button will go back to its original settings." />
     <MESSAGE value="Updated MM_GUI.py&#10;&#10;Added a branded NERF visualizer for training and rendering instances" />
     <MESSAGE value="Updated MM_GUI.py&#10;&#10;Added support for e57 format.&#10;&#10;Added signal to trigger folder update upon finishing reconstruction rather that having it running from the beginning." />
-    <option name="LAST_COMMIT_MESSAGE" value="Updated MM_GUI.py&#10;&#10;Added support for e57 format.&#10;&#10;Added signal to trigger folder update upon finishing reconstruction rather that having it running from the beginning." />
+    <MESSAGE value="Updated MM_GUI.py&#10;&#10;Added support for e57 format.&#10;&#10;Added signal to trigger folder update upon finishing reconstruction rather that having it running from the beginning.&#10;&#10;Fine-tunes surface reconstruction parameters for Point Clouds." />
+    <MESSAGE value="Updated MM_GUI.py&#10;&#10;Added support for e57 format.&#10;&#10;Added signal to trigger folder update upon finishing reconstruction rather that having it running from the beginning.&#10;&#10;Fine-tuned surface reconstruction parameters for Point Clouds." />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated MM_GUI.py&#10;&#10;Added support for e57 format.&#10;&#10;Added signal to trigger folder update upon finishing reconstruction rather that having it running from the beginning.&#10;&#10;Fine-tuned surface reconstruction parameters for Point Clouds." />
   </component>
 </project>
