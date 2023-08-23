@@ -189,11 +189,11 @@ class App(customtkinter.CTk):
         self.navigation_frame.grid(row=0, column=0, sticky="nsew")
         self.navigation_frame.grid_rowconfigure(5, weight=1)
 
-        self.navigation_frame_label = customtkinter.CTkLabel(self.navigation_frame, text="  3D Map Maker",
+        self.navigation_frame_label = customtkinter.CTkLabel(self.navigation_frame, text="",
                                                              image=self.logo_image,
                                                              compound="left",
                                                              font=customtkinter.CTkFont(size=15, weight="bold"))
-        self.navigation_frame_label.grid(row=0, column=0, padx=20, pady=20)
+        self.navigation_frame_label.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
 
         self.home_button = customtkinter.CTkButton(self.navigation_frame, corner_radius=0, height=40, border_spacing=10,
                                                    text="Home",
