@@ -502,6 +502,8 @@ class ProcessingPhotogrammetry:
                     os.rename(a, new_path)
                     a = new_path
             try:
+                if self.artak_server == None or self.artak_server == "":
+                    self.artak_server = "https://esp.eastus2.cloudapp.azure.com/"
                 self.logger.info("Attempting to upload " + a + " to " + str(self.artak_server))
                 response = self.upload(a, url=self.artak_server)
                 self.logger.info(response.status_code)

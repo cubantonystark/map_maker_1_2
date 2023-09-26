@@ -231,12 +231,12 @@ def setup_demo():
     # Example Usage
     # create drone object for each drone
     #new_drone1 = Drone("ANAFI-G058795", "", "J", network_interface="Wi-Fi 4")
-    new_drone2 = Drone("ANAFI-W", "", "W", network_interface="Wi-Fi 12")
+    new_drone2 = Drone("ANAFI-W", "", "W", network_interface="Wi-Fi 13")
     new_drone3 = Drone("ANAFI-Q", "", "Q", network_interface="Wi-Fi 18")
     new_drone4 = Drone("ANAFI-X", "", "X", network_interface="Wi-Fi")
     new_drone5 = Drone("ANAFI-T", "", "T", network_interface="Wi-Fi 10")
     new_drone6 = Drone("ANAFI-Z", "", "Z", network_interface="Wi-Fi 4")
-    new_drone7 = Drone("ANAFI-S", "", "S", network_interface="Wi-Fi 13")
+    new_drone7 = Drone("ANAFI-S", "", "S", network_interface="Wi-Fi 12")
     new_drone8 = Drone("ANAFI-Y", "", "Y", network_interface="Wi-Fi 15")
     new_drone9 = Drone("ANAFI-U", "", "U", network_interface="Wi-Fi 16")
 

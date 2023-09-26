@@ -16,6 +16,7 @@ import MM_processing_photogrammetry
 import MM_image_grouper
 from MM_objects import MapmakerProject
 from MM_logger import initialize_logger
+from MM_objects import MapmakerProject
 
 # Define a method to log messages
 # def my_method():
@@ -53,7 +54,9 @@ def main_loop(frequency=3, logger=""):
                 file_handler.unzip()
                 logger.info('Completed the UNZIP of file. Filename = '+ each_file)
                 logger.info('Starting photogrammetry processing = '+ each_file)
-                a = MM_processing_photogrammetry.ProcessingPhotogrammetry(each_file, logger)
+                mm_project = MapmakerProject()
+                mm_project.map_type = "OBJ"
+                a = MM_processing_photogrammetry.ProcessingPhotogrammetry(each_file, logger, mm_project=mm_project)
                 a.do_photogrammetry()
         time.sleep(frequency)
 

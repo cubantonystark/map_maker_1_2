@@ -32,6 +32,6 @@ class MapmakerProject:
 
     def upload_to_world(self):
         os.system(
-            r'curl -F uploadFile=@' + self.zip_payload_location + ' -F partition_key=mapmakertest http://cesium.eastus2.cloudapp.azure.com:3000/api/upload-tileset -H "Content-Type: multipart/form-data"')
+            r'curl -F uploadFile=@' + self.zip_payload_location + ' -F partition_key= https://resqview.eastus2.cloudapp.azure.com/api/upload-tileset -H "Content-Type: multipart/form-data"')
 
 
