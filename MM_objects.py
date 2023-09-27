@@ -1,4 +1,5 @@
 import os
+import json
 
 
 class MapmakerProject:
@@ -34,4 +35,32 @@ class MapmakerProject:
         os.system(
             r'curl -F uploadFile=@' + self.zip_payload_location + ' -F partition_key= https://resqview.eastus2.cloudapp.azure.com/api/upload-tileset -H "Content-Type: multipart/form-data"')
 
+
+def load_settings():
+    with open('./MM_settings.txt', 'r') as file:
+        lines = file.readline()
+        settings_json = json.loads(lines)
+        payload = settings_json["mm_settings"]
+    return payload
+
+
+class MapmakerSettings:
+
+    def __init__(self):
+        super().__init__()
+        self.artak_server = ""
+        self.map_type = ""
+        self.auto_process_sd = ""
+        self.mesh_from_pointcloud_type = ""
+        self.rerun_failed_jobs = ""
+        self.local_server_ip = ""
+        self.max_interval_between_images = ""
+        self.app_screen_mode = ""
+        self.delete_after_transfer = ""
+
+    def save(self):
+        mm_settings = {'mm_settings': vars(self)}
+
+        with open('MM_settings.txt', 'w') as file:
+            file.write(json.dumps(mm_settings))  # use `json.loads` to do the reverse
 

@@ -1,9 +1,10 @@
 import win32gui, win32con
+
 '''
 This snippet hides the console in non compiled scripts. Done for aesthetics
 '''
-this_program = win32gui.GetForegroundWindow()
-win32gui.ShowWindow(this_program, win32con.SW_HIDE)
+# this_program = win32gui.GetForegroundWindow()
+# win32gui.ShowWindow(this_program, win32con.SW_HIDE)
 
 
 import random
@@ -33,7 +34,8 @@ accidentaly deleted.
 '''
 dirs1 = ['ARTAK_MM/DATA/Raw_Images/UNZIPPED', 'ARTAK_MM/DATA/Raw_Images/ZIP/Completed',
          'ARTAK_MM/DATA/Raw_Images/ZIP/New', 'ARTAK_MM/DATA/Raw_Images/ZIP/Unzipping_in_progress',
-         'ARTAK_MM/LOGS', 'ARTAK_MM/POST/Photogrammetry', 'ARTAK_MM/POST/Neural', 'ARTAK_MM/POST/Lidar', 'ARTAK_MM/DATA/PointClouds']
+         'ARTAK_MM/LOGS', 'ARTAK_MM/POST/Photogrammetry', 'ARTAK_MM/POST/Neural', 'ARTAK_MM/POST/Lidar',
+         'ARTAK_MM/DATA/PointClouds']
 
 # cleanup any straggler status file in case of disgraceful exit of either recon script
 
@@ -54,7 +56,7 @@ import MM_processing_photogrammetry
 import MM_logger
 import logging
 from tkinter import filedialog
-from MM_objects import MapmakerProject
+from MM_objects import MapmakerProject, MapmakerSettings
 import customtkinter
 import tkinter as tk
 import jobqueue_monitor_sample
@@ -118,12 +120,11 @@ class ScrollableLabelButtonFrame(customtkinter.CTkScrollableFrame):
             for each_file in os.listdir(path.parent.absolute()):
                 if "zip" in each_file:
                     _time = str(each_file).split(".")[0]
-                    print("time =" + str(_time))
-        print("file = " + file)
+      #  print("file = " + file)
         label = customtkinter.CTkLabel(self, text=_time, image=image, compound="left", padx=5, anchor="w")
         button = customtkinter.CTkButton(self, text="Open", width=100, height=24)
-        print("button command = " + str(button_command))
-        print(file)
+       # print("button command = " + str(button_command))
+      #  print(file)
         if button_command is not None:
             button.configure(command=lambda: self.command(button_command))
         label.grid(row=len(self.label_list), column=0, pady=(0, 10), sticky="w")
@@ -150,7 +151,7 @@ class App(customtkinter.CTk):
 
     def __init__(self):
         super().__init__()
-
+        app_settings = MM_objects.load_settings()
         self.session_logger = session_logger
         self.iconbitmap(default='gui_images/ARTAK_103.ico')
         self.title("ARTAK Map Maker, by Eolian")
@@ -238,7 +239,7 @@ class App(customtkinter.CTk):
 
         self.auto_process_sd_frame = customtkinter.CTkFrame(self)
         self.auto_process_sd_var = customtkinter.BooleanVar()
-        self.auto_process_sd_var.set(value=False)
+        self.auto_process_sd_var.set(app_settings["auto_process_sd"])
 
         self.auto_process_button = customtkinter.CTkRadioButton(self.fourth_frame,
                                                                 text="Y",
@@ -257,16 +258,16 @@ class App(customtkinter.CTk):
         self.home_frame_button_4 = customtkinter.CTkLabel(self.fourth_frame, text="Mesh from PointCloud")
         self.home_frame_button_4.grid(row=7, column=0, padx=20, pady=10)
         self.button_frame = customtkinter.CTkFrame(self)
-        self.radio_var1_pc = customtkinter.StringVar()
-        self.radio_var1_pc.set("leg")
+        self.mesh_from_pointcloud_type_var = customtkinter.StringVar()
+        self.mesh_from_pointcloud_type_var.set(app_settings['mesh_from_pointcloud_type'])
 
         self.obj_radio_button = customtkinter.CTkRadioButton(self.fourth_frame, text="New (Cesium)",
-                                                             variable=self.radio_var1_pc,
+                                                             variable=self.mesh_from_pointcloud_type_var,
                                                              value="ces")
         self.obj_radio_button.grid(row=7, column=1, padx=20, pady=10)
 
         self.tiles_radio_button2 = customtkinter.CTkRadioButton(self.fourth_frame, text="Legacy (Hololens)",
-                                                                variable=self.radio_var1_pc,
+                                                                variable=self.mesh_from_pointcloud_type_var,
                                                                 value="leg")
         self.tiles_radio_button2.grid(row=7, column=2, padx=20, pady=10)
 
@@ -277,7 +278,7 @@ class App(customtkinter.CTk):
 
         self.server_button_frame = customtkinter.CTkFrame(self)
         self.server_var = customtkinter.StringVar()
-        self.server_var.set("https://esp.eastus2.cloudapp.azure.com/")
+        self.server_var.set(app_settings["artak_server"])
 
         self.cloud_radio_button = customtkinter.CTkRadioButton(self.fourth_frame, text="Cloud",
                                                                variable=self.server_var,
@@ -292,29 +293,29 @@ class App(customtkinter.CTk):
         self.home_frame_button_4 = customtkinter.CTkLabel(self.fourth_frame, text="Select Map Type:")
         self.home_frame_button_4.grid(row=4, column=0, padx=20, pady=10)
         self.button_frame = customtkinter.CTkFrame(self)
-        self.radio_var1 = customtkinter.StringVar()
-        self.radio_var1.set("OBJ")
+        self.map_type_var = customtkinter.StringVar()
+        self.map_type_var.set(app_settings["map_type"])
 
-        self.obj_radio_button = customtkinter.CTkRadioButton(self.fourth_frame, text="OBJ", variable=self.radio_var1,
+        self.obj_radio_button = customtkinter.CTkRadioButton(self.fourth_frame, text="OBJ", variable=self.map_type_var,
                                                              value="OBJ")
         self.obj_radio_button.grid(row=4, column=1, padx=20, pady=10)
 
         self.tiles_radio_button2 = customtkinter.CTkRadioButton(self.fourth_frame, text="TILES",
-                                                                variable=self.radio_var1,
+                                                                variable=self.map_type_var,
                                                                 value="TILES")
         self.tiles_radio_button2.grid(row=4, column=2, padx=20, pady=10)
 
         self.radio_label2 = customtkinter.CTkLabel(self.fourth_frame, text="Delete After Transfer?")
         self.radio_label2.grid(row=5, column=0, padx=20, pady=10)
 
-        self.radio_var2 = customtkinter.StringVar()
-        self.radio_var2.set("N")
+        self.delete_after_transfer_var = customtkinter.StringVar()
+        self.delete_after_transfer_var.set(app_settings["delete_after_transfer"])
 
-        self.yes_radio_button = customtkinter.CTkRadioButton(self.fourth_frame, text="N", variable=self.radio_var2,
+        self.yes_radio_button = customtkinter.CTkRadioButton(self.fourth_frame, text="N", variable=self.delete_after_transfer_var,
                                                              value="N")
         self.yes_radio_button.grid(row=5, column=1, padx=20, pady=10)
 
-        self.no_radio_button = customtkinter.CTkRadioButton(self.fourth_frame, text="Y", variable=self.radio_var2,
+        self.no_radio_button = customtkinter.CTkRadioButton(self.fourth_frame, text="Y", variable=self.delete_after_transfer_var,
                                                             value="Y")
         self.no_radio_button.grid(row=5, column=2, padx=20, pady=10)
 
@@ -342,7 +343,7 @@ class App(customtkinter.CTk):
         self.browse_label_med.grid(row=12, column=0, padx=20, pady=10)
 
         self.browse_button_med = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.process_med_obj,
-                                                        state="normal")
+                                                         state="normal")
         self.browse_button_med.grid(row=12, column=1, padx=20, pady=10)
 
         # create second frame
@@ -373,12 +374,12 @@ class App(customtkinter.CTk):
         # create third frame
         self.third_frame = customtkinter.CTkScrollableFrame(self, corner_radius=0, fg_color="transparent")
         self.apperance_mode_label = customtkinter.CTkLabel(self.fourth_frame, text="App Screen Mode")
-        self.apperance_mode_label.grid(row=10, column=0, padx=20, pady=20, sticky="s")
+        self.apperance_mode_label.grid(row=15, column=0, padx=20, pady=20, sticky="s")
 
         self.appearance_mode_menu = customtkinter.CTkOptionMenu(self.fourth_frame,
                                                                 values=["Light", "Dark", "System"],
                                                                 command=self.change_appearance_mode_event)
-        self.appearance_mode_menu.grid(row=10, column=1, padx=20, pady=20, sticky="nsew", columnspan=2)
+        self.appearance_mode_menu.grid(row=15, column=1, padx=20, pady=20, sticky="nsew", columnspan=2)
 
         # select default frame
         self.select_frame_by_name("home")
@@ -390,60 +391,81 @@ class App(customtkinter.CTk):
         self.list_of_objs = []
 
         self.list_of_progress_bars = []
-        self.local_server_ip = ""
+        self.local_server_ip_var = app_settings["local_server_ip"]
         self.local_server_label = customtkinter.CTkLabel(self.fourth_frame, text="Local Server IP Address")
-        self.local_server_ip = customtkinter.CTkEntry(self.fourth_frame, placeholder_text="http://192.168.10.200")
-        self.local_server_label.grid(row=8, column=0, padx=20, pady=10, sticky="ew")
-        self.local_server_ip.grid(row=8, column=1, padx=20, pady=10, sticky="ew")
+        self.local_server_ip_var = customtkinter.CTkEntry(self.fourth_frame, placeholder_text=app_settings["local_server_ip"])
+        self.local_server_label.grid(row=12, column=0, padx=20, pady=10, sticky="ew")
+        self.local_server_ip_var.grid(row=12, column=1, padx=20, pady=10, sticky="ew")
 
         self.time_between_images = customtkinter.CTkLabel(self.fourth_frame, text="Max time between image groups")
-        self.time_between_images_value = customtkinter.CTkEntry(self.fourth_frame, placeholder_text="60")
-        self.time_between_images.grid(row=9, column=0, padx=20, pady=10, sticky="ew")
-        self.time_between_images_value.grid(row=9, column=1, padx=20, pady=10, sticky="ew")
+        self.time_between_images_var = customtkinter.CTkEntry(self.fourth_frame, placeholder_text=app_settings["max_interval_between_images"])
+        self.time_between_images_var.setvar(app_settings["max_interval_between_images"])
+        self.time_between_images.grid(row=13, column=0, padx=20, pady=10, sticky="ew")
+        self.time_between_images_var.grid(row=13, column=1, padx=20, pady=10, sticky="ew")
 
+        self.rerun_failed_jobs_var = customtkinter.StringVar()
+        self.rerun_failed_jobs = customtkinter.CTkLabel(self.fourth_frame, text="Rerun Failed Jobs")
+        self.rerun_failed_jobs.grid(row=10, column=0, padx=20, pady=10, sticky="ew")
+        self.rerun_radio_button_y = customtkinter.CTkRadioButton(self.fourth_frame, text="Y",
+                                                                 variable=self.rerun_failed_jobs_var,
+                                                                 value="Y")
+        self.rerun_radio_button_y.grid(row=10, column=1, padx=20, pady=10)
+
+        self.rerun_radio_button_n = customtkinter.CTkRadioButton(self.fourth_frame, text="N",
+                                                                 variable=self.rerun_failed_jobs_var,
+                                                                 value="N")
+        self.rerun_radio_button_n.grid(row=10, column=2, padx=20, pady=10)
+        self.rerun_failed_jobs_var.set(app_settings["rerun_failed_jobs"])
         # todo fix delete button which currently doesnt have permission to delete
-        self.delete_source_data = customtkinter.CTkButton(self.fourth_frame, text="Delete Input Data",
-                                                          command=self.delete_all_source_data, state="normal")
-        self.delete_source_data.grid(row=11, column=1, padx=20, pady=10)
+        self.save_settings_button = customtkinter.CTkButton(self.fourth_frame, text="Save Settings",
+                                                          command=self.save_settings, state="normal")
+        self.save_settings_button.grid(row=16, column=1, padx=20, pady=10)
         session_logger.info("App Startup Complete")
 
     # not working right now because of permissions
     # todo fix permissions
 
+    def save_settings(self):
+        settings = MM_objects.MapmakerSettings()
+        settings.rerun_failed_jobs = self.rerun_failed_jobs_var.get()
+        settings.map_type = self.map_type_var.get()
+        settings.artak_server = self.server_var.get()
+        settings.local_server_ip = self.local_server_ip_var.get()
+        settings.app_screen_mode = self.appearance_mode_menu.get()
+        settings.auto_process_sd = self.auto_process_sd_var.get()
+        settings.max_interval_between_images = self.time_between_images_var.get()
+        settings.mesh_from_pointcloud_type = self.mesh_from_pointcloud_type_var.get()
+        settings.delete_after_transfer = self.delete_after_transfer_var.get()
+        settings.save()
 
     def show_training(self):
         time.sleep(2)
-        webview.create_window('ARTAK Map Maker, by Eolian - 3D Scene', 'http://localhost:7007', width = 1800, height = 1200)
+        webview.create_window('ARTAK Map Maker, by Eolian - 3D Scene', 'http://localhost:7007', width=1800, height=1200)
         webview.start()
         return
 
-
     def terminate(self):
-        #This will create a file in the logs folder that will signal we are cloing shop
-        with open(os.getcwd()+"/ARTAK_MM/LOGS/kill.mm", "w") as killer:
+        # This will create a file in the logs folder that will signal we are cloing shop
+        with open(os.getcwd() + "/ARTAK_MM/LOGS/kill.mm", "w") as killer:
             pass
         process = threading.current_thread()
-        print("Current thread PID is: "+str(process))
+        print("Current thread PID is: " + str(process))
         os.system('taskkill /im iTwinCaptureModelerEngine.exe /F')
-        os.remove(os.getcwd()+"/ARTAK_MM/LOGS/kill.mm")
+        os.remove(os.getcwd() + "/ARTAK_MM/LOGS/kill.mm")
         os.system('killall.bat')
         sys.exit()
-
 
     def delete_all_source_data(self):
         directory = os.path.join(os.getcwd(), 'ARTAK_MM/DATA/Raw_Images/UNZIPPED')
         for f in os.listdir(directory):
             os.remove(os.path.join(directory, f))
 
-
     def add_radio_button_set(self, button_label, button_option1, button_option2):
         print("WIP")
-
 
     def process_for_nr(self):
 
         subprocess.Popen(["python", "MM_process_neural.py"])
-
 
     def open_pc_folder(self):
 
@@ -454,7 +476,7 @@ class App(customtkinter.CTk):
 
         global hr_proc, lr_proc
 
-        value = self.radio_var1_pc.get()
+        value = self.mesh_from_pointcloud_type_var.get()
 
         if 'leg' in value:
 
@@ -471,7 +493,7 @@ class App(customtkinter.CTk):
 
         global hr_proc, lr_proc
 
-        value = self.radio_var1_pc.get()
+        value = self.mesh_from_pointcloud_type_var.get()
 
         if 'leg' in value:
 
@@ -583,7 +605,7 @@ class App(customtkinter.CTk):
 
         if path:
             print(f"Selected Directory: {path}")
-            threading.Thread(name = 't6', target=self.process_files, kwargs=({'folder_path': path})).start()
+            threading.Thread(name='t6', target=self.process_files, kwargs=({'folder_path': path})).start()
 
     def check_project_status(self):
         status = self.job_queue_monitor()
@@ -602,7 +624,7 @@ class App(customtkinter.CTk):
         except:
             if mm_project.status == "Error":
                 print("Error processing 3D Map")
-                #play_sound_processing_complete()
+                # play_sound_processing_complete()
         self.on_project_completed(progress_bar=progress_bar, path=each_folder, mm_project=mm_project)
 
     def label_button_frame_event(self, item):
@@ -656,12 +678,17 @@ class App(customtkinter.CTk):
             print(f"(Image Files on {path}:")
             for file in files:
                 print(file)
-            image_spacing = self.time_between_images_value.get()
+            image_spacing = self.time_between_images_var.get()
+            rerun = self.rerun_failed_jobs_var.get()
+            if rerun == "Y":
+                rerun = True
+            if rerun == "N":
+                rerun = False
             folder_name_list = MM_image_grouper.group_images(path, logger=self.session_logger,
-                                                             image_spacing=image_spacing)
+                                                             image_spacing=image_spacing, rerun=rerun)
             print("Folder name list: " + str(folder_name_list))
-            map_type = self.radio_var1.get()
-            delete_after = self.radio_var2.get()
+            map_type = self.map_type_var.get()
+            delete_after = self.delete_after_transfer_var.get()
             artak_server = self.server_var.get()
             print("Processing Triggered. Map type: " + map_type + " " + "Delete After = " + delete_after)
             print(folder_name_list)
@@ -672,8 +699,8 @@ class App(customtkinter.CTk):
                 for each_folder in folder_name_list:
                     file_count = len(os.listdir(os.getcwd() + "/ARTAK_MM/DATA/Raw_Images/UNZIPPED/" + each_folder))
                     logger = MM_logger.initialize_logger("MMProjectLog_" + each_folder)
-                    if self.local_server_ip.get() != "":
-                        artak_server = self.local_server_ip.get()
+                    if self.local_server_ip_var.get() != "":
+                        artak_server = self.local_server_ip_var.get()
                     session_project_number = len(self.list_of_projects)
                     new_project = MapmakerProject(name=each_folder, time_first_image=each_folder,
                                                   time_mm_start=time.time(),
@@ -684,7 +711,7 @@ class App(customtkinter.CTk):
 
                     self.list_of_projects.append(new_project)
                     print(new_project.as_dict())
-                    threading.Thread(name = 't7', target=self.trigger_photogrammetry,
+                    threading.Thread(name='t7', target=self.trigger_photogrammetry,
                                      args=(each_folder, logger, new_project)).start()
 
                     # send the message that a project has been started
@@ -699,11 +726,11 @@ class App(customtkinter.CTk):
                                                   time_mm_start=time.time(),
                                                   image_folder=each_folder, total_images=file_count, logger=logger,
                                                   artak_server=artak_server,
-                                                  session_project_number=session_project_number,  map_type="TILES"
+                                                  session_project_number=session_project_number, map_type="TILES"
                                                   )
                     self.list_of_projects.append(new_project)
                     print(new_project.as_dict())
-                    threading.Thread(name = 't8', target=self.trigger_photogrammetry,
+                    threading.Thread(name='t8', target=self.trigger_photogrammetry,
                                      args=(each_folder, logger, new_project)).start()
 
                     # send the message that a project has been started
@@ -724,7 +751,7 @@ class App(customtkinter.CTk):
 
             try:
 
-                with open(os.getcwd()+"/ARTAK_MM/LOGS/kill.mm", "r"):
+                with open(os.getcwd() + "/ARTAK_MM/LOGS/kill.mm", "r"):
                     pass
                 print("Killing Job Queue Monitor")
                 sys.exit()
@@ -787,10 +814,7 @@ class App(customtkinter.CTk):
                         output_model_folder = os.path.join(root, "Model")
                         obj_files = [file for file in os.listdir(output_model_folder) if file.endswith(".obj")]
                         if obj_files:
-                            print(f"Found Preprocessed folder with OBJ file(s): {output_model_folder}")
-                            print("OBJ files:")
-                            for obj_file in obj_files:
-                                print(os.path.join(output_model_folder, obj_file))
+                            #print(f"Found Preprocessed folder with OBJ file(s): {output_model_folder}")
                             self.list_of_objs.append(output_model_folder)
                             self.scrollable_label_button_frame.update()
                 self.scrollable_label_button_frame = ScrollableLabelButtonFrame(master=self, width=300,
@@ -860,7 +884,7 @@ class App(customtkinter.CTk):
         progressbar_1.set(0)
         progressbar_1.start()
 
-        threading.Thread(name = 't9', target=self.update_name_manually_loop, args=(e1, mm_project)).start()
+        threading.Thread(name='t9', target=self.update_name_manually_loop, args=(e1, mm_project)).start()
         return progressbar_1
 
     def update_name_manually_loop(self, input_field, mm_project):
@@ -881,7 +905,7 @@ class App(customtkinter.CTk):
         print("on name change")
 
     def on_project_completed(self, progress_bar, path=None, mm_project=MapmakerProject()):
-        #play_sound_processing_complete()
+        # play_sound_processing_complete()
         path = mm_project.completed_file_path
         session_project_number = mm_project.session_project_number
         if mm_project.status == "Error":
@@ -891,7 +915,8 @@ class App(customtkinter.CTk):
         else:
             project2_open_map_icon = customtkinter.CTkButton(self.home_frame,
                                                              text="Open Map",
-                                                             command=lambda: threading.Thread(name = 't10', target=self.open_obj_new,
+                                                             command=lambda: threading.Thread(name='t10',
+                                                                                              target=self.open_obj_new,
                                                                                               kwargs={
                                                                                                   "path": path}).start())
             project2_open_map_icon.grid(row=session_project_number + 11, column=3, padx=20, pady=10)
@@ -900,7 +925,7 @@ class App(customtkinter.CTk):
             progress_bar.stop()
 
     def process_sd_card(self, drive_letter, button):
-        threading.Thread(name = 't11', target=self.process_files, kwargs=({'drive_letter': drive_letter})).start()
+        threading.Thread(name='t11', target=self.process_files, kwargs=({'drive_letter': drive_letter})).start()
         button.destroy()  # Remove the button from the GUI after it has been clicked
 
     def sd_card_monitor(self):
@@ -915,7 +940,7 @@ class App(customtkinter.CTk):
                     os.listdir(drive_letter + ":\\")
                     global sd_drive
                     sd_drive = drive_letter
-                    threading.Thread(name = 't12', target=self.handle_sd_card_insertion, args=(sd_drive,)).start()
+                    threading.Thread(name='t12', target=self.handle_sd_card_insertion, args=(sd_drive,)).start()
 
                 except:
                     print("Calling Bullshit on drive " + drive_letter)
@@ -966,12 +991,17 @@ class App(customtkinter.CTk):
                         break
                     self.output_text2.insert(tk.END, output)
                     self.output_text2.see(tk.END)
-
+                    if output == "Error: Product is not permitted to run.":
+                        self.open_licensing_tool()
             process.wait()
 
         # Create a separate thread to read the output
-        output_thread = threading.Thread(name = 't13', target=read_output)
+        output_thread = threading.Thread(name='t13', target=read_output)
         output_thread.start()
+
+    def open_licensing_tool(self):
+        executable = "C:/ProgramData/Microsoft/Windows/Start Menu/Programs/CONNECTION Client/CONNECTION Client/CONNECTION Client.lnk"
+        subprocess.Popen(executable)
 
     def home_button_event(self):
         self.select_frame_by_name("home")
@@ -996,6 +1026,7 @@ class StatusObject:
         self.image_icon = image_icon
         self.name_entry_field = name_entry_field
         self.progress_bar = progress_bar
+
 
 def detect_sd_card():
     drive_list = []
@@ -1022,6 +1053,7 @@ def detect_sd_card():
 
     return drive_list
 
+
 def get_image_files(folder):
     image_extensions = ['.jpg', '.jpeg', '.png', '.gif']  # Add more extensions if needed
     image_files = []
@@ -1032,6 +1064,7 @@ def get_image_files(folder):
                 image_files.append(os.path.join(root, file))
 
     return image_files
+
 
 def button_click_event():
     dialog = customtkinter.CTkInputDialog(text="Type in a number:", title="Test")
@@ -1051,10 +1084,10 @@ if __name__ == "__main__":
 
     app = App()
     # threading.Thread(target=app.sd_card_monitor).start()
-    threading.Thread(target=app.job_queue_monitor, name = 't1').start()
-    threading.Thread(target=app.mm_project_monitor, name = 't2').start()
-    threading.Thread(target=app.find_folders_with_obj,name = 't3').start()
-    threading.Thread(target=app.display_activity_on_pc_recon, name = 't4').start()
-    threading.Thread(target=app.display_activity_on_nr_recon, name = 't5').start()
+    threading.Thread(target=app.job_queue_monitor, name='t1').start()
+    threading.Thread(target=app.mm_project_monitor, name='t2').start()
+    threading.Thread(target=app.find_folders_with_obj, name='t3').start()
+    threading.Thread(target=app.display_activity_on_pc_recon, name='t4').start()
+    threading.Thread(target=app.display_activity_on_nr_recon, name='t5').start()
     app.run_executable()
     app.mainloop()
