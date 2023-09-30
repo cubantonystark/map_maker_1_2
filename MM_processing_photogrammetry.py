@@ -302,15 +302,14 @@ class ProcessingPhotogrammetry:
         reconstruction = ccmasterkernel.Reconstruction(blockAT)
         reconsettings = reconstruction.getSettings()
 
-        # todo add logic to use a different present if there is no exif
-        # todo add logic to use the proper cfg when there is exif
         if self.exif_data_exists:
             reconsettings.loadPreset("configs/Recons_preset.cfg")
+            reconstruction.setSRS("EPSG:3395")
+
         else:
             reconsettings.loadPreset("configs/Recons_preset_no_exif.cfg")
 
         reconstruction.setSettings(reconsettings)
-        reconstruction.setSRS("EPSG:3395")
         blockAT.addReconstruction(reconstruction)
 
         if reconstruction.getNumInternalTiles() == 0:
@@ -342,33 +341,38 @@ class ProcessingPhotogrammetry:
             driverOptions = production.getDriverOptions()
             self.logger.info(driverOptions)
             driverOptions.writeXML(os.path.join(project.getProductionsDirPath(), "options_premod.xml"))
-            print ("ROI xMax =" + str(production.getROI().getBoundingBox().xMax))
-            print ("ROI xMin =" + str(production.getROI().getBoundingBox().xMin))
-            print ("ROI yMax =" + str(production.getROI().getBoundingBox().yMax))
-            print ("ROI yMin =" + str(production.getROI().getBoundingBox().yMin))
-            print ("ROI zMax =" + str(production.getROI().getBoundingBox().zMax))
-            print ("ROI zMin =" + str(production.getROI().getBoundingBox().zMin))
+            if self.exif_data_exists:
+                print ("ROI xMax =" + str(production.getROI().getBoundingBox().xMax))
+                print ("ROI xMin =" + str(production.getROI().getBoundingBox().xMin))
+                print ("ROI yMax =" + str(production.getROI().getBoundingBox().yMax))
+                print ("ROI yMin =" + str(production.getROI().getBoundingBox().yMin))
+                print ("ROI zMax =" + str(production.getROI().getBoundingBox().zMax))
+                print ("ROI zMin =" + str(production.getROI().getBoundingBox().zMin))
 
-            roi_center = (statistics.median((production.getROI().getBoundingBox().xMax,
-                                           production.getROI().getBoundingBox().xMin)),
-                          statistics.median((production.getROI().getBoundingBox().yMax,
-                                             production.getROI().getBoundingBox().yMin)),
-                          statistics.median((production.getROI().getBoundingBox().zMax,
-                                            production.getROI().getBoundingBox().zMin))
-                          )
+                roi_center = (statistics.median((production.getROI().getBoundingBox().xMax,
+                                               production.getROI().getBoundingBox().xMin)),
+                              statistics.median((production.getROI().getBoundingBox().yMax,
+                                                 production.getROI().getBoundingBox().yMin)),
+                              statistics.median((production.getROI().getBoundingBox().zMax,
+                                                production.getROI().getBoundingBox().zMin))
+                              )
 
-            srs_origin = str(roi_center[0]) + "," + str(roi_center[1]) + "," + str(roi_center[2])
-            # print ("AUTOMATIC ROI =" + str(production.getAutomaticROI()))
-            # print ("DEFAULT ROI =" + str(production.getDefaultROI()))
-            driverOptions.put_bool('TextureEnabled', True)
-            driverOptions.put_string('SRSOrigin', srs_origin)
-            driverOptions.put_bool('DoublePrecision', True)
-            driverOptions.put_int('TextureCompressionQuality', 75)
-            driverOptions.put_int('MaximumTextureSize', 4096)
-            #driverOptions.put_int('TextureColorSource', ccmasterkernel.CameraModelBand.CameraModelBand_thermal)
-
-            # manaully set to WGS 84 / World Mercator (EPSG:3395)
-            driverOptions.put_string('SRS', 'EPSG:3395')
+                srs_origin = str(roi_center[0]) + "," + str(roi_center[1]) + "," + str(roi_center[2])
+                # print ("AUTOMATIC ROI =" + str(production.getAutomaticROI()))
+                # print ("DEFAULT ROI =" + str(production.getDefaultROI()))
+                driverOptions.put_bool('TextureEnabled', True)
+                driverOptions.put_string('SRSOrigin', srs_origin)
+                driverOptions.put_bool('DoublePrecision', True)
+                driverOptions.put_int('TextureCompressionQuality', 75)
+                driverOptions.put_int('MaximumTextureSize', 4096)
+                #driverOptions.put_int('TextureColorSource', ccmasterkernel.CameraModelBand.CameraModelBand_thermal)
+                # manaully set to WGS 84 / World Mercator (EPSG:3395)
+                driverOptions.put_string('SRS', 'EPSG:3395')
+            else:
+                driverOptions.put_bool('TextureEnabled', True)
+                driverOptions.put_bool('DoublePrecision', True)
+                driverOptions.put_int('TextureCompressionQuality', 75)
+                driverOptions.put_int('MaximumTextureSize', 4096)
             # we use the PRJ file in the configs folder which has the data for this projection
             # we also change the metadata.xyz file to match the x y data from a file we create named metadata.xml
             driverOptions.writeXML(os.path.join(project.getProductionsDirPath(), "options_postmod.xml"))
@@ -421,28 +425,30 @@ class ProcessingPhotogrammetry:
         # --------------------------------------------------------------------
         self.logger.info('Production completed.')
         self.logger.info('Output directory: %s' % production.getDestination())
+        self.logger.info("Map type =" + self.mm_project.map_type)
+        if 1 == 1:
+            self.logger.info("Map Type ==== OBJ")
+            # with open((production.getDestination() + '/metadata.xml'), 'r+') as f:
+            #     xml_string = f.read()
+            self.logger.info("Opened xml")
 
-
-        # Print the resulting dictionary
-
-        if self.mm_project.map_type == "OBJ":
-            with open(production.getDestination() + '/metadata.xml',
-                      'r+') as f:
-                xml_string = f.read()
-
-            root = ET.fromstring(xml_string)
+            # root = ET.fromstring(xml_string)
 
             # Extract the attributes and values of the XML elements as key-value pairs
             metadata = {}
-            for child in root:
-                metadata[child.tag] = child.text
+            # for child in root:
+            #     metadata[child.tag] = child.text
             # path to the input OBJ file
-            input_file = production.getDestination() + "/Data/Model/Model.obj"
+            input_file = os.path.join(production.getDestination(), "Data/Model/Model.obj")
 
             # path to the output folder
-            output_folder = production.getDestination() + "/Data/Model/"
-            zip_location = production.getDestination() + "/Data/"
+            output_folder = os.path.join(production.getDestination(), "Data/Model/")
+            zip_location = os.path.join(production.getDestination(), "Data/")
             # create the output folder if it doesn't exist
+            self.logger.info("Input File " + input_file)
+            self.logger.info("Output folder " + output_folder)
+            self.logger.info("Zip Location " + zip_location)
+
             if not os.path.exists(output_folder):
                 os.makedirs(output_folder)
 
@@ -451,12 +457,12 @@ class ProcessingPhotogrammetry:
                 x = str(eval(str(metadata['SRSOrigin'])[0]))
                 y = str(eval(metadata['SRSOrigin'])[1])
                 z = str("101.000")
-                print ("outputting metadata.xyz")
+                self.logger.info ("outputting metadata.xyz")
                 with open(output_folder + "/metadata.xyz",
                           'w') as xyz:
                     xyz.write(x + " " + y + " " + z)
             except:
-                print ("error accessing metadata, writing fake xyz")
+                self.logger.info ("error accessing metadata, writing fake xyz")
                 with open(output_folder + "/metadata.xyz",
                           'w') as xyz:
                     try:
@@ -464,9 +470,9 @@ class ProcessingPhotogrammetry:
                     except:
                         xyz.write(str("0 0 0"))
 
-            print ("attempting to copy prj")
+            self.logger.info ("attempting to copy prj")
             shutil.copy("configs/WGS84.prj", os.path.join(production.getDestination(), "Data/Model/metadata.prj"))
-            print("copied prj")
+            self.logger.info("copied prj")
             # set the output file name based on the input file name
             output_file = os.path.join(output_folder, os.path.splitext(os.path.basename(input_file))[0] + ".obj")
             inp_folder = production.getDestination() + "/Data/"
@@ -478,11 +484,7 @@ class ProcessingPhotogrammetry:
             self.logger.info("Output folder:" + output_folder)
             a = os.path.join(zip_location + self.filename)
             self.logger.info ("Zip filename path : " + a)
-            if len(self.filename) > 19:
-                shutil.make_archive(zip_location+self.filename[:len(self.filename)-4], 'zip', inp_folder)
-                self.logger.info("cutting filename")
-            else:
-                shutil.make_archive(zip_location+self.filename, 'zip', production.getDestination() + "/Data/Model/")
+            shutil.make_archive(zip_location+self.filename, 'zip', production.getDestination() + "/Data/Model/")
             if ".zip" in a:
                 self.logger.info("already has .zip in upload filename")
             else:
@@ -494,7 +496,9 @@ class ProcessingPhotogrammetry:
             # rename zip if manually set
             if self.mm_project.manually_made_name:
                 if self.mm_project.manually_made_name != "":
-                    manually_set_filename = self.mm_project.manually_made_name + ".zip"
+                    manually_made_name_nospaces = self.mm_project.manually_made_name.replace(" ", "")
+                    manually_made_name_nospaces_noperiods = self.mm_project.manually_made_name.replace(".", "-")
+                    manually_set_filename = manually_made_name_nospaces_noperiods + ".zip"
                     new_path = os.path.join(zip_location, manually_set_filename)
                     self.logger.info("Name has been set manually. Name = " + manually_set_filename)
                     self.logger.info("New Path = " + new_path)
@@ -529,6 +533,8 @@ class ProcessingPhotogrammetry:
                     self.logger.info("Renaming " + archive_location + " to " + new_path)
                     os.rename(archive_location_with_extension, new_path)
                     archive_location_with_extension = new_path
+                    self.logger.info("Successfully Renamed " + archive_location + " to " + new_path)
+
             self.mm_project.zip_payload_location = archive_location_with_extension
             self.logger.info("Attempting to Upload Cesium Tiles.")
             self.mm_project.upload_to_world()

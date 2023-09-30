@@ -7,7 +7,7 @@ class MapmakerProject:
                  time_processing_complete=None, time_accepted_by_artak=None, total_images=None, image_folder=None,
                  processed_zip_path=None, status=None, logger=None, artak_server=None, manually_made_name=None,
                  manually_made_name_field=None, local_image_folder=None, session_project_number=None,
-                 completed_file_path=None, map_type=None, zip_payload_location=None):
+                 completed_file_path=None, map_type=None, zip_payload_location=None, total_processing_time=None):
         self.name = name
         self.time_first_image = time_first_image
         self.time_mm_start = time_mm_start
@@ -27,6 +27,7 @@ class MapmakerProject:
         self.completed_file_path = completed_file_path
         self.map_type = map_type # ces for cesium tiles or obj for obj files
         self.zip_payload_location = zip_payload_location
+        self.total_processing_time = total_processing_time
 
     def as_dict(self):
         return vars(self)
@@ -57,6 +58,7 @@ class MapmakerSettings:
         self.max_interval_between_images = ""
         self.app_screen_mode = ""
         self.delete_after_transfer = ""
+        self.auto_open_upon_completion = ""
 
     def save(self):
         mm_settings = {'mm_settings': vars(self)}

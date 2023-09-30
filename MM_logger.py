@@ -1,8 +1,19 @@
 import logging
 import os.path
+import tkinter as tk
+
+class TkinterLogHandler(logging.Handler):
+    def __init__(self, text_widget):
+        super().__init__()
+        self.text_widget = text_widget
+
+    def emit(self, record):
+        log_message = self.format(record)
+        self.text_widget.insert(tk.END, log_message + '\n')
+        self.text_widget.see(tk.END)  # Scroll to the end of the text widget
 
 
-def initialize_logger(log_filename=None):
+def initialize_logger(log_filename=None, log_text_widget=None):
     # Create a logger object
     logger = logging.getLogger(__name__)
 
@@ -21,5 +32,9 @@ def initialize_logger(log_filename=None):
 
     # Add the file handler to the logger
     logger.addHandler(handler)
+
+    if log_text_widget is not None:
+        log_handler = TkinterLogHandler(log_text_widget)
+        logger.addHandler(log_handler)
 
     return logger

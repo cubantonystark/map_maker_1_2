@@ -76,10 +76,6 @@ sd_drive = ""
 # Open loop to check for zip files placed into a specific folder, usually placed there by the Restful API above
 subprocess.Popen(["python", "MM_loop_check_files.py"])
 
-r = random.Random()
-session_id = r.randint(1, 10000000)
-session_logger = MM_logger.initialize_logger("SessionLog_App_" + str(session_id))
-print = session_logger.info
 
 
 class SdCardInsertionEvent(tk.Event):
@@ -152,7 +148,7 @@ class App(customtkinter.CTk):
     def __init__(self):
         super().__init__()
         app_settings = MM_objects.load_settings()
-        self.session_logger = session_logger
+
         self.iconbitmap(default='gui_images/ARTAK_103.ico')
         self.title("ARTAK Map Maker, by Eolian")
         self.geometry("1400x720")
@@ -168,8 +164,8 @@ class App(customtkinter.CTk):
             light_image=Image.open(os.path.join(image_path, "logo_light_scheme.png")),
             dark_image=Image.open(os.path.join(image_path, "logo_dark_scheme.png")),
             size=(100, 33))
-        self.large_test_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "large_test_image.png")),
-                                                       size=(500, 150))
+        self.large_test_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "logo_light_scheme.png")),
+                                                       size=(720, 150))
         self.image_icon_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "image_icon_light.png")),
                                                        size=(20, 20))
         self.home_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "home_dark.png")),
@@ -232,7 +228,7 @@ class App(customtkinter.CTk):
 
         self.home_frame_large_image_label = customtkinter.CTkLabel(self.home_frame, text="",
                                                                    image=self.large_test_image)
-        # self.home_frame_large_image_label.grid(row=0, column=0, padx=20, pady=10)
+    #    self.home_frame_large_image_label.grid(row=0, column=0, padx=20, pady=10, sticky="EW")
         # add settings for auto process sd card
         self.auto_process_sd = customtkinter.CTkLabel(self.fourth_frame, text="Auto Process SD Card Content?")
         self.auto_process_sd.grid(row=6, column=0, padx=20, pady=10)
@@ -293,6 +289,19 @@ class App(customtkinter.CTk):
         self.home_frame_button_4 = customtkinter.CTkLabel(self.fourth_frame, text="Select Map Type:")
         self.home_frame_button_4.grid(row=4, column=0, padx=20, pady=10)
         self.button_frame = customtkinter.CTkFrame(self)
+
+        self.auto_open_var = customtkinter.BooleanVar()
+
+        self.auto_open_var.set(self.string_to_bool(app_settings["auto_open_upon_completion"]))
+        self.auto_open_text = customtkinter.CTkLabel(self.fourth_frame, text="Auto-open upon completion?")
+        self.auto_open_text.grid(row=11, column=0, padx=20, pady=10)
+        self.auto_open_switch = customtkinter.CTkSwitch(self.fourth_frame, text="Yes", variable=self.auto_open_var)
+        self.auto_open_switch.grid(row=11, column=1, padx=20, pady=10)
+
+
+
+
+
         self.map_type_var = customtkinter.StringVar()
         self.map_type_var.set(app_settings["map_type"])
 
@@ -332,19 +341,19 @@ class App(customtkinter.CTk):
                                                         state="normal")
         self.browse_button_pc.grid(row=8, column=1, padx=20, pady=10)
 
-        self.browse_label_nr = customtkinter.CTkLabel(self.home_frame, text="Neural Surface Reconstruction")
-        self.browse_label_nr.grid(row=10, column=0, padx=20, pady=10)
-
-        self.browse_button_nr = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.process_for_nr,
-                                                        state="normal")
-        self.browse_button_nr.grid(row=10, column=1, padx=20, pady=10)
-
-        self.browse_label_med = customtkinter.CTkLabel(self.home_frame, text="Process Med OBJ")
-        self.browse_label_med.grid(row=12, column=0, padx=20, pady=10)
-
-        self.browse_button_med = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.process_med_obj,
-                                                         state="normal")
-        self.browse_button_med.grid(row=12, column=1, padx=20, pady=10)
+        # self.browse_label_nr = customtkinter.CTkLabel(self.home_frame, text="Neural Surface Reconstruction")
+        # self.browse_label_nr.grid(row=10, column=0, padx=20, pady=10)
+        #
+        # self.browse_button_nr = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.process_for_nr,
+        #                                                 state="normal")
+        # self.browse_button_nr.grid(row=10, column=1, padx=20, pady=10)
+        #
+        # self.browse_label_med = customtkinter.CTkLabel(self.home_frame, text="Process Med OBJ")
+        # self.browse_label_med.grid(row=12, column=0, padx=20, pady=10)
+        #
+        # self.browse_button_med = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.process_med_obj,
+        #                                                  state="normal")
+        # self.browse_button_med.grid(row=12, column=1, padx=20, pady=10)
 
         # create second frame
         self.second_frame = customtkinter.CTkFrame(self, corner_radius=0, fg_color="transparent")
@@ -388,6 +397,8 @@ class App(customtkinter.CTk):
                                                                         command=self.label_button_frame_event,
                                                                         corner_radius=0)
         self.scrollable_label_button_frame.grid(row=0, column=2, padx=0, pady=0, sticky="nsew")
+
+
         self.list_of_objs = []
 
         self.list_of_progress_bars = []
@@ -420,6 +431,13 @@ class App(customtkinter.CTk):
         self.save_settings_button = customtkinter.CTkButton(self.fourth_frame, text="Save Settings",
                                                           command=self.save_settings, state="normal")
         self.save_settings_button.grid(row=16, column=1, padx=20, pady=10)
+
+        r = random.Random()
+        session_id = r.randint(1, 10000000)
+        session_logger = MM_logger.initialize_logger("SessionLog_App_" + str(session_id), log_text_widget=self.output_text2)
+        print = session_logger.info
+
+        self.session_logger = session_logger
         session_logger.info("App Startup Complete")
 
     # not working right now because of permissions
@@ -436,8 +454,19 @@ class App(customtkinter.CTk):
         settings.max_interval_between_images = self.time_between_images_var.get()
         settings.mesh_from_pointcloud_type = self.mesh_from_pointcloud_type_var.get()
         settings.delete_after_transfer = self.delete_after_transfer_var.get()
+        settings.auto_open_upon_completion = self.bool_to_string(self.auto_open_var.get())
         settings.save()
 
+    def bool_to_string(self, bool):
+        if bool:
+            return "true"
+        else:
+            return "false"
+    def string_to_bool(self, string):
+        if string == "false":
+            return False
+        if string == "true":
+            return True
     def show_training(self):
         time.sleep(2)
         webview.create_window('ARTAK Map Maker, by Eolian - 3D Scene', 'http://localhost:7007', width=1800, height=1200)
@@ -465,7 +494,7 @@ class App(customtkinter.CTk):
 
     def process_for_nr(self):
 
-        subprocess.Popen(["python", "MM_process_neural.py"])
+        subprocess.Popen(["python", "MM_proces s_neural.py"])
 
     def open_pc_folder(self):
 
@@ -923,6 +952,10 @@ class App(customtkinter.CTk):
             progress_bar.configure(mode="determinate", progress_color="green")
             progress_bar.set(1)
             progress_bar.stop()
+        #mm_project.total_processing_time = mm_project.time_processing_complete - mm_project.time_processing_start
+        if self.auto_open_var:
+            self.open_obj_new(path)
+
 
     def process_sd_card(self, drive_letter, button):
         threading.Thread(name='t11', target=self.process_files, kwargs=({'drive_letter': drive_letter})).start()
@@ -970,9 +1003,11 @@ class App(customtkinter.CTk):
         else:
             self.fourth_frame.grid_forget()
 
+    def read_logs_to_textframe(self):
+        log_path = 'C:/Users/micha/Apps/MapMaker6/map_maker_1_2/ARTAK_MM/LOGS/SessionLog_App_9593566.txt'
+
     def run_executable(self):
         executable_path = "C:/Program Files/Bentley/iTwin Capture Modeler/bin/iTwinCaptureModelerEngine.exe"
-
         def read_output():
             process = subprocess.Popen(executable_path, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                                        universal_newlines=True)
