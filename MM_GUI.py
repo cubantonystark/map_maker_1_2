@@ -952,7 +952,7 @@ class App(customtkinter.CTk):
             progress_bar.configure(mode="determinate", progress_color="green")
             progress_bar.set(1)
             progress_bar.stop()
-        #mm_project.total_processing_time = mm_project.time_processing_complete - mm_project.time_processing_start
+        mm_project.total_processing_time = mm_project.time_processing_complete - mm_project.time_processing_start
         if self.auto_open_var:
             self.open_obj_new(path)
 
