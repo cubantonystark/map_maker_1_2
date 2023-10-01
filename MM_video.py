@@ -2,7 +2,7 @@ import cv2
 import os
 
 
-def extract_frames(input_video, output_folder, frame_interval=10, logger=None):
+def extract_frames(input_video, output_folder, frame_interval=3, logger=None):
 
     logger.info("extracting frames")
     # Create the output folder if it doesn't exist
