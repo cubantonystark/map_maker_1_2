@@ -7,7 +7,8 @@ class MapmakerProject:
                  time_processing_complete=None, time_accepted_by_artak=None, total_images=None, image_folder=None,
                  processed_zip_path=None, status=None, logger=None, artak_server=None, manually_made_name=None,
                  manually_made_name_field=None, local_image_folder=None, session_project_number=None,
-                 completed_file_path=None, map_type=None, zip_payload_location=None, total_processing_time=None):
+                 completed_file_path=None, map_type=None, zip_payload_location=None, total_processing_time=None,
+                 partition_key=None):
         self.name = name
         self.time_first_image = time_first_image
         self.time_mm_start = time_mm_start
@@ -28,13 +29,13 @@ class MapmakerProject:
         self.map_type = map_type # ces for cesium tiles or obj for obj files
         self.zip_payload_location = zip_payload_location
         self.total_processing_time = total_processing_time
-
+        self.partition_key = partition_key
     def as_dict(self):
         return vars(self)
 
     def upload_to_world(self):
         os.system(
-            r'curl -F uploadFile=@' + self.zip_payload_location + ' -F partition_key= https://resqview.eastus2.cloudapp.azure.com/api/upload-tileset -H "Content-Type: multipart/form-data"')
+            r'curl -F uploadFile=@' + self.zip_payload_location + ' -F partition_key=' + self.partition_key + ' https://resqview.eastus2.cloudapp.azure.com/api/upload-tileset -H "Content-Type: multipart/form-data"')
 
 
 def load_settings():

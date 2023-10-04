@@ -149,8 +149,8 @@ class App(customtkinter.CTk):
         super().__init__()
         app_settings = MM_objects.load_settings()
 
-        self.iconbitmap(default='gui_images/ARTAK_103.ico')
-        self.title("ARTAK Map Maker, by Eolian")
+        self.iconbitmap(default='gui_images/EolianIcon.ico')
+        self.title("EOLIAN MAP MAKER")
         self.geometry("1400x720")
         self.protocol('WM_DELETE_WINDOW', self.terminate)
 
@@ -161,11 +161,11 @@ class App(customtkinter.CTk):
         # load images with light and dark mode image
         image_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "gui_images")
         self.logo_image = customtkinter.CTkImage(
-            light_image=Image.open(os.path.join(image_path, "logo_light_scheme.png")),
-            dark_image=Image.open(os.path.join(image_path, "logo_dark_scheme.png")),
-            size=(100, 33))
-        self.large_test_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "logo_light_scheme.png")),
-                                                       size=(720, 150))
+            light_image=Image.open(os.path.join(image_path, "MM_logo_light.png")),
+            dark_image=Image.open(os.path.join(image_path, "MM_logo_light.png")),
+            size=(267, 32))
+        self.large_test_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "MM_logo_light.png")),
+                                                       size=(534, 64))
         self.image_icon_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "image_icon_light.png")),
                                                        size=(20, 20))
         self.home_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "home_dark.png")),
@@ -283,7 +283,7 @@ class App(customtkinter.CTk):
 
         self.local_radio_button = customtkinter.CTkRadioButton(self.fourth_frame, text="Local",
                                                                variable=self.server_var,
-                                                               value="https://esp.cluster.local")
+                                                               value="http://eoliancluster.local/")
         self.local_radio_button.grid(row=0, column=2, padx=20, pady=10)
 
         self.home_frame_button_4 = customtkinter.CTkLabel(self.fourth_frame, text="Select Map Type:")
@@ -403,7 +403,7 @@ class App(customtkinter.CTk):
 
         self.list_of_progress_bars = []
         self.local_server_ip_var = app_settings["local_server_ip"]
-        self.local_server_label = customtkinter.CTkLabel(self.fourth_frame, text="Local Server IP Address")
+        self.local_server_label = customtkinter.CTkLabel(self.fourth_frame, text="Custom Server Domain Name or IP Address")
         self.local_server_ip_var = customtkinter.CTkEntry(self.fourth_frame, placeholder_text=app_settings["local_server_ip"])
         self.local_server_label.grid(row=12, column=0, padx=20, pady=10, sticky="ew")
         self.local_server_ip_var.grid(row=12, column=1, padx=20, pady=10, sticky="ew")
@@ -413,6 +413,12 @@ class App(customtkinter.CTk):
         self.time_between_images_var.setvar(app_settings["max_interval_between_images"])
         self.time_between_images.grid(row=13, column=0, padx=20, pady=10, sticky="ew")
         self.time_between_images_var.grid(row=13, column=1, padx=20, pady=10, sticky="ew")
+
+        self.partition_key = customtkinter.CTkLabel(self.fourth_frame, text="Map Partition Key")
+        self.partition_key_var = customtkinter.CTkEntry(self.fourth_frame, placeholder_text="None")
+        self.partition_key_var.setvar("")
+        self.partition_key.grid(row=14, column=0, padx=20, pady=10, sticky="ew")
+        self.partition_key_var.grid(row=14, column=1, padx=20, pady=10, sticky="ew")
 
         self.rerun_failed_jobs_var = customtkinter.StringVar()
         self.rerun_failed_jobs = customtkinter.CTkLabel(self.fourth_frame, text="Rerun Failed Jobs")
@@ -469,7 +475,7 @@ class App(customtkinter.CTk):
             return True
     def show_training(self):
         time.sleep(2)
-        webview.create_window('ARTAK Map Maker, by Eolian - 3D Scene', 'http://localhost:7007', width=1800, height=1200)
+        webview.create_window('MAP MAKER by Eolian - 3D Scene', 'http://localhost:7007', width=1800, height=1200)
         webview.start()
         return
 
@@ -643,6 +649,7 @@ class App(customtkinter.CTk):
     def trigger_photogrammetry(self, each_folder, logger, mm_project=MM_objects.MapmakerProject()):
         session_project_number = mm_project.session_project_number
         mm_project.local_image_folder = os.getcwd() + "/ARTAK_MM/DATA/Raw_Images/UNZIPPED/" + each_folder
+        mm_project.partition_key = self.partition_key_var.get()
         progress_bar = self.on_project_started(path=each_folder, mm_project=mm_project,
                                                session_project_number=session_project_number)
         mm_project.manually_made_name = "ManualNameTest"
@@ -730,6 +737,8 @@ class App(customtkinter.CTk):
                     logger = MM_logger.initialize_logger("MMProjectLog_" + each_folder)
                     if self.local_server_ip_var.get() != "":
                         artak_server = self.local_server_ip_var.get()
+                        artak_server = self.cleanup_manually_entered_server_address(artak_server)
+
                     session_project_number = len(self.list_of_projects)
                     new_project = MapmakerProject(name=each_folder, time_first_image=each_folder,
                                                   time_mm_start=time.time(),
@@ -871,6 +880,13 @@ class App(customtkinter.CTk):
             for dirs in directory:
                 current_file_count += len(os.listdir(os.path.join(os.getcwd(), dirs)))
         return
+
+    def cleanup_manually_entered_server_address(self, address):
+        if address[-1] != "/":
+            address = address + "/"
+        if "http://" not in address and "https://" not in address:
+            address = "http://" + address
+        return address
 
     def open_obj(self, path):
         path = os.path.join(path + "/", "Model.obj")

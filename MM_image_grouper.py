@@ -21,7 +21,7 @@ def get_image_files(folder):
 
 
 def get_video_files(folder):
-    video_extensions = ['.mp4']  # Add more extensions if needed
+    video_extensions = ['.mp4', '.ts', ".m4v"]  # Add more extensions if needed
     video_files = []
 
     for root, dirs, files in os.walk(folder):

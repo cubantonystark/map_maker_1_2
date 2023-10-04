@@ -83,7 +83,7 @@ class ProcessingPhotogrammetry:
         self.logger.info("Sending the file =" + the_file)
         file_zip = open(the_file, "rb")
         payload = {"file": file_zip}
-        params = {"type": "maps"}
+        params = {"type": "maps", "partition_keys": [self.mm_project.partition_key]}
         self.logger.info("url : " + url)
         response = self.upload_to_artak_server(file_dict=payload, data=params, url=url)
         self.logger.info(response)
