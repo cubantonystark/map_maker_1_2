@@ -10,7 +10,7 @@ This snippet hides the console in non compiled scripts. Done for aesthetics
 import random
 from datetime import datetime
 from PIL import Image
-import os, shutil, webview
+import os, shutil
 import open3d as o3d
 
 '''
