@@ -14,7 +14,7 @@ from PIL import Image
 import os, platform, shutil, zipfile, logging, sys, glob, utm, time
 from tkinter import Tk
 from tkinter import filedialog, messagebox
-
+import MM_upload_to_artak_mk1
 Image.MAX_IMAGE_PIXELS = None
 
 level = logging.INFO
@@ -582,10 +582,13 @@ class meshing():
         with zipfile.ZipFile(zip_file, mode="w") as zf:
             for ext in extensions:
                 try:
-                    zf.write(with_texture_output_folder + separator + filename.replace('.obj', '').replace('.ply',
+                    final_filename = with_texture_output_folder + separator + filename.replace('.obj', '').replace('.ply',
                                                                                                            '').replace(
-                        '.pts', '') + ext, filename.replace('.obj', '').replace('.ply', '').replace('.pts', '') + ext,
+                        '.pts', '') + ext, filename.replace('.obj', '').replace('.ply', '').replace('.pts', '') + ext
+                    zf.write(final_filename,
                              compress_type=compression, compresslevel=9)
+                    results = MM_upload_to_artak_mk1.upload(final_filename)
+                    self.write_to_log(" ", " ", results.status_code)
                 except FileExistsError:
                     pass
                 except FileNotFoundError:

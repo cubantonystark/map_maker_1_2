@@ -163,9 +163,9 @@ class App(customtkinter.CTk):
         self.logo_image = customtkinter.CTkImage(
             light_image=Image.open(os.path.join(image_path, "MM_logo_light.png")),
             dark_image=Image.open(os.path.join(image_path, "MM_logo_light.png")),
-            size=(267, 32))
+            size=(218, 25.6))
         self.large_test_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "MM_logo_light.png")),
-                                                       size=(534, 64))
+                                                       size=(250, 64))
         self.image_icon_image = customtkinter.CTkImage(Image.open(os.path.join(image_path, "image_icon_light.png")),
                                                        size=(20, 20))
         self.home_image = customtkinter.CTkImage(light_image=Image.open(os.path.join(image_path, "home_dark.png")),

@@ -221,7 +221,7 @@ class ProcessingPhotogrammetry:
             at_settings.loadPreset("configs/AT_preset.cfg")
         else:
             self.logger.info("EXIF data DOES NOT exist")
-            at_settings.loadPreset("configs/AT_preset_no_exif.cfg")
+            at_settings.loadPreset("configs/AT_preset_no_underwater.cfg")
         # turning off for thermal and for faster processing
         # at_settings.ColorEqualizationPreprocessing = ccmasterkernel.ColorEqualizationPreprocessing.ColorEqualizationPreprocessing_none
         if not blockAT.getAT().setSettings(at_settings):

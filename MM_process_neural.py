@@ -88,7 +88,7 @@ class neural_rendering_and_recon():
         base_dir = os.getcwd()
         tgt_dir = str(tgt_dir)+"/nerfacto"
         tgt_dir = max(pathlib.Path(tgt_dir).glob('*/'), key=os.path.getmtime)
-        cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/exporter.py poisson --load-config "+str(tgt_dir)+"/config.yml --output-dir "+str(tgt_dir)+"/mesh --bounding-box-min -1.5 -1.5 -1.5 --bounding-box-max 1.5 1.5 1.5 --num-points 25000000 --target-num-faces 100000"
+        cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/exporter.py poisson --load-config "+str(tgt_dir)+"/config.yml --output-directory_path "+str(tgt_dir)+"/mesh --bounding-box-min -1.5 -1.5 -1.5 --bounding-box-max 1.5 1.5 1.5 --num-points 25000000 --target-num-faces 100000"
         os.system(cmd)
 
         stats = "done"
@@ -234,7 +234,7 @@ class neural_rendering_and_recon():
 
         if to_process == "img":
             session_logger.info("Processing Image Dataset.")
-            cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/process_data.py images --data " + str(src_dir) + " --output-dir " + str(tgt_dir)+" --num-downscales 3"
+            cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/process_data.py images --data " + str(src_dir) + " --output-directory_path " + str(tgt_dir)+" --num-downscales 3"
             stats = 1
             self.write_status(stats)
             os.system(cmd)
@@ -243,7 +243,7 @@ class neural_rendering_and_recon():
 
         if to_process == "vid":
             session_logger.info("Extracting Frames.")
-            cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/process_data.py video --data " + str(src_dir) + " --output-dir " + str(tgt_dir)+" --num-downscales 3"
+            cmd = "python " + str(base_dir) + "/" + "nerfstudio/nerfstudio/scripts/process_data.py video --data " + str(src_dir) + " --output-directory_path " + str(tgt_dir)+" --num-downscales 3"
             stats = 1
             self.write_status(stats)
             os.system(cmd)
@@ -264,7 +264,7 @@ class neural_rendering_and_recon():
         arg6 = str(tgt_dir)
         arg7 = "--experiment-name"
         arg8 = str(mission)
-        arg9 = "--output-dir"
+        arg9 = "--output-directory_path"
         arg10 = str(base_dir)+"/ARTAK_MM/POST/Neural"
         arg11 = "--viewer.quit-on-train-completion"
         arg12 = "True"
