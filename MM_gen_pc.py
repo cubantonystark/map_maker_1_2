@@ -14,7 +14,7 @@ from PIL import Image
 import os, platform, shutil, zipfile, logging, sys, glob, utm, time
 from tkinter import Tk
 from tkinter import filedialog, messagebox
-
+import MM_upload_to_artak_mk1
 Image.MAX_IMAGE_PIXELS = None
 
 level = logging.INFO
@@ -586,6 +586,9 @@ class meshing():
                                                                                                            '').replace(
                         '.pts', '') + ext, filename.replace('.obj', '').replace('.ply', '').replace('.pts', '') + ext,
                              compress_type=compression, compresslevel=9)
+                    MM_upload_to_artak_mk1.upload(with_texture_output_folder + separator + filename.replace('.obj', '').replace('.ply',
+                                                                                                           '').replace(
+                        '.pts', '') + ext, filename.replace('.obj', '').replace('.ply', '').replace('.pts', '') + ext)
                 except FileExistsError:
                     pass
                 except FileNotFoundError:
