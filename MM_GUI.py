@@ -475,8 +475,7 @@ class App(customtkinter.CTk):
             return True
     def show_training(self):
         time.sleep(2)
-        webview.create_window('MAP MAKER by Eolian - 3D Scene', 'http://localhost:7007', width=1800, height=1200)
-        webview.start()
+        
         return
 
     def terminate(self):
