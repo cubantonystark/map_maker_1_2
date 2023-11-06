@@ -1,6 +1,5 @@
 '''
 Mesh generation from PointClouds.
-Optimized for Cesium Tiling. Version 1.1.
 For Enya, John and Willy.
 (C) 2022 - 2023, Reynel Rodriguez
 All rights reserved.
@@ -14,7 +13,7 @@ from PIL import Image
 import os, platform, shutil, zipfile, logging, sys, glob, utm, time
 from tkinter import Tk
 from tkinter import filedialog, messagebox
-import MM_upload_to_artak_mk1
+
 Image.MAX_IMAGE_PIXELS = None
 
 level = logging.INFO
@@ -58,15 +57,18 @@ class meshing():
             pc = pc_type.read()
 
         if 'hr' in pc:
-            face_number = 9500000
+            face_number = 6500000
             designator = 'hr_'
             folder_type = 'HighRes'
             folder_suffix = '_hr'
+            texture_size = 15360
+            
         else:
-            face_number = 900000
+            face_number = 400000
             designator = 'lr_'
             folder_type = 'LowRes'
             folder_suffix = '_lr'
+            texture_size = 8192
 
         file_size_pre_edit = 0
         file_size_post_edit = 0
@@ -176,9 +178,9 @@ class meshing():
         # logging.info(str(pcd)+"\r")
         message = str(pcd)
         self.write_to_log(path, separator, message)
-        self.downsample(preview, pcd, swap_axis)
+        self.downsample(preview, pcd, swap_axis, texture_size)
 
-    def downsample(self, preview, pcd, swap_axis):
+    def downsample(self, preview, pcd, swap_axis, texture_size):
         # We need to downsample the PointCloud to make it less dense and easier to work with
         # logging.info("Downsampling.\r")
         message = 'Downsampling.'
@@ -191,10 +193,10 @@ class meshing():
             target = downpcd
             message = 'Optimized PointCloud'
             self.visualize(target, message)
-        self.compute_normals_and_generate_mesh(preview, downpcd, swap_axis, mesh_depth)
+        self.compute_normals_and_generate_mesh(preview, downpcd, swap_axis, mesh_depth, texture_size)
 
 
-    def compute_normals_and_generate_mesh(self, preview, downpcd, swap_axis, mesh_depth):
+    def compute_normals_and_generate_mesh(self, preview, downpcd, swap_axis, mesh_depth, texture_size):
 
         # Since some PointClouds don't include normals information (needed for texture and color extraction) we will have to calculate it.
 
@@ -231,22 +233,22 @@ class meshing():
         self.write_to_log(path, separator, message)
         mesh_file_size = int(os.path.getsize(generated_mesh))
         if mesh_file_size > 6000000000:
-            mesh_depth = 10
+            mesh_depth = 11
             # logging.info("Mesh is not memory friedly. Retrying with safer parameters.\r")
             message = 'Mesh is not memory friedly. Retrying with safer parameters.'
             self.write_to_log(path, separator, message)
-            self.compute_normals_and_generate_mesh(preview, downpcd, swap_axis, mesh_depth)
+            self.compute_normals_and_generate_mesh(preview, downpcd, swap_axis, mesh_depth, texture_size)
 
         else:
-            self.mesh_processing(generated_mesh, swap_axis)
+            self.mesh_processing(generated_mesh, swap_axis, texture_size)
 
-    def mesh_processing(self, generated_mesh, swap_axis):
+    def mesh_processing(self, generated_mesh, swap_axis, texture_size):
 
         try:
             # We will use Meshlab from now on to to handle the processing.
             ms = pymeshlab.MeshSet()
             # logging.info("Loading and Analyzing Mesh.\r")
-            message = 'Loading and Analyzing Mesh.'
+            message = 'Analyzing Mesh.'
             self.write_to_log(path, separator, message)
             ms.load_new_mesh(generated_mesh)
 
@@ -275,7 +277,7 @@ class meshing():
                 # if this is a generated file from exyn sensors, then we need to use 'safe' values different from the leica ones.
 
                 if ".ply" in filename:
-                    t_hold = 0.09
+                    t_hold = 0.1
 
                 elif ".pts" in filename:
                     t_hold = 0.09
@@ -295,7 +297,9 @@ class meshing():
                 # logging.info("Exporting Mesh.")
                 message = 'Exporting Mesh.'
                 self.write_to_log(path, separator, message)
+                
                 newpath = simplified_output_folder + separator + filename.replace('ply', 'obj').replace('pts', 'obj')
+
                 ms.save_current_mesh(newpath,
                                      save_vertex_color=True,
                                      save_vertex_coord=True,
@@ -330,7 +334,7 @@ class meshing():
                                     mincomponentdiag=p)
 
                     if ".ply" in filename:
-                        t_hold = 0.095
+                        t_hold = 0.2
 
                     elif ".pts" in filename:
                         t_hold = 0.095
@@ -349,8 +353,8 @@ class meshing():
 
                     message = 'Exporting Mesh.'
                     self.write_to_log(path, separator, message)
-                    newpath = simplified_output_folder + separator + filename.replace('ply', 'obj').replace('pts',
-                                                                                                            'obj')
+                    newpath = simplified_output_folder + separator + filename.replace('ply', 'obj').replace('pts', 'obj')
+                
                     ms.save_current_mesh(newpath,
                                          save_vertex_color=True,
                                          save_vertex_coord=True,
@@ -361,54 +365,82 @@ class meshing():
                                          save_polygonal=True)
 
                 except pymeshlab.pmeshlab.PyMeshLabException:
-                    ms.load_new_mesh(generated_mesh)
-                    # logging.info('Mesh not optimal. Retargeting parameters (2).\r')
-                    message = 'Mesh not optimal. Retargeting parameters (2).'
-                    self.write_to_log(path, separator, message)
-                    boundingbox = ms.current_mesh().bounding_box()
-                    diag = boundingbox.diagonal()
-                    t_hold = diag / 200
-                    p = pymeshlab.Percentage(25)
-                    # logging.info('Refining.\r')
-                    message = 'Refining'
-                    self.write_to_log(path, separator, message)
-                    # We will select faces that are long based on the bounding box calculation and then remove them
-                    ms.apply_filter('compute_selection_by_edge_length',
-                                    threshold=t_hold)
-                    ms.apply_filter('meshing_remove_selected_faces')
-                    # The selection process and removal of long faces will reate floaters, we will remove isolated faces
-                    ms.apply_filter('meshing_remove_connected_component_by_diameter',
-                                    mincomponentdiag=p)
-                    if "exyn" in filename:
-                        t_hold = 0.099
-
-                    elif "leica" in filename:
-                        t_hold = 0.099
-
-                    else:
-                        t_hold = 0.3
-
-                    # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
-                    ms.apply_filter('compute_selection_by_edge_length',
-                                    threshold=t_hold)
-                    ms.apply_filter('meshing_remove_selected_faces')
-                    # Then we remove any isolated faces (floaters) that might still be laying around
-                    ms.apply_filter('meshing_remove_connected_component_by_diameter',
-                                    mincomponentdiag=p)
-                    # logging.info("Exporting Mesh.")
-                    message = 'Exporting Mesh.'
-                    self.write_to_log(path, separator, message)
-                    newpath = simplified_output_folder + separator + filename.replace('ply', 'obj').replace('pts',
-                                                                                                            'obj')
-                    ms.save_current_mesh(newpath,
-                                         save_vertex_color=True,
-                                         save_vertex_coord=True,
-                                         save_vertex_normal=True,
-                                         save_face_color=True,
-                                         save_wedge_texcoord=True,
-                                         save_wedge_normal=True,
-                                         save_polygonal=True)
-
+                    
+                    try:
+                        
+                        ms.load_new_mesh(generated_mesh)
+                        # logging.info('Mesh not optimal. Retargeting parameters (2).\r')
+                        message = 'Mesh not optimal. Retargeting parameters (2).'
+                        self.write_to_log(path, separator, message)
+                        boundingbox = ms.current_mesh().bounding_box()
+                        diag = boundingbox.diagonal()
+                        t_hold = diag / 200
+                        p = pymeshlab.Percentage(25)
+                        # logging.info('Refining.\r')
+                        message = 'Refining'
+                        self.write_to_log(path, separator, message)
+                        # We will select faces that are long based on the bounding box calculation and then remove them
+                        ms.apply_filter('compute_selection_by_edge_length',
+                                        threshold=t_hold)
+                        ms.apply_filter('meshing_remove_selected_faces')
+                        # The selection process and removal of long faces will reate floaters, we will remove isolated faces
+                        ms.apply_filter('meshing_remove_connected_component_by_diameter',
+                                        mincomponentdiag=p)
+                        
+                        if ".ply" in filename:
+                            t_hold = 0.3
+    
+                        elif ".pts" in filename:
+                            t_hold = 0.099
+    
+                        else:
+                            t_hold = 0.3
+    
+                        # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
+                        ms.apply_filter('compute_selection_by_edge_length',
+                                        threshold=t_hold)
+                        ms.apply_filter('meshing_remove_selected_faces')
+                        # Then we remove any isolated faces (floaters) that might still be laying around
+                        ms.apply_filter('meshing_remove_connected_component_by_diameter',
+                                        mincomponentdiag=p)
+                        # logging.info("Exporting Mesh.")
+                        message = 'Exporting Mesh.'
+                        self.write_to_log(path, separator, message)
+                        
+                        newpath = simplified_output_folder + separator + filename.replace('ply', 'obj').replace('pts', 'obj')
+                        
+                        ms.save_current_mesh(newpath,
+                                             save_vertex_color=True,
+                                             save_vertex_coord=True,
+                                             save_vertex_normal=True,
+                                             save_face_color=True,
+                                             save_wedge_texcoord=True,
+                                             save_wedge_normal=True,
+                                             save_polygonal=True)
+                        
+                    except pymeshlab.pmeshlab.PyMeshLabException:
+                        
+                        # Cleanup
+                        try:
+                            shutil.rmtree("ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
+                            # Remove the status flag for MM_GUI progressbar
+                        except FileNotFoundError:
+                            pass
+                
+                        with open(log_folder + "/status.log", "w") as status:
+                            status.write("done")
+                        time.sleep(2)
+                        os.remove(log_folder + "/status.log")                        
+                        
+                        #Announce error and terminate.
+                        
+                        messagebox.showerror('ARTAK 3D Map Maker', 'Could not compute Mesh from PointCloud. Aborting.')
+                        # logging.info('Process complete.\r')
+                        message = 'Could not computer Mesh from PointCloud. Aborting.'
+                        self.write_to_log(path, separator, message)
+                        
+                        sys.exit()                   
+                    
             m = ms.current_mesh()
             v_number = m.vertex_number()
             f_number = m.face_number()
@@ -417,14 +449,13 @@ class meshing():
             self.write_to_log(path, separator, message)
             # Let's take a look at the mesh file to see how big it is. We are constrained to about 120Mb in this case, therefore we
             # will have to decimate if the file is bigger than that number.
-            newpath = simplified_output_folder + separator + filename.replace('ply', 'obj').replace('pts', 'obj')
 
             #if f_number > 6500000:  # Decimate over 6500000 faces (approx.650Mb)
             if f_number > face_number:  # Decimate over 6500000 faces (approx.950Mb)
-                self.decimation(ms, newpath, f_number)
+                self.decimation(ms, newpath, f_number, texture_size)
 
             else:
-                self.add_texture_and_materials(newpath, swap_axis)
+                self.add_texture_and_materials(newpath, swap_axis, texture_size)
 
         except MemoryError:
             # logging.info('Error. Not enough Memory to run the process. Quitting.\r')
@@ -432,7 +463,7 @@ class meshing():
             self.write_to_log(path, separator, message)
             quit()
 
-    def decimation(self, ms, newpath, f_number):
+    def decimation(self, ms, newpath, f_number, texture_size):
         # The mesh decimation works best if we take a percentage of faces at a time. We will decimate to target amount
         # of (faces / weight) and save the file, then read the file size and if necessary (over the 185Mb threshold), we will repeat
         # the decimation process again until the resulting mesh meets the file size criteria, we will do this n times (passes).
@@ -454,8 +485,7 @@ class meshing():
                             autoclean=True)
             f_number = m.face_number()
             v_number = m.vertex_number()
-            ratio = (
-                                abs(target_faces / f_number) - 1.1) * 10  # Efficiency ratio. resulting amt faces vs target amt of faces
+            ratio = (abs(target_faces / f_number) - 1.1) * 10  # Efficiency ratio. resulting amt faces vs target amt of faces
             # logging.info("Achieved: "+str(f_number)+" F. Ratio ==> "+"%.2f" % abs(ratio)+":1.00.\r")
             message = 'Achieved: ' + str(f_number) + ' F. Ratio ==> ' + '%.2f' % abs(ratio) + ':1.00.'
             self.write_to_log(path, separator, message)
@@ -468,8 +498,10 @@ class meshing():
         # logging.info("End VC: "+str(v_number)+". End FC: "+str(f_number)+".\r")
         message = 'End VC: ' + str(v_number) + '. End FC: ' + str(f_number) + "."
         self.write_to_log(path, separator, message)
-        newpath = simplified_output_folder + separator + filename.replace('ply', 'obj').replace('pts', 'obj')
-        ms.save_current_mesh(newpath,
+        
+        newpath1 = simplified_output_folder + separator + 'decimated_'+filename.replace('ply', 'obj').replace('pts', 'obj')
+
+        ms.save_current_mesh(newpath1,
                              save_vertex_color=True,
                              save_vertex_coord=True,
                              save_vertex_normal=True,
@@ -477,72 +509,89 @@ class meshing():
                              save_wedge_texcoord=False,
                              save_wedge_normal=False,
                              save_polygonal=False)
-        generated_mesh = newpath
-        self.add_texture_and_materials(generated_mesh, swap_axis)
-    def add_texture_and_materials(self, newpath, swap_axis):
+
+        self.add_texture_and_materials(newpath, newpath1, texture_size)
+        
+    def add_texture_and_materials(self, newpath, newpath1, texture_size):
+        
         # This part creates the materials and texture file (.mtl and .png) by getting the texture coordinates from the vertex,
         # tranfering the vertex info to wedges and reating a trivialized texture coordinate from the per wedge info. In the end,
         # we will just extract the texture form the color present at that texture coordinate and thats how we get the texture info into a png
+        
         ms = pymeshlab.MeshSet()
+        
         # logging.info("Loading and Analyzing Mesh.\r")
-        message = 'Loading and Analyzing Mesh.'
+        message = 'Analyzing Mesh.'
         self.write_to_log(path, separator, message)
-        ms.load_new_mesh(newpath)
+        
         # logging.info("Extracting Texture and Materials.\n")
         message = 'Generating Texture and Materials.'
         self.write_to_log(path, separator, message)
+        
         ms.load_new_mesh(newpath)
+        ms.load_new_mesh(newpath1)
+        
         if swap_axis == 1:
             # logging.info("Correcting Axis.\r")
             message = 'Correcting Axis.'
             self.write_to_log(path, separator, message)
+            
             ms.apply_filter('compute_matrix_from_rotation',
-                            rotaxis=0,
-                            rotcenter=0,
-                            angle=90,
-                            snapflag=False,
-                            snapangle=30,
-                            freeze=True,
-                            alllayers=False)
+                            rotaxis = 0,
+                            rotcenter = 0,
+                            angle = 90,
+                            snapflag = False,
+                            snapangle = 30,
+                            freeze = True,
+                            alllayers = False)
+            
+        print("Parametrization with "+str(texture_size))
 
         ms.apply_filter('compute_texcoord_parametrization_triangle_trivial_per_wedge',
-                        sidedim=0,
-                        textdim=10240,
-                        border=1,
-                        method='Space-optimizing')
-        newpath_texturized = with_texture_output_folder + separator + filename.replace('ply', 'obj').replace('pts',
-                                                                                                             'obj')
-        ms.save_current_mesh(newpath_texturized,
-                             save_vertex_color=True,
-                             save_vertex_coord=True,
-                             save_vertex_normal=True,
-                             save_face_color=True,
-                             save_wedge_texcoord=True,
-                             save_wedge_normal=True,
-                             save_polygonal=False)
+                        sidedim = 0,
+                        textdim = texture_size,
+                        border = 3,
+                        method = 'Space-optimizing')
+        
+        percentage = pymeshlab.Percentage(2)
+        
+        newpath_texturized = with_texture_output_folder + separator + filename.replace('ply', 'obj').replace('pts','obj').replace('decimated_', '')
+        
+        model_path = model_dest_folder + separator + 'Model.obj'
 
-        ms.load_new_mesh(newpath_texturized)
-        newfile = filename.replace('.obj', '').replace('.pts', '').replace('.ply', '')
-        ms.apply_filter('compute_texmap_from_color',
-                        textname=newfile,
-                        textw=10240,
-                        texth=10240,
-                        overwrite=False,
-                        pullpush=True)
-
+        ms.apply_filter('transfer_attributes_to_texture_per_vertex',
+                         sourcemesh = 0,
+                         targetmesh  = 1,
+                         attributeenum = 0,
+                         upperbound = percentage,
+                         textname = 'texture.png',
+                         textw = texture_size,
+                         texth = texture_size,
+                         overwrite = False,
+                         pullpush = True)
+        
         ms.save_current_mesh(newpath_texturized,
-                             save_vertex_color=True,
-                             save_vertex_coord=False,
-                             save_vertex_normal=False,
-                             save_face_color=False,
-                             save_wedge_texcoord=True,
-                             save_wedge_normal=True,
-                             save_polygonal=False)
+                             save_vertex_color = True,
+                             save_vertex_coord = True,
+                             save_vertex_normal = True,
+                             save_face_color = True,
+                             save_wedge_texcoord = True,
+                             save_wedge_normal = True,
+                             save_polygonal = False)  
+        
+        ms.save_current_mesh(model_path,
+                             save_vertex_color = True,
+                             save_vertex_coord = True,
+                             save_vertex_normal = True,
+                             save_face_color = True,
+                             save_wedge_texcoord = True,
+                             save_wedge_normal = True,
+                             save_polygonal = False)         
 
         # We need to compress the texture file
-        img = Image.open(newpath_texturized.replace('.obj', '.png'))
-        img = img.convert("P", palette=Image.WEB, colors=256)
-        img.save(newpath_texturized.replace('.obj', '.png'), optimize=True)
+        img = Image.open(with_texture_output_folder + separator + 'texture.png')
+        img = img.convert("P", palette=Image.WEB, colors = 256)
+        img.save(with_texture_output_folder + separator + 'texture.png', optimize=True)
 
         # Let's compress
         self.compress_into_zip(with_texture_output_folder, newpath)
@@ -550,14 +599,7 @@ class meshing():
         for file in files:
             shutil.copy(file, post_dest_folder)
 
-        # copy the obj to the post folder
-        shutil.copy(newpath_texturized, model_dest_folder + "/Model.obj")
-
-        messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction Complete.')
-        # logging.info('Process complete.\r')
-        message = 'Reconstruction Complete.'
-
-        # Once done, we will cleanup
+        # Cleanup
         try:
             shutil.rmtree("ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
             # Remove the status flag for MM_GUI progressbar
@@ -568,13 +610,21 @@ class meshing():
             status.write("done")
         time.sleep(2)
         os.remove(log_folder + "/status.log")
+        
+        messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction Complete.')
+        # logging.info('Process complete.\r')
+        message = 'Reconstruction Complete.'
+        self.write_to_log(path, separator, message)
+        
         sys.exit()
 
     def compress_into_zip(self, with_texture_output_folder, newpath):
+        
         if 'lr_' in designator:
-            extensions = ['.obj', '.obj.mtl', '.png', '.xyz', '.prj']
+            extensions = ['.obj', '.obj.mtl', '.xyz', '.prj']
         else:
             extensions = ['.obj', '.obj.mtl', '.png']
+            
         compression = zipfile.ZIP_DEFLATED
         zip_file = with_texture_output_folder + separator + designator+ filename.replace('.obj', '').replace('.ply',
                                                                                                          '').replace(
@@ -582,17 +632,15 @@ class meshing():
         with zipfile.ZipFile(zip_file, mode="w") as zf:
             for ext in extensions:
                 try:
-                    zf.write(with_texture_output_folder + separator + filename.replace('.obj', '').replace('.ply',
-                                                                                                           '').replace(
-                        '.pts', '') + ext, filename.replace('.obj', '').replace('.ply', '').replace('.pts', '') + ext,
-                             compress_type=compression, compresslevel=9)
-                    MM_upload_to_artak_mk1.upload(with_texture_output_folder + separator + filename.replace('.obj', '').replace('.ply',
-                                                                                                           '').replace(
-                        '.pts', '') + ext, filename.replace('.obj', '').replace('.ply', '').replace('.pts', '') + ext)
+                    zf.write(with_texture_output_folder + separator + filename.replace('.obj', '').replace('.ply','').replace('.pts', '') + ext, filename.replace('.obj', '').replace('.ply', '').replace('.pts', '') + ext,
+                             compress_type = compression, compresslevel = 9)
+  
                 except FileExistsError:
                     pass
                 except FileNotFoundError:
                     pass
+            zf.write(with_texture_output_folder + separator + 'texture.png', 'texture.png', compress_type = compression, compresslevel = 9) 
+        
         return
     def visualize(self, target, message):
         # This is the preview step
