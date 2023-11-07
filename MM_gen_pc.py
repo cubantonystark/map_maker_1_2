@@ -57,11 +57,11 @@ class meshing():
             pc = pc_type.read()
 
         if 'hr' in pc:
-            face_number = 6500000
+            face_number = 3500000
             designator = 'hr_'
             folder_type = 'HighRes'
             folder_suffix = '_hr'
-            texture_size = 15360
+            texture_size = 20480
             
         else:
             face_number = 400000
