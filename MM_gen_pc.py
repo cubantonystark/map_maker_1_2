@@ -1,6 +1,5 @@
 '''
 Mesh generation from PointClouds.
-Optimized for Cesium Tiling. Version 1.1.
 For Enya, John and Willy.
 (C) 2022 - 2023, Reynel Rodriguez
 All rights reserved.
@@ -58,15 +57,18 @@ class meshing():
             pc = pc_type.read()
 
         if 'hr' in pc:
-            face_number = 9500000
+            face_number = 3500000
             designator = 'hr_'
             folder_type = 'HighRes'
             folder_suffix = '_hr'
+            texture_size = 20480
+            
         else:
-            face_number = 400000
+            face_number = 600000
             designator = 'lr_'
             folder_type = 'LowRes'
             folder_suffix = '_lr'
+            texture_size = 8192
 
         file_size_pre_edit = 0
         file_size_post_edit = 0
@@ -176,9 +178,9 @@ class meshing():
         # logging.info(str(pcd)+"\r")
         message = str(pcd)
         self.write_to_log(path, separator, message)
-        self.downsample(preview, pcd, swap_axis)
+        self.downsample(preview, pcd, swap_axis, texture_size)
 
-    def downsample(self, preview, pcd, swap_axis):
+    def downsample(self, preview, pcd, swap_axis, texture_size):
         # We need to downsample the PointCloud to make it less dense and easier to work with
         # logging.info("Downsampling.\r")
         message = 'Downsampling.'
@@ -191,17 +193,17 @@ class meshing():
             target = downpcd
             message = 'Optimized PointCloud'
             self.visualize(target, message)
-        self.compute_normals_and_generate_mesh(preview, downpcd, swap_axis, mesh_depth)
+        self.compute_normals_and_generate_mesh(preview, downpcd, swap_axis, mesh_depth, texture_size)
 
 
-    def compute_normals_and_generate_mesh(self, preview, downpcd, swap_axis, mesh_depth):
+    def compute_normals_and_generate_mesh(self, preview, downpcd, swap_axis, mesh_depth, texture_size):
 
         # Since some PointClouds don't include normals information (needed for texture and color extraction) we will have to calculate it.
-
         # logging.info("Computing Normals.\r")
         message = 'Computing Normals.'
         self.write_to_log(path, separator, message)
         downpcd.estimate_normals(search_param=o3d.geometry.KDTreeSearchParamHybrid(radius=0.1, max_nn=30))
+            
         # logging.info('Generating Mesh.\r')
         message = 'Generating Mesh.'
         self.write_to_log(path, separator, message)
@@ -235,12 +237,12 @@ class meshing():
             # logging.info("Mesh is not memory friedly. Retrying with safer parameters.\r")
             message = 'Mesh is not memory friedly. Retrying with safer parameters.'
             self.write_to_log(path, separator, message)
-            self.compute_normals_and_generate_mesh(preview, downpcd, swap_axis, mesh_depth)
+            self.compute_normals_and_generate_mesh(preview, downpcd, swap_axis, mesh_depth, texture_size)
 
         else:
-            self.mesh_processing(generated_mesh, swap_axis)
+            self.mesh_processing(generated_mesh, swap_axis, texture_size)
 
-    def mesh_processing(self, generated_mesh, swap_axis):
+    def mesh_processing(self, generated_mesh, swap_axis, texture_size):
 
         try:
             # We will use Meshlab from now on to to handle the processing.
@@ -278,7 +280,7 @@ class meshing():
                     t_hold = 0.1
 
                 elif ".pts" in filename:
-                    t_hold = 0.09
+                    t_hold = 0.05
 
                 else:
                     t_hold = 0.1
@@ -335,7 +337,7 @@ class meshing():
                         t_hold = 0.2
 
                     elif ".pts" in filename:
-                        t_hold = 0.095
+                        t_hold = 0.06
 
                     else:
                         t_hold = 0.2
@@ -389,7 +391,7 @@ class meshing():
                             t_hold = 0.3
     
                         elif ".pts" in filename:
-                            t_hold = 0.099
+                            t_hold = 0.09
     
                         else:
                             t_hold = 0.3
@@ -450,10 +452,10 @@ class meshing():
 
             #if f_number > 6500000:  # Decimate over 6500000 faces (approx.650Mb)
             if f_number > face_number:  # Decimate over 6500000 faces (approx.950Mb)
-                self.decimation(ms, newpath, f_number)
+                self.decimation(ms, newpath, f_number, texture_size)
 
             else:
-                self.add_texture_and_materials(newpath, swap_axis)
+                self.add_texture_and_materials(newpath, swap_axis, texture_size)
 
         except MemoryError:
             # logging.info('Error. Not enough Memory to run the process. Quitting.\r')
@@ -461,7 +463,7 @@ class meshing():
             self.write_to_log(path, separator, message)
             quit()
 
-    def decimation(self, ms, newpath, f_number):
+    def decimation(self, ms, newpath, f_number, texture_size):
         # The mesh decimation works best if we take a percentage of faces at a time. We will decimate to target amount
         # of (faces / weight) and save the file, then read the file size and if necessary (over the 185Mb threshold), we will repeat
         # the decimation process again until the resulting mesh meets the file size criteria, we will do this n times (passes).
@@ -471,7 +473,8 @@ class meshing():
         while f_number > face_number:
             m = ms.current_mesh()
             f_number = m.face_number()
-            target_faces = int(f_number / 1.125)
+            #target_faces = int(f_number / 1.125)
+            target_faces = int(f_number / 1.5)
             # logging.info("Target: "+str(int(target_faces))+" F. Iter. "+str(c)+".\r")
             message = "Target: " + str(int(target_faces)) + " F. Iter. " + str(c) + "."
             self.write_to_log(path, separator, message)
@@ -508,9 +511,9 @@ class meshing():
                              save_wedge_normal=False,
                              save_polygonal=False)
 
-        self.add_texture_and_materials(newpath, newpath1)
+        self.add_texture_and_materials(newpath, newpath1, texture_size)
         
-    def add_texture_and_materials(self, newpath, newpath1):
+    def add_texture_and_materials(self, newpath, newpath1, texture_size):
         
         # This part creates the materials and texture file (.mtl and .png) by getting the texture coordinates from the vertex,
         # tranfering the vertex info to wedges and reating a trivialized texture coordinate from the per wedge info. In the end,
@@ -542,10 +545,12 @@ class meshing():
                             snapangle = 30,
                             freeze = True,
                             alllayers = False)
+            
+        print("Parametrization with "+str(texture_size))
 
         ms.apply_filter('compute_texcoord_parametrization_triangle_trivial_per_wedge',
                         sidedim = 0,
-                        textdim = 8192,
+                        textdim = texture_size,
                         border = 3,
                         method = 'Space-optimizing')
         
@@ -555,16 +560,24 @@ class meshing():
         
         model_path = model_dest_folder + separator + 'Model.obj'
 
+        #Here we transfer the texture
         ms.apply_filter('transfer_attributes_to_texture_per_vertex',
                          sourcemesh = 0,
                          targetmesh  = 1,
                          attributeenum = 0,
                          upperbound = percentage,
                          textname = 'texture.png',
-                         textw = 8192,
-                         texth = 8192,
+                         textw = texture_size,
+                         texth = texture_size,
                          overwrite = False,
                          pullpush = True)
+        
+        #Need to reorient faces coherently to avoid wrong normal orientation.
+        ms.apply_filter('compute_normal_by_function_per_vertex',
+                        x = '-nx',
+                        y = '-ny',
+                        z = '-nz',
+                        onselected = False)             
         
         ms.save_current_mesh(newpath_texturized,
                              save_vertex_color = True,
