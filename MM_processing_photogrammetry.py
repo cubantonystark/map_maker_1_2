@@ -282,6 +282,7 @@ class ProcessingPhotogrammetry:
             self.mm_project.status = "Error"
             sys.exit(0)
 
+
        # self.logger.info("AT report available at", blockAT.getQualityReportPath())
 
         if not blockAT.isReadyForReconstruction():

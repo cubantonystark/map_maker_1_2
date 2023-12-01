@@ -52,7 +52,7 @@ def handle_video():
     print("handling video")
 
 
-def group_images(source, logger=None, image_spacing=60, rerun=False):
+def group_images(source, logger=None, image_spacing=60, rerun=False, frame_spacing=30):
     rerun_jobs = rerun
     logger.info("rerun = " + str(rerun_jobs))
     # Part 1 handle any videos
@@ -79,7 +79,7 @@ def group_images(source, logger=None, image_spacing=60, rerun=False):
         logger.info("Video identified. Proceeding to extract frames.")
         video_name = MM_video.extract_frames(each_video, os.path.join(os.getcwd(),
                                                          'ARTAK_MM/DATA/Raw_Images/UNZIPPED/',
-                                                         video_name_nospaces_noperiods), logger=logger)
+                                                         video_name_nospaces_noperiods), logger=logger, frame_spacing=int(frame_spacing))
         # add the path of the extracted frames to the folder paths array to be returned to mapmaker for processing
         folder_name_paths.append(video_name)
 

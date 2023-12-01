@@ -414,6 +414,12 @@ class App(customtkinter.CTk):
         self.time_between_images.grid(row=13, column=0, padx=20, pady=10, sticky="ew")
         self.time_between_images_var.grid(row=13, column=1, padx=20, pady=10, sticky="ew")
 
+        self.time_between_frames = customtkinter.CTkLabel(self.fourth_frame, text="Video Frame Extraction Rate (in frames)")
+        self.time_between_frames_var = customtkinter.CTkEntry(self.fourth_frame, placeholder_text=app_settings["max_interval_between_images"])
+        self.time_between_frames_var.setvar(app_settings["max_interval_between_images"])
+        self.time_between_frames.grid(row=18, column=0, padx=20, pady=10, sticky="ew")
+        self.time_between_frames_var.grid(row=18, column=1, padx=20, pady=10, sticky="ew")
+
         self.partition_key = customtkinter.CTkLabel(self.fourth_frame, text="Map Partition Key")
         self.partition_key_var = customtkinter.CTkEntry(self.fourth_frame, placeholder_text="None")
         self.partition_key_var.setvar("")
@@ -720,7 +726,7 @@ class App(customtkinter.CTk):
             if rerun == "N":
                 rerun = False
             folder_name_list = MM_image_grouper.group_images(path, logger=self.session_logger,
-                                                             image_spacing=image_spacing, rerun=rerun)
+                                                             image_spacing=image_spacing, rerun=rerun, frame_spacing=self.time_between_frames_var.get())
             print("Folder name list: " + str(folder_name_list))
             map_type = self.map_type_var.get()
             delete_after = self.delete_after_transfer_var.get()

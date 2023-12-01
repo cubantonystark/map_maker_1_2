@@ -2,7 +2,7 @@ import cv2
 import os
 
 
-def extract_frames(input_video, output_folder, frame_interval=1, logger=None):
+def extract_frames(input_video, output_folder, frame_interval=1, logger=None, frame_spacing=30):
 
     logger.info("extracting frames")
     # Create the output folder if it doesn't exist
@@ -49,7 +49,7 @@ def extract_frames(input_video, output_folder, frame_interval=1, logger=None):
     logger.info("Frame Extraction Rate (in seconds):  " + str(frame_interval))
 
     # frames_to_skip = fps * frame_interval
-    frames_to_skip = 20
+    frames_to_skip = frame_spacing
 #    frames_to_skip = 90
 
     frame_number = 0
