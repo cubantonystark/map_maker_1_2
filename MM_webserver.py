@@ -21,7 +21,7 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    target_folder = 'C:/Users/micha/Apps/MapMaker6/map_maker_1_2/ARTAK_MM/DATA/Raw_Images/ZIP/New/'
+    target_folder = r'C:\Users\micha\Apps\MapMaker6\map_maker_1_2\ARTAK_MM\DATA\Raw_Images\ZIP\New'
     if not os.path.isdir(target_folder):
         os.makedirs(target_folder)
 
@@ -33,9 +33,10 @@ def upload_file():
         return 'No file selected', 400
 
     if file:
-        filename = file.filename
-        file.save(os.path.join(target_folder, filename))
-        return 'File saved successfully', 200
+        filename = os.path.basename(file.filename)
+        path = os.path.join(target_folder, filename)
+        file.save(path)
+        return ' successfully' + str(path), 200
 
 @app.route('/log', methods=['GET'])
 def _log():

@@ -32,6 +32,8 @@ class ProcessingPhotogrammetry:
 
     def __init__(self, file_name, logger, _cesium=False, mm_project=MapmakerProject()):
 
+        if ".zip" in file_name:
+            file_name = file_name.replace(".zip", "")
         self.projecDirPath = projectDir + file_name + str(random.randint(1,1000))
         self.photosDirPath = os.path.join(os.getcwd()+'/ARTAK_MM/DATA/Raw_Images/UNZIPPED/', file_name)
         self.logger = logger
@@ -483,7 +485,7 @@ class ProcessingPhotogrammetry:
             self.logger.info("Output file saved to:" + output_file)
             self.logger.info("Filename:" + self.filename[:len(self.filename)-4])
             self.logger.info("Output folder:" + output_folder)
-            a = os.path.join(zip_location + self.filename)
+            a = os.path.join(production.getDestination() + "/Data/" + self.filename)
             self.logger.info ("Zip filename path : " + a)
             shutil.make_archive(zip_location+self.filename, 'zip', production.getDestination() + "/Data/Model/")
             if ".zip" in a:
@@ -509,7 +511,12 @@ class ProcessingPhotogrammetry:
             try:
                 if self.artak_server == None or self.artak_server == "":
                     self.artak_server = "https://esp.eastus2.cloudapp.azure.com/"
-                self.logger.info("Attempting to upload " + a + " to " + str(self.artak_server))
+                a = str(a)
+                a = a.replace("\\", "/")
+                a = a.replace("\\\\", "/")
+
+                self.logger.info("Attempting to upload the file " + a + " to " + str(self.artak_server))
+
                 response = self.upload(a, url=self.artak_server)
                 self.logger.info(response.status_code)
                 if response.status_code == 200:
@@ -518,7 +525,7 @@ class ProcessingPhotogrammetry:
                 else:
                     self.mm_project.status = "Error"
                 self.logger.info(self.mm_project)
-            except:
+            except ArithmeticError:
                 self.logger.info("Uncaught exception attempting to upload file. File = " + str(a) + "URL = " + self.artak_server)
         if self.mm_project.map_type == "TILES":
             self.logger.info("Attempting to Zip Cesium Tiles.")
