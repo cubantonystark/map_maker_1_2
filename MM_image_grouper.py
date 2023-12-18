@@ -6,6 +6,7 @@ import json
 import random
 import MM_logger
 import MM_video
+import itwincapturemodeler
 
 
 def get_image_files(folder):

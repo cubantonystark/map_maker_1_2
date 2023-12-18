@@ -51,7 +51,7 @@ def main_loop(frequency=3, logger=""):
             for each_file in file_name_list:
                 logger.info ('Attempting to UNZIP file. Filename = '+ each_file)
                 file_handler = MM_file_handler.MMfileHandler(each_file, logger)
-                file_handler.unzip()
+                file = file_handler.unzip()
                 logger.info('Completed the UNZIP of file. Filename = '+ each_file)
                 logger.info('Starting photogrammetry processing = '+ each_file)
                 new_project = MapmakerProject(name=each_file, time_first_image=each_file,
@@ -59,8 +59,9 @@ def main_loop(frequency=3, logger=""):
                                               image_folder=each_file, total_images=100, logger=logger,
                                               session_project_number=1, map_type="OBJ"
                                               )
-                a = MM_processing_photogrammetry.ProcessingPhotogrammetry(each_file, logger, mm_project=new_project)
+                a = MM_processing_photogrammetry.ProcessingPhotogrammetry(file, logger, mm_project=new_project)
                 a.do_photogrammetry()
+                time.sleep(5)
         time.sleep(frequency)
 
 

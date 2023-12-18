@@ -1,8 +1,8 @@
 import cv2
 import os
+import MM_logger
 
-
-def extract_frames(input_video, output_folder, frame_interval=1, logger=None, frame_spacing=30):
+def extract_frames(input_video, output_folder, frame_interval=1, logger=MM_logger.initialize_logger(), frame_spacing=30):
 
     logger.info("extracting frames")
     # Create the output folder if it doesn't exist

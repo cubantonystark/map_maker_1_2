@@ -6,7 +6,6 @@ This snippet hides the console in non compiled scripts. Done for aesthetics
 # this_program = win32gui.GetForegroundWindow()
 # win32gui.ShowWindow(this_program, win32con.SW_HIDE)
 
-
 import random
 from datetime import datetime
 from PIL import Image
@@ -71,7 +70,7 @@ customtkinter.set_default_color_theme("blue")  # Themes: blue (default), dark-bl
 
 sd_drive = ""
 # Open RESTful API that RX images from the Ground Control Stations
-# subprocess.Popen(["python", "C:/Users/micha/Documents/Coding/Photogrammetry/samples/MM_webserver.py"])
+subprocess.Popen(["python", os.getcwd() + "/MM_webserver.py"])
 
 # Open loop to check for zip files placed into a specific folder, usually placed there by the Restful API above
 subprocess.Popen(["python", "MM_loop_check_files.py"])
@@ -754,9 +753,9 @@ class App(customtkinter.CTk):
 
                     self.list_of_projects.append(new_project)
                     print(new_project.as_dict())
-                    threading.Thread(name='t7', target=self.trigger_photogrammetry,
-                                     args=(each_folder, logger, new_project)).start()
-
+                    #threading.Thread(name='t7', target=self.trigger_photogrammetry,
+                    #                 args=(each_folder, logger, new_project)).start()
+                    self.trigger_photogrammetry(each_folder, logger, new_project)
                     # send the message that a project has been started
 
             if map_type == "TILES":
