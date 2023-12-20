@@ -21,7 +21,7 @@ def index():
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    target_folder = r'C:\Users\micha\Apps\MapMaker6\map_maker_1_2\ARTAK_MM\DATA\Raw_Images\ZIP\New'
+    target_folder = os.path.join(os.getcwd(), r'ARTAK_MM\DATA\Raw_Images\ZIP\New')
     if not os.path.isdir(target_folder):
         os.makedirs(target_folder)
 
