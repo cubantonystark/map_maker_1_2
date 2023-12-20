@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Upload</title>
+    <script>
+        function uploadFile() {
+            var fileInput = document.getElementById("file-input");
+            var file = fileInput.files[0];
+            var formData = new FormData();
+            formData.append("file", file);
+
+            fetch(`http://172.27.179.244:8080/upload`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.text())
+            .then(data => {
+                alert("File uploaded successfully!");
+            })
+            .catch(error => {
+                alert("Error during file upload: " + error);
+            });
+        }
+    </script>
+</head>
+<body>
+    <h2>File Upload</h2>
+    <input type="file" id="file-input" />
+    <button onclick="uploadFile()">Upload</button>
+</body>
+</html>

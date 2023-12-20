@@ -220,7 +220,12 @@ class ProcessingPhotogrammetry:
             self.exif_data_exists = False
         if self.exif_data_exists:
             self.logger.info("EXIF data exists")
-            at_settings.loadPreset("configs/AT_preset.cfg")
+            if self.mm_project.quality == "Quality":
+               at_settings.loadPreset("configs/AT_preset_quality.cfg")
+            if self.mm_project.quality == "Balanced":
+                at_settings.loadPreset("configs/AT_preset_balanced.cfg")
+            if self.mm_project.quality == "Speed":
+                at_settings.loadPreset("configs/AT_preset_speed.cfg")
         else:
             self.logger.info("EXIF data DOES NOT exist")
             at_settings.loadPreset("configs/AT_preset_no_underwater.cfg")
@@ -306,7 +311,13 @@ class ProcessingPhotogrammetry:
         reconsettings = reconstruction.getSettings()
 
         if self.exif_data_exists:
-            reconsettings.loadPreset("configs/Recons_preset.cfg")
+            if self.mm_project.quality == "Speed":
+                reconsettings.loadPreset("configs/Recons_preset_speed.cfg")
+            if self.mm_project.quality == "Quality":
+                reconsettings.loadPreset("configs/Recons_preset_quality.cfg")
+            if self.mm_project.quality == "Balanced":
+                reconsettings.loadPreset("configs/Recons_preset_balanced.cfg")
+
             reconstruction.setSRS("EPSG:3395")
 
         else:
@@ -429,6 +440,7 @@ class ProcessingPhotogrammetry:
         self.logger.info('Production completed.')
         self.logger.info('Output directory: %s' % production.getDestination())
         self.logger.info("Map type =" + self.mm_project.map_type)
+
         if 1 == 1:
             self.logger.info("Map Type ==== OBJ")
             # with open((production.getDestination() + '/metadata.xml'), 'r+') as f:

@@ -13,7 +13,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('obj.html')
+    return render_template('upload.html')
 
 # @app.route('/files/<path:filename>')
 # def serve_file(filename):

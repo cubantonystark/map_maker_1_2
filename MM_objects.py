@@ -8,7 +8,7 @@ class MapmakerProject:
                  processed_zip_path=None, status=None, logger=None, artak_server=None, manually_made_name=None,
                  manually_made_name_field=None, local_image_folder=None, session_project_number=None,
                  completed_file_path=None, map_type=None, zip_payload_location=None, total_processing_time=None,
-                 partition_key=None):
+                 partition_key=None, quality=None):
         self.name = name
         self.time_first_image = time_first_image
         self.time_mm_start = time_mm_start
@@ -30,6 +30,7 @@ class MapmakerProject:
         self.zip_payload_location = zip_payload_location
         self.total_processing_time = total_processing_time
         self.partition_key = partition_key
+        self.quality = quality
     def as_dict(self):
         return vars(self)
 

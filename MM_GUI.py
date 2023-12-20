@@ -327,13 +327,13 @@ class App(customtkinter.CTk):
                                                             value="Y")
         self.no_radio_button.grid(row=5, column=2, padx=20, pady=10)
 
-        self.browse_label = customtkinter.CTkLabel(self.home_frame, text="Select Data Source")
+        self.browse_label = customtkinter.CTkLabel(self.home_frame, text="Select Image/Video")
         self.browse_label.grid(row=6, column=0, padx=20, pady=10)
 
         self.browse_button = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.browse_directory)
         self.browse_button.grid(row=6, column=1, padx=20, pady=10)
 
-        self.browse_label_pc = customtkinter.CTkLabel(self.home_frame, text="Process PointCloud")
+        self.browse_label_pc = customtkinter.CTkLabel(self.home_frame, text="Select PointCloud")
         self.browse_label_pc.grid(row=8, column=0, padx=20, pady=10)
 
         self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.gen_pc,
@@ -385,9 +385,20 @@ class App(customtkinter.CTk):
         self.apperance_mode_label.grid(row=15, column=0, padx=20, pady=20, sticky="s")
 
         self.appearance_mode_menu = customtkinter.CTkOptionMenu(self.fourth_frame,
-                                                                values=["Light", "Dark", "System"],
-                                                                command=self.change_appearance_mode_event)
+                                                                values=["Light", "Dark", "System"]
+                                                                )
         self.appearance_mode_menu.grid(row=15, column=1, padx=20, pady=20, sticky="nsew", columnspan=2)
+
+
+        self.quality = customtkinter.StringVar()
+        self.quality.set("Speed")
+        self.quality_label = customtkinter.CTkLabel(self.fourth_frame, text="Speed vs Quality")
+        self.quality_label.grid(row=22, column=0, padx=20, pady=20, sticky="s")
+        self.quality_menu = customtkinter.CTkOptionMenu(self.fourth_frame,
+                                                                values=["Speed", "Balanced", "Quality"],
+                                                                variable=self.quality
+                                                        )
+        self.quality_menu.grid(row=22, column=1, padx=20, pady=20, sticky="nsew", columnspan=2)
 
         # select default frame
         self.select_frame_by_name("home")
@@ -407,6 +418,7 @@ class App(customtkinter.CTk):
         self.local_server_label.grid(row=12, column=0, padx=20, pady=10, sticky="ew")
         self.local_server_ip_var.grid(row=12, column=1, padx=20, pady=10, sticky="ew")
 
+
         self.time_between_images = customtkinter.CTkLabel(self.fourth_frame, text="Max time between image groups")
         self.time_between_images_var = customtkinter.CTkEntry(self.fourth_frame, placeholder_text=app_settings["max_interval_between_images"])
         self.time_between_images_var.setvar(app_settings["max_interval_between_images"])
@@ -414,8 +426,8 @@ class App(customtkinter.CTk):
         self.time_between_images_var.grid(row=13, column=1, padx=20, pady=10, sticky="ew")
 
         self.time_between_frames = customtkinter.CTkLabel(self.fourth_frame, text="Video Frame Extraction Rate (in frames)")
-        self.time_between_frames_var = customtkinter.CTkEntry(self.fourth_frame, placeholder_text=app_settings["max_interval_between_images"])
-        self.time_between_frames_var.setvar(app_settings["max_interval_between_images"])
+        self.time_between_frames_var = customtkinter.CTkEntry(self.fourth_frame, placeholder_text="20")
+        self.time_between_frames_var.setvar("20")
         self.time_between_frames.grid(row=18, column=0, padx=20, pady=10, sticky="ew")
         self.time_between_frames_var.grid(row=18, column=1, padx=20, pady=10, sticky="ew")
 
@@ -724,8 +736,11 @@ class App(customtkinter.CTk):
                 rerun = True
             if rerun == "N":
                 rerun = False
+            frame_extraction_rate = self.time_between_frames_var.get()
+            if frame_extraction_rate == "":
+                frame_extraction_rate = "20"
             folder_name_list = MM_image_grouper.group_images(path, logger=self.session_logger,
-                                                             image_spacing=image_spacing, rerun=rerun, frame_spacing=self.time_between_frames_var.get())
+                                                             image_spacing=image_spacing, rerun=rerun, frame_spacing=frame_extraction_rate)
             print("Folder name list: " + str(folder_name_list))
             map_type = self.map_type_var.get()
             delete_after = self.delete_after_transfer_var.get()
@@ -736,6 +751,7 @@ class App(customtkinter.CTk):
                 for f in files:
                     os.remove(path + f)
             if map_type == "OBJ":
+                projects = []
                 for each_folder in folder_name_list:
                     file_count = len(os.listdir(os.getcwd() + "/ARTAK_MM/DATA/Raw_Images/UNZIPPED/" + each_folder))
                     logger = MM_logger.initialize_logger("MMProjectLog_" + each_folder)
@@ -748,14 +764,18 @@ class App(customtkinter.CTk):
                                                   time_mm_start=time.time(),
                                                   image_folder=each_folder, total_images=file_count, logger=logger,
                                                   artak_server=artak_server,
-                                                  session_project_number=session_project_number, map_type="OBJ"
+                                                  session_project_number=session_project_number, map_type="OBJ",
+                                                  quality=self.quality.get()
                                                   )
-
                     self.list_of_projects.append(new_project)
+                    projects.append(new_project)
                     print(new_project.as_dict())
+                count = 0
+                for each_folder in folder_name_list:
                     #threading.Thread(name='t7', target=self.trigger_photogrammetry,
                     #                 args=(each_folder, logger, new_project)).start()
-                    self.trigger_photogrammetry(each_folder, logger, new_project)
+                    self.trigger_photogrammetry(each_folder, logger, projects[count])
+                    count = count + 1
                     # send the message that a project has been started
 
             if map_type == "TILES":
