@@ -52,7 +52,8 @@ def main_loop(frequency=3, logger=""):
                 logger.info ('Attempting to UNZIP file. Filename = '+ each_file)
                 file_handler = MM_file_handler.MMfileHandler(each_file, logger)
                 file = file_handler.unzip()
-                logger.info('Completed the UNZIP of file. Filename = '+ each_file)
+                logger.info('Completed the UNZIP of file. '
+                            'Filename = '+ each_file)
                 logger.info('Starting photogrammetry processing = '+ each_file)
                 new_project = MapmakerProject(name=each_file, time_first_image=each_file,
                                               time_mm_start=time.time(),

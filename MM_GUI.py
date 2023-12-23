@@ -11,6 +11,7 @@ from datetime import datetime
 from PIL import Image
 import os, shutil
 import open3d as o3d
+import MM_file_handler
 
 '''
 This should take care  of the 'job cannot be accessed by this engine' error
@@ -73,7 +74,7 @@ sd_drive = ""
 subprocess.Popen(["python", os.getcwd() + "/MM_webserver.py"])
 
 # Open loop to check for zip files placed into a specific folder, usually placed there by the Restful API above
-subprocess.Popen(["python", "MM_loop_check_files.py"])
+# subprocess.Popen(["python", "MM_loop_check_files.py"])
 
 
 
@@ -808,6 +809,40 @@ class App(customtkinter.CTk):
     def handle_project_started(self, project=MM_objects.MapmakerProject()):
         self.event_generate("<<ProjectStarted>>", data=project)
 
+    #  check for zip files placed into a specific folder, usually placed there by the Restful API
+    def check(self, logger=""):
+        file_name_list = os.listdir(os.getcwd() + "/ARTAK_MM/DATA/Raw_Images/ZIP/New/")
+        file_count = len(file_name_list)
+        if file_count > 0:
+            logger.info('File Located.')
+            new_file_exists = True
+        else:
+            new_file_exists = False
+        return new_file_exists, file_name_list
+
+    # Open loop to check for zip files placed into a specific folder, usually placed there by the Restful API
+    def main_loop(self, frequency=3, logger=""):
+        logger.info('Starting main loop. Frequency = ' + str(frequency))
+        while 1:
+            new_file_exists, file_name_list = self.check(logger)
+            if new_file_exists:
+                for each_file in file_name_list:
+                    logger.info('Attempting to UNZIP file. Filename = ' + each_file)
+                    file_handler = MM_file_handler.MMfileHandler(each_file, logger)
+                    file = file_handler.unzip()
+                    logger.info('Completed the UNZIP of file. Filename = ' + each_file)
+                    logger.info('Starting photogrammetry processing = ' + each_file)
+                    new_project = MapmakerProject(name=each_file, time_first_image=each_file,
+                                                  time_mm_start=time.time(),
+                                                  image_folder=each_file, total_images=100, logger=logger,
+                                                  session_project_number=1, map_type="OBJ"
+                                                  )
+                    self.list_of_projects.append(new_project)
+                    a = MM_processing_photogrammetry.ProcessingPhotogrammetry(file, logger, mm_project=new_project)
+                    a.do_photogrammetry()
+                    time.sleep(5)
+            time.sleep(frequency)
+
     def job_queue_monitor(self):
         while True:
 
@@ -1164,5 +1199,6 @@ if __name__ == "__main__":
     threading.Thread(target=app.find_folders_with_obj, name='t3').start()
     threading.Thread(target=app.display_activity_on_pc_recon, name='t4').start()
     threading.Thread(target=app.display_activity_on_nr_recon, name='t5').start()
+    threading.Thread(target=app.main_loop, name='t6').start()
     app.run_executable()
     app.mainloop()

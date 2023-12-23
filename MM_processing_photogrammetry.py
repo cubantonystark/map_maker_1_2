@@ -20,13 +20,8 @@ import xml.etree.ElementTree as ET
 from MM_objects import MapmakerProject
 
 ccmasterkernel = itwincapturemodeler
-# Note: replace paths with your references, or install SDK sample data in C:/CC_SDK_DATA
 photosDirPath = os.getcwd()+'/ARTAK_MM/DATA/Raw_Images/UNZIPPED'
 projectDir = os.getcwd()+'/ARTAK_MM/POST/Photogrammetry/'
-
-# base_url = "https://esp.eastus2.cloudapp.azure.com/"
-# dit_host = "https://esp.eastus2.cloudapp.azure.com/dit/v1/"
-
 
 class ProcessingPhotogrammetry:
 
