@@ -821,25 +821,27 @@ class App(customtkinter.CTk):
         return new_file_exists, file_name_list
 
     # Open loop to check for zip files placed into a specific folder, usually placed there by the Restful API
-    def main_loop(self, frequency=3, logger=""):
-        logger.info('Starting main loop. Frequency = ' + str(frequency))
+    def main_loop(self, frequency=3, ):
+        self.session_logger.info('Starting main loop. Frequency = ' + str(frequency))
         while 1:
-            new_file_exists, file_name_list = self.check(logger)
+            new_file_exists, file_name_list = self.check(self.session_logger)
             if new_file_exists:
                 for each_file in file_name_list:
-                    logger.info('Attempting to UNZIP file. Filename = ' + each_file)
-                    file_handler = MM_file_handler.MMfileHandler(each_file, logger)
+                    self.session_logger.info('Attempting to UNZIP file. Filename = ' + each_file)
+                    file_handler = MM_file_handler.MMfileHandler(each_file, self.session_logger)
                     file = file_handler.unzip()
-                    logger.info('Completed the UNZIP of file. Filename = ' + each_file)
-                    logger.info('Starting photogrammetry processing = ' + each_file)
+                    self.session_logger.info('Completed the UNZIP of file. Filename = ' + each_file)
+                    self.session_logger.info('Starting photogrammetry processing = ' + each_file)
                     new_project = MapmakerProject(name=each_file, time_first_image=each_file,
                                                   time_mm_start=time.time(),
-                                                  image_folder=each_file, total_images=100, logger=logger,
+                                                  image_folder=each_file, total_images=100, logger=self.session_logger,
                                                   session_project_number=1, map_type="OBJ"
                                                   )
                     self.list_of_projects.append(new_project)
-                    a = MM_processing_photogrammetry.ProcessingPhotogrammetry(file, logger, mm_project=new_project)
-                    a.do_photogrammetry()
+                    new_project.session_project_number = len(self.list_of_projects)
+                    self.trigger_photogrammetry(each_file, self.session_logger, new_project)
+                  #  a = MM_processing_photogrammetry.ProcessingPhotogrammetry(each_file, self.session_logger, mm_project=new_project)
+                  #  a.do_photogrammetry()
                     time.sleep(5)
             time.sleep(frequency)
 
