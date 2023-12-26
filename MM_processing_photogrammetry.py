@@ -91,7 +91,7 @@ class ProcessingPhotogrammetry:
     def do_photogrammetry(self):
         self.logger.info("Starting Photogrammetry Job. Project path directory = " + self.projecDirPath)
         self.logger.info("Starting Photogrammetry Job. Source photos directory = " + self.photosDirPath)
-        self.mm_project.time_processing_start = time.time()
+        self.mm_project.set_time_processing_start(time.time())
         self.logger.info('MasterKernel version %s' % ccmasterkernel.version())
         print('')
 
@@ -179,15 +179,13 @@ class ProcessingPhotogrammetry:
         if not block.isReadyForAT():
             if block.reachedLicenseLimit():
                 self.logger.info('Error: Block size exceeds license capabilities.')
-                self.mm_project.status = "Error"
+                self.mm_project.set_status("Error")
             if block.getPhotogroups().getNumPhotos() < 3:
                 self.logger.info('Error: Insufficient number of photos.')
-                self.mm_project.status = "Error"
-
+                self.mm_project.set_status("Error")
             else:
                 self.logger.info('Error: Missing focal lengths and sensor sizes.')
-                self.mm_project.status = "Error"
-
+                self.mm_project.set_status("Error")
             sys.exit(0)
 
         # --------------------------------------------------------------------
@@ -235,7 +233,7 @@ class ProcessingPhotogrammetry:
 
         if not atSubmitError.isNone():
             self.logger.info('Error: Failed to submit aerotriangulation.')
-            self.mm_project.status = "Error"
+            self.mm_project.set_status("Error")
 
             self.logger.info(atSubmitError.message)
             sys.exit(0)
@@ -267,7 +265,7 @@ class ProcessingPhotogrammetry:
 
         if jobStatus != ccmasterkernel.JobStatus.Job_completed:
             self.logger.info('"Error: Incomplete aerotriangulation.')
-            self.mm_project.status = "Error"
+            self.mm_project.set_status("Error")
 
             if blockAT.getAT().getJobMessage() != '':
                 print(blockAT.getAT().getJobMessage())
@@ -276,12 +274,12 @@ class ProcessingPhotogrammetry:
 
         if not blockAT.canGenerateQualityReport():
             self.logger.info("Error: BlockAT can't generate Quality report")
-            self.mm_project.status = "Error"
+            self.mm_project.set_status("Error")
             sys.exit(0)
 
         if not blockAT.generateQualityReport(True):
             self.logger.info("Error: failed to generate Quality report")
-            self.mm_project.status = "Error"
+            self.mm_project.set_status("Error")
             sys.exit(0)
 
 
@@ -289,7 +287,7 @@ class ProcessingPhotogrammetry:
 
         if not blockAT.isReadyForReconstruction():
             self.logger.info('Error: Incomplete photos. Cannot create reconstruction.')
-            self.mm_project.status = "Error"
+            self.mm_project.set_status("Error")
             sys.exit(0)
 
         self.logger.info('Ready for reconstruction.')
@@ -323,7 +321,7 @@ class ProcessingPhotogrammetry:
 
         if reconstruction.getNumInternalTiles() == 0:
             self.logger.info('Error: Failed to create reconstruction layout.')
-            self.mm_project.status = "Error"
+            self.mm_project.set_status("Error")
             sys.exit(0)
 
         self.logger.info('Reconstruction item created.')
@@ -425,7 +423,7 @@ class ProcessingPhotogrammetry:
 
         if jobStatus != ccmasterkernel.JobStatus.Job_completed:
             self.logger.info('"Error: Incomplete production.')
-            self.mm_project.status = "Error"
+            self.mm_project.set_status("Error")
             if production.getJobMessage() != '':
                 self.logger.info(production.getJobMessage())
 
@@ -486,7 +484,7 @@ class ProcessingPhotogrammetry:
             # set the output file name based on the input file name
             output_file = os.path.join(output_folder, os.path.splitext(os.path.basename(input_file))[0] + ".obj")
             inp_folder = production.getDestination() + "/Data/"
-            self.mm_project.completed_file_path = os.path.join(inp_folder, "Model/Model.obj")
+            self.mm_project.set_completed_file_path(os.path.join(inp_folder, "Model/Model.obj"))
             #shutil.copytree(inp_folder, output_folder + "/")
             # print a message when the process is complete
             self.logger.info("Output file saved to:" + output_file)
@@ -499,8 +497,8 @@ class ProcessingPhotogrammetry:
                 self.logger.info("already has .zip in upload filename")
             else:
                 a = a + ".zip"
-            self.mm_project.time_processing_complete = time.time()
-            self.mm_project.zip_payload_location = a
+            self.mm_project.set_time_processing_complete(time.time())
+            self.mm_project.set_zip_payload_location(a)
             self.logger.info ("Sending zip file to ARTAK Content Repository. File = " + str(a))
 
             # rename zip if manually set
@@ -515,6 +513,8 @@ class ProcessingPhotogrammetry:
                     self.logger.info("Renaming " + a + " to " + new_path)
                     os.rename(a, new_path)
                     a = new_path
+                    self.mm_project.set_zip_payload_location(a)
+
             try:
                 if self.artak_server == None or self.artak_server == "":
                     self.artak_server = "https://esp.eastus2.cloudapp.azure.com/"
@@ -527,10 +527,10 @@ class ProcessingPhotogrammetry:
                 response = self.upload(a, url=self.artak_server)
                 self.logger.info(response.status_code)
                 if response.status_code == 200:
-                    self.mm_project.time_accepted_by_artak = time.time()
-                    self.mm_project.status = "Complete"
+                    self.mm_project.set_time_accepted_by_artak(time.time())
+                    self.mm_project.set_status("complete")
                 else:
-                    self.mm_project.status = "Error"
+                    self.mm_project.set_status("error")
                 self.logger.info(self.mm_project)
             except ArithmeticError:
                 self.logger.info("Uncaught exception attempting to upload file. File = " + str(a) + "URL = " + self.artak_server)
@@ -550,11 +550,11 @@ class ProcessingPhotogrammetry:
                     archive_location_with_extension = new_path
                     self.logger.info("Successfully Renamed " + archive_location + " to " + new_path)
 
-            self.mm_project.zip_payload_location = archive_location_with_extension
+            self.mm_project.set_processed_zip_path(archive_location_with_extension)
             self.logger.info("Attempting to Upload Cesium Tiles.")
             self.mm_project.upload_to_world()
-            self.mm_project.time_accepted_by_artak = time.time()
-            self.mm_project.status = "Complete"
+            self.mm_project.set_time_accepted_by_artak(time.time())
+            self.mm_project.set_status("Complete")
 
         else:
             pass

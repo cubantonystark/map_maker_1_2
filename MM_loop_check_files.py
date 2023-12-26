@@ -66,4 +66,4 @@ def main_loop(frequency=3, logger=""):
         time.sleep(frequency)
 
 
-main_loop(logger=logger)
+#main_loop(logger=logger)

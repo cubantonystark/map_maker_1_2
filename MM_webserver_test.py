@@ -1,17 +1,12 @@
 import os
-
 import requests
 
-#source = r"C:\MapMaker-SapmleDatasets\PhotogrammetryDatasets\Outdoors\Images_geotagged\EO-Anafi\13Images\images\autotest"
 source = r"C:\MapMaker-SapmleDatasets\PhotogrammetryDatasets\Outdoors\Images_geotagged\EO-Anafi\13Images\images\autotest"
 
 
 def send_file(zip_file_path):
     #receiver_ip = 'http://172.27.179.244:8080/upload'
     receiver_ip = 'http://127.0.0.1:8080/upload'
-
-    # Path to the zip file you want to send
-    #zip_file_path = r"C:\Users\micha\Apps\MapMaker6\map_maker_1_2\ARTAK_MM\ORCHESTRATOR\P3460363.zip"
 
     # Create a dictionary with any additional data you want to send along with the file
     payload = {'key1': 'value1', 'key2': 'value2'}

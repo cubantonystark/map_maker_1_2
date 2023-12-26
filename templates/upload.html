@@ -1,21 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>File Upload</title>
+    <title>File Upload with Additional Options</title>
     <script>
         function uploadFile() {
+            var ip = document.getElementById("ip-address").value;
             var fileInput = document.getElementById("file-input");
             var file = fileInput.files[0];
+            var quality = document.getElementById("quality").value;
+            var mapType = document.getElementById("map-type").value;
+            var frameRate = document.getElementById("frame-extraction-rate").value;
+            var mapPartitionKey = document.getElementById("map-partition-key").value;
+            var timeBetweenSorties = document.getElementById("time-between-sorties").value;
+
             var formData = new FormData();
             formData.append("file", file);
+            formData.append("quality", quality);
+            formData.append("mapType", mapType);
+            formData.append("frameRate", frameRate);
+            formData.append("mapPartitionKey", mapPartitionKey);
+            formData.append("timeBetweenSorties", timeBetweenSorties);
 
-            fetch(`http://127.0.0.1:8080/upload`, {
+            fetch(`http://${ip}/upload`, {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.text())
             .then(data => {
-                alert("File uploaded successfully!");
+                alert("File and data uploaded successfully!");
             })
             .catch(error => {
                 alert("Error during file upload: " + error);
@@ -24,8 +36,32 @@
     </script>
 </head>
 <body>
-    <h2>File Upload</h2>
-    <input type="file" id="file-input" />
+    <h2>File Upload with Additional Options</h2>
+    <input type="text" id="ip-address" placeholder="Enter IP Address"/><br><br>
+    <input type="file" id="file-input" /><br><br>
+
+    <label for="quality">Quality:</label>
+    <select id="quality">
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+    </select><br><br>
+
+    <label for="map-type">Map Type:</label>
+    <select id="map-type">
+        <option value="tiles">Tiles</option>
+        <option value="OBJ">OBJ</option>
+    </select><br><br>
+
+    <label for="frame-extraction-rate">Frame Extraction Rate:</label>
+    <input type="text" id="frame-extraction-rate" placeholder="Enter Frame Rate"/><br><br>
+
+    <label for="map-partition-key">Map Partition Key:</label>
+    <input type="text" id="map-partition-key" placeholder="Enter Map Partition Key"/><br><br>
+
+    <label for="time-between-sorties">Time Between Sorties:</label>
+    <input type="text" id="time-between-sorties" placeholder="Enter Time Between Sorties"/><br><br>
+
     <button onclick="uploadFile()">Upload</button>
 </body>
 </html>

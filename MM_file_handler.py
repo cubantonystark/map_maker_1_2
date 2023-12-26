@@ -68,5 +68,5 @@ class MMfileHandler:
 		try:
 			return video_name
 		except:
-			return "source_zip"
+			return self.source_zip.replace(".zip", "")
 

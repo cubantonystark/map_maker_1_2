@@ -1,5 +1,7 @@
 import win32gui, win32con
 
+import MM_services
+
 '''
 This snippet hides the console in non compiled scripts. Done for aesthetics
 '''
@@ -665,11 +667,10 @@ class App(customtkinter.CTk):
 
     def trigger_photogrammetry(self, each_folder, logger, mm_project=MM_objects.MapmakerProject()):
         session_project_number = mm_project.session_project_number
-        mm_project.local_image_folder = os.getcwd() + "/ARTAK_MM/DATA/Raw_Images/UNZIPPED/" + each_folder
-        mm_project.partition_key = self.partition_key_var.get()
+        mm_project.set_local_image_folder(os.getcwd() + "/ARTAK_MM/DATA/Raw_Images/UNZIPPED/" + each_folder)
+        mm_project.set_partition_key(self.partition_key_var.get())
         progress_bar = self.on_project_started(path=each_folder, mm_project=mm_project,
                                                session_project_number=session_project_number)
-        mm_project.manually_made_name = "ManualNameTest"
         try:
             a = MM_processing_photogrammetry.ProcessingPhotogrammetry(each_folder, logger=logger,
                                                                       mm_project=mm_project)
@@ -763,10 +764,10 @@ class App(customtkinter.CTk):
                     session_project_number = len(self.list_of_projects)
                     new_project = MapmakerProject(name=each_folder, time_first_image=each_folder,
                                                   time_mm_start=time.time(),
-                                                  image_folder=each_folder, total_images=file_count, logger=logger,
+                                                  image_folder=each_folder, total_images=file_count, logger="logger",
                                                   artak_server=artak_server,
                                                   session_project_number=session_project_number, map_type="OBJ",
-                                                  quality=self.quality.get()
+                                                  quality=self.quality.get(), status="pending"
                                                   )
                     self.list_of_projects.append(new_project)
                     projects.append(new_project)
@@ -775,7 +776,8 @@ class App(customtkinter.CTk):
                 for each_folder in folder_name_list:
                     #threading.Thread(name='t7', target=self.trigger_photogrammetry,
                     #                 args=(each_folder, logger, new_project)).start()
-                    self.trigger_photogrammetry(each_folder, logger, projects[count])
+                    MM_services.add_job_to_que(projects[count])
+                    #self.trigger_photogrammetry(each_folder, logger, projects[count])
                     count = count + 1
                     # send the message that a project has been started
 
@@ -810,41 +812,23 @@ class App(customtkinter.CTk):
         self.event_generate("<<ProjectStarted>>", data=project)
 
     #  check for zip files placed into a specific folder, usually placed there by the Restful API
-    def check(self, logger=""):
-        file_name_list = os.listdir(os.getcwd() + "/ARTAK_MM/DATA/Raw_Images/ZIP/New/")
-        file_count = len(file_name_list)
-        if file_count > 0:
-            logger.info('File Located.')
-            new_file_exists = True
-        else:
-            new_file_exists = False
-        return new_file_exists, file_name_list
 
-    # Open loop to check for zip files placed into a specific folder, usually placed there by the Restful API
-    def main_loop(self, frequency=3, ):
-        self.session_logger.info('Starting main loop. Frequency = ' + str(frequency))
-        while 1:
-            new_file_exists, file_name_list = self.check(self.session_logger)
-            if new_file_exists:
-                for each_file in file_name_list:
-                    self.session_logger.info('Attempting to UNZIP file. Filename = ' + each_file)
-                    file_handler = MM_file_handler.MMfileHandler(each_file, self.session_logger)
-                    file = file_handler.unzip()
-                    self.session_logger.info('Completed the UNZIP of file. Filename = ' + each_file)
-                    self.session_logger.info('Starting photogrammetry processing = ' + each_file)
-                    new_project = MapmakerProject(name=each_file, time_first_image=each_file,
-                                                  time_mm_start=time.time(),
-                                                  image_folder=each_file, total_images=100, logger=self.session_logger,
-                                                  session_project_number=1, map_type="OBJ"
-                                                  )
-                    self.list_of_projects.append(new_project)
-                    new_project.session_project_number = len(self.list_of_projects)
-                    self.trigger_photogrammetry(each_file, self.session_logger, new_project)
-                  #  a = MM_processing_photogrammetry.ProcessingPhotogrammetry(each_file, self.session_logger, mm_project=new_project)
-                  #  a.do_photogrammetry()
-                    time.sleep(5)
-            time.sleep(frequency)
-
+    def new_main_processing_loop(self):
+        while True:
+            projects = MM_services.read_job_que_from_json_file_return_mm_objects()
+            for each_project in projects:
+                if each_project.status == 'pending':
+                    self.session_logger.info("Identified PENDING Project in Que")
+                    self.session_logger.info("Initializing Project: " + each_project.name)
+                    # new_project = MapmakerProject(name=projects[each_project]['name'], time_first_image=111111111,
+                    #                               time_mm_start=time.time(),
+                    #                               image_folder=projects[each_project]['image_folder'], total_images=100, logger=self.session_logger,
+                    #                               session_project_number=1, map_type="OBJ"
+                    #                               )
+                    each_project.set_status("processing")
+                    self.trigger_photogrammetry(each_project.name, self.session_logger, each_project)
+                    self.session_logger.info("Started Project: " + each_project.name)
+            time.sleep(5)
     def job_queue_monitor(self):
         while True:
 
@@ -879,20 +863,29 @@ class App(customtkinter.CTk):
                 count = 1
                 time_fields = ["time_mm_start", "time_processing_start", "time_processing_complete",
                                "time_accepted_by_artak"]
-                for each_project in self.list_of_projects:
-                    self.home_frame_text.insert(tk.END, "\nJob " + str(count) + "\n")
-                    for each_key in each_project.as_dict().keys():
-                        if each_key in time_fields:
-                            timestamp = each_project.as_dict()[each_key]
-                            try:
-                                converted_time = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d_%H-%M-%S")
-                                line = str(each_key) + " = " + str(converted_time) + "\n"
-                            except TypeError:
-                                line = ""
-                        else:
-                            line = str(each_key) + " = " + str(each_project.as_dict()[each_key]) + "\n"
-                        self.home_frame_text.insert(tk.END, line)
-                    count += 1
+                projects = MM_services.read_job_que_from_json_file_return_mm_objects()
+                self.home_frame_text.insert(tk.END, "Projects ")
+                if projects:
+                    for each_project in projects:
+                        self.home_frame_text.insert (tk.END, each_project.name)
+                   # for each_project in self.list_of_projects:
+                        self.home_frame_text.insert(tk.END, "\nJob " + str(count) + "\n")
+                      #  self.home_frame_text.insert(tk.END, str(each_project))
+                        dictionary = each_project.as_dict()
+                        for each_key in dictionary.keys():
+                        #    self.home_frame_text.insert(tk.END, str(each_key) + str(each_project[each_key]) + "\n")
+                        #    self.home_frame_text.insert(tk.END, "Key+ " + str(each_project[each_key]) + "\n")
+                            if each_key in time_fields:
+                                timestamp = dictionary[each_key]
+                                try:
+                                    converted_time = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d_%H-%M-%S")
+                                    line = str(each_key) + " = " + str(converted_time) + "\n"
+                                except TypeError:
+                                    line = "Type Error"
+                            else:
+                                line = str(each_key) + " = " + str(dictionary[each_key]) + "\n"
+                            self.home_frame_text.insert(tk.END, line)
+                        count += 1
                 time.sleep(5)
 
     def find_folders_with_obj(self):
@@ -953,7 +946,6 @@ class App(customtkinter.CTk):
         path = os.path.join(path + "/", "Model.obj")
         print("opening obj" + path)
         subprocess.Popen(['start', ' ', path], shell=True)
-
     def open_obj_new(self, path):
         print("opening obj " + path)
         subprocess.Popen(['start', ' ', path], shell=True)
@@ -972,7 +964,7 @@ class App(customtkinter.CTk):
         self.process_sd_button.grid(row=7, column=1, padx=20, pady=10)
 
     def on_project_started(self, path, session_project_number, mm_project=MapmakerProject()):
-        mm_project.status = "Processing"
+        mm_project.set_status("processing")
         project2_label = customtkinter.CTkLabel(self.home_frame, text=mm_project.name)
         project2_open_images_icon = customtkinter.CTkButton(self.home_frame,
                                                             text="View Images",
@@ -1029,7 +1021,7 @@ class App(customtkinter.CTk):
             progress_bar.configure(mode="determinate", progress_color="green")
             progress_bar.set(1)
             progress_bar.stop()
-        mm_project.total_processing_time = mm_project.time_processing_complete - mm_project.time_processing_start
+       # mm_project.set_total_processing_time(mm_project.time_processing_complete - mm_project.time_processing_start)
         if self.auto_open_var:
             self.open_obj_new(path)
 
@@ -1195,12 +1187,14 @@ if __name__ == "__main__":
         os.remove("ARTAK_MM/LOGS/t_render.log")
 
     app = App()
-    # threading.Thread(target=app.sd_card_monitor).start()
+ #   threading.Thread(target=app.sd_card_monitor).start()
     threading.Thread(target=app.job_queue_monitor, name='t1').start()
     threading.Thread(target=app.mm_project_monitor, name='t2').start()
-    threading.Thread(target=app.find_folders_with_obj, name='t3').start()
+   # threading.Thread(target=app.find_folders_with_obj, name='t3').start()
     threading.Thread(target=app.display_activity_on_pc_recon, name='t4').start()
     threading.Thread(target=app.display_activity_on_nr_recon, name='t5').start()
-    threading.Thread(target=app.main_loop, name='t6').start()
+   # app.new_main_processing_loop()
+    threading.Thread(target=app.new_main_processing_loop, name='t6').start()
     app.run_executable()
     app.mainloop()
+
