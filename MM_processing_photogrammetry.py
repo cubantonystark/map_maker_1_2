@@ -10,7 +10,7 @@ import array as arr
 import statistics
 import itwincapturemodeler
 import random
-
+from MM_video import is_video
 #import pymeshlab
 import requests
 from numpy import array
@@ -128,6 +128,8 @@ class ProcessingPhotogrammetry:
         files = os.listdir(self.photosDirPath)
 
         for file in files:
+            if is_video(file):
+                pass
             file = os.path.join(self.photosDirPath, file)
             # add photo, create a new photogroup if needed
             lastPhoto = photogroups.addPhotoInAutoMode(file)

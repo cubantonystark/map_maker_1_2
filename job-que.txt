@@ -1,0 +1,27 @@
+{
+    "summit16": {
+        "name": "summit16",
+        "time_first_image": "summit16.zip",
+        "time_mm_start": 1703783418.7755249,
+        "time_processing_start": 1703783523.1224768,
+        "time_processing_complete": null,
+        "time_accepted_by_artak": null,
+        "total_images": 100,
+        "image_folder": null,
+        "processed_zip_path": null,
+        "status": "processing",
+        "logger": "na",
+        "artak_server": null,
+        "manually_made_name": "",
+        "manually_made_field": null,
+        "local_image_folder": "C:\\Users\\micha\\Apps\\MapMaker6\\map_maker_1_2/ARTAK_MM/DATA/Raw_Images/UNZIPPED/summit16-V3",
+        "session_project_number": 1,
+        "completed_file_path": null,
+        "map_type": "OBJ",
+        "zip_payload_location": null,
+        "total_processing_time": null,
+        "partition_key": "",
+        "quality": "Speed",
+        "video_frame_extraction_rate": null
+    }
+}

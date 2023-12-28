@@ -33,6 +33,29 @@ def update_dict_in_file(dict_data):
     # replace dict for key matching dict_data
 
 
+def save_mm_project(mm_project):
+    destination = mm_project.zip_payload_location
+    file_name = destination + "-MM_Project.txt"
+    with open(file_name, 'w') as file:
+        json.dump(mm_project.as_dict(), file, indent=4)
+    print("saved")
+
+
+def remove_project_in_file(mm_project):
+    key = mm_project.name
+    # open dict from file
+    current_que = read_job_que_from_json_file()
+    file_name = os.path.join(os.getcwd(), "job-que.txt")
+    mm_project_payload = current_que[key]
+    save_mm_project(mm_project)
+    try:
+        current_que.pop(key)
+        with open(file_name, 'w') as file:
+            json.dump(current_que, file, indent=4)
+    except:
+        print ("error updating dict")
+
+
 def add_job_to_que(new_mm_project):
     update_dict_in_file(new_mm_project.as_dict())
 

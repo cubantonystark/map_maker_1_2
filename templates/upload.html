@@ -1,7 +1,31 @@
 <!DOCTYPE html>
 <html>
+<style>
+    body {
+        background-color: black;
+        color: white;
+        font-family: Arial, sans-serif;
+    }
+
+    label, button {
+        color: white;
+    }
+</style>
+
 <head>
     <title>File Upload with Additional Options</title>
+    <style>
+        body {
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        label, button {
+            color: white;
+        }
+    </style>
+
     <script>
         function uploadFile() {
             var ip = document.getElementById("ip-address").value;
@@ -42,9 +66,9 @@
 
     <label for="quality">Quality:</label>
     <select id="quality">
-        <option value="low">Low</option>
+        <option value="Speed">Low</option>
         <option value="medium">Medium</option>
-        <option value="high">High</option>
+        <option value="Quality">High</option>
     </select><br><br>
 
     <label for="map-type">Map Type:</label>

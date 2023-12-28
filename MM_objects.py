@@ -63,6 +63,9 @@ class MapmakerProject:
     def set_status(self, var):
         self.status = var
         MM_services.update_mm_project_in_file(self)
+        if var == "complete":
+            MM_services.remove_project_in_file(self)
+
 
     def set_artak_server(self, var):
         self.artak_server = var

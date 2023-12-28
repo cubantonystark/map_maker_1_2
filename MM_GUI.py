@@ -12,6 +12,7 @@ import random
 from datetime import datetime
 from PIL import Image
 import os, shutil
+from MM_video import *
 import open3d as o3d
 import MM_file_handler
 
@@ -820,13 +821,27 @@ class App(customtkinter.CTk):
                 if each_project.status == 'pending':
                     self.session_logger.info("Identified PENDING Project in Que")
                     self.session_logger.info("Initializing Project: " + each_project.name)
-                    # new_project = MapmakerProject(name=projects[each_project]['name'], time_first_image=111111111,
+                    folder = each_project.local_image_folder
+                    self.session_logger.info("Folder: " + folder)
+                    each_project.set_status("processing")
+                    if folder_contains_videos(folder):
+                        self.session_logger.info("Video in source folder: ")
+                        for each_video in list_of_videos_in_folder(folder):
+                            self.session_logger.info("Video Path: " + each_video)
+                            each_project.set_status("extracting_frames")
+                            self.session_logger.info("Extracting Frames to " + folder)
+
+                            new_local_image_folder = extract_frames(each_video, folder, 30, self.session_logger, 30)
+                            self.session_logger.info("New Local Image Folder " + new_local_image_folder)
+                            name = new_local_image_folder.split('\\')[len(new_local_image_folder.split('\\'))-1]
+                            each_project.set_local_image_folder(new_local_image_folder)
+                    #                     # new_project = MapmakerProject(name=projects[each_project]['name'], time_first_image=111111111,
                     #                               time_mm_start=time.time(),
                     #                               image_folder=projects[each_project]['image_folder'], total_images=100, logger=self.session_logger,
                     #                               session_project_number=1, map_type="OBJ"
                     #                               )
-                    each_project.set_status("processing")
-                    self.trigger_photogrammetry(each_project.name, self.session_logger, each_project)
+
+                    self.trigger_photogrammetry(name, self.session_logger, each_project)
                     self.session_logger.info("Started Project: " + each_project.name)
             time.sleep(5)
     def job_queue_monitor(self):
@@ -859,22 +874,17 @@ class App(customtkinter.CTk):
             except FileNotFoundError:
 
                 self.home_frame_text.delete("1.0", tk.END)
-                self.home_frame_text.insert(tk.END, "Jobs from this Session \n")
+                self.home_frame_text.insert(tk.END, "Local Job Que \n")
                 count = 1
                 time_fields = ["time_mm_start", "time_processing_start", "time_processing_complete",
                                "time_accepted_by_artak"]
                 projects = MM_services.read_job_que_from_json_file_return_mm_objects()
-                self.home_frame_text.insert(tk.END, "Projects ")
                 if projects:
                     for each_project in projects:
                         self.home_frame_text.insert (tk.END, each_project.name)
-                   # for each_project in self.list_of_projects:
                         self.home_frame_text.insert(tk.END, "\nJob " + str(count) + "\n")
-                      #  self.home_frame_text.insert(tk.END, str(each_project))
                         dictionary = each_project.as_dict()
                         for each_key in dictionary.keys():
-                        #    self.home_frame_text.insert(tk.END, str(each_key) + str(each_project[each_key]) + "\n")
-                        #    self.home_frame_text.insert(tk.END, "Key+ " + str(each_project[each_key]) + "\n")
                             if each_key in time_fields:
                                 timestamp = dictionary[each_key]
                                 try:

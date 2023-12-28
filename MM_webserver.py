@@ -23,13 +23,15 @@ def handle_new_zip(file, _quality, _maptype, _video_frame_extraction_rate, _part
     print('Attempting to UNZIP file. Filename = ' + file)
     log = initialize_logger("testing-zip-upload")
     file_handler = MM_file_handler.MMfileHandler(file, log)
+    folder = file.split(".")[0]
+    new_path = os.path.join(os.getcwd(), 'ARTAK_MM/DATA/Raw_Images/UNZIPPED', folder)
     file = file_handler.unzip()
     print('Completed the UNZIP of file. Filename = ' + file_name)
     print('Completed the UNZIP of file. File = ' + file)
     print('Starting photogrammetry processing = ' + file_name)
     new_project = MapmakerProject(name=file, time_first_image=file_name,
                                   time_mm_start=time.time(),
-                                  image_folder=file, total_images=100,
+                                  local_image_folder=new_path, total_images=100,
                                   session_project_number=1, map_type=_maptype, status="pending", quality=_quality,
                                   video_frame_extraction_rate=_video_frame_extraction_rate, partition_key=_partition_key
                                   )

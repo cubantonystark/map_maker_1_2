@@ -2,13 +2,16 @@ import cv2
 import os
 import MM_logger
 
-def extract_frames(input_video, output_folder, frame_interval=1, logger=MM_logger.initialize_logger(), frame_spacing=30):
+video_extensions = ['.mpeg', '.mp4', '.ts', ".m4v"]
+
+def extract_frames(input_video, output_folder, frame_interval=1, logger=MM_logger.initialize_logger(), frame_spacing=90):
 
     if frame_spacing == "":
         frame_spacing = 20
     logger.info("extracting frames")
     # Create the output folder if it doesn't exist
     og_path = output_folder
+    destination_folder_versioned = output_folder
     count = 1
     finished = False
     while not finished:
@@ -74,14 +77,29 @@ def extract_frames(input_video, output_folder, frame_interval=1, logger=MM_logge
     cap.release()
     cv2.destroyAllWindows()
     payload_file_folder_name = folder_path.split("/")[len(folder_path.split("/"))-1].split(".")[0]
-    return payload_file_folder_name
-#
-# if __name__ == "__main__":
-#     # Replace 'input_video_path' with the path to your input video file
-#     input_video_path = "C:/MapMaker-SapmleDatasets/PhotogrammetryDatasets/Outdoors/Videos/EO-Anafi/Sherman/SHERMAN2.MP4"
-#
-#     # Replace 'output_folder_path' with the desired output folder path
-#     output_folder_path = "C:/test"
-#
-#     # Extract frames every 1 second (change 'frame_interval' as needed)
-#     extract_frames(input_video_path, output_folder_path, frame_interval=1)
+    output_folder = output_path.split("\\")[len(output_path.split("\\"))-1]
+    return destination_folder_versioned
+
+
+def list_of_videos_in_folder(directory):
+    video_list = []
+    for i in os.listdir(directory):
+        for each_extension in video_extensions:
+            if each_extension in i.lower():
+                video_i_path = os.path.join(directory, i)
+                video_list.append(video_i_path)
+    return video_list
+
+def folder_contains_videos(directory):
+    for i in os.listdir(directory):
+        for each_extension in video_extensions:
+            if each_extension in i.lower():
+                return True
+    return False
+
+
+def is_video(file_path):
+    for each_extension in video_extensions:
+        if each_extension in file_path.lower():
+            return True
+    return False
