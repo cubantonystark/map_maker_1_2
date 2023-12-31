@@ -9,36 +9,36 @@ def extract_frames(input_video, output_folder, frame_interval=1, logger=MM_logge
     if frame_spacing == "":
         frame_spacing = 20
     logger.info("extracting frames")
-    # Create the output folder if it doesn't exist
-    og_path = output_folder
-    destination_folder_versioned = output_folder
-    count = 1
-    finished = False
-    while not finished:
-        path = og_path + "-V" + str(count)
-        logger.info("OGPath = " + og_path)
-        logger.info("Path = " + path)
-        if os.path.exists(path):
-            logger.info("Directory already exists. Sequencing up version.")
-            count += 1
-            try:
-                destination_folder_versioned = og_path + "-V" + str(count)
-                logger.info("Destination folder versioned = " + destination_folder_versioned)
-                os.makedirs(destination_folder_versioned)
-                folder_path = destination_folder_versioned
-                finished = True
-            except:
-                print("trying again")
-        else:
-            destination_folder_versioned = og_path + "-V" + str(count)
-            os.makedirs(destination_folder_versioned)
-            folder_path = destination_folder_versioned
-            finished = True
-
-    logger.info("Attempting to make directory " + str(folder_path))
-    logger.info("Successfully made directory " + str(folder_path))
-    output_folder = folder_path
-    os.makedirs(output_folder, exist_ok=True)
+    # # Create the output folder if it doesn't exist
+    # og_path = output_folder
+    # destination_folder_versioned = output_folder
+    # count = 1
+    # finished = False
+    # while not finished:
+    #     path = og_path + "-V" + str(count)
+    #     logger.info("OGPath = " + og_path)
+    #     logger.info("Path = " + path)
+    #     if os.path.exists(path):
+    #         logger.info("Directory already exists. Sequencing up version.")
+    #         count += 1
+    #         try:
+    #             destination_folder_versioned = og_path + "-V" + str(count)
+    #             logger.info("Destination folder versioned = " + destination_folder_versioned)
+    #             os.makedirs(destination_folder_versioned)
+    #             folder_path = destination_folder_versioned
+    #             finished = True
+    #         except:
+    #             print("trying again")
+    #     else:
+    #         destination_folder_versioned = og_path + "-V" + str(count)
+    #         os.makedirs(destination_folder_versioned)
+    #         folder_path = destination_folder_versioned
+    #         finished = True
+    #
+    # logger.info("Attempting to make directory " + str(folder_path))
+    # logger.info("Successfully made directory " + str(folder_path))
+    # output_folder = folder_path
+    # os.makedirs(output_folder, exist_ok=True)
 
     # Open the video file
     cap = cv2.VideoCapture(input_video)
@@ -76,9 +76,7 @@ def extract_frames(input_video, output_folder, frame_interval=1, logger=MM_logge
     # Release the video file and close any open windows
     cap.release()
     cv2.destroyAllWindows()
-    payload_file_folder_name = folder_path.split("/")[len(folder_path.split("/"))-1].split(".")[0]
-    output_folder = output_path.split("\\")[len(output_path.split("\\"))-1]
-    return destination_folder_versioned
+    return "OK"
 
 
 def list_of_videos_in_folder(directory):

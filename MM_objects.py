@@ -1,6 +1,6 @@
 import os
 import json
-import MM_services
+import MM_job_que
 
 
 class MapmakerProject:
@@ -38,54 +38,54 @@ class MapmakerProject:
 
     def set_local_image_folder(self, var):
         self.local_image_folder = var
-        MM_services.update_mm_project_in_file(self)
+        MM_job_que.update_mm_project_in_file(self)
 
     def set_partition_key(self, var):
         self.partition_key = var
-        MM_services.update_mm_project_in_file(self)
+        MM_job_que.update_mm_project_in_file(self)
 
     def set_time_processing_start(self, var):
         self.time_processing_start = var
-        MM_services.update_mm_project_in_file(self)
+        MM_job_que.update_mm_project_in_file(self)
 
     def set_time_processing_complete(self, var):
         self.time_processing_complete = var
-        MM_services.update_mm_project_in_file(self)
+        MM_job_que.update_mm_project_in_file(self)
 
     def set_time_accepted_by_artak(self, var):
         self.time_accepted_by_artak = var
-        MM_services.update_mm_project_in_file(self)
+        MM_job_que.update_mm_project_in_file(self)
 
     def set_processed_zip_path(self, var):
         self.processed_zip_path = var
-        MM_services.update_mm_project_in_file(self)
+        MM_job_que.update_mm_project_in_file(self)
 
     def set_status(self, var):
         self.status = var
-        MM_services.update_mm_project_in_file(self)
+        MM_job_que.update_mm_project_in_file(self)
         if var == "complete":
-            MM_services.remove_project_in_file(self)
+            MM_job_que.remove_project_in_file(self)
 
 
     def set_artak_server(self, var):
         self.artak_server = var
-        MM_services.update_mm_project_in_file(self)
+        MM_job_que.update_mm_project_in_file(self)
 
     def set_manually_made_name(self, var):
         self.manually_made_name = var
-        MM_services.update_mm_project_in_file(self)
+        MM_job_que.update_mm_project_in_file(self)
 
     def set_completed_file_path(self, var):
         self.completed_file_path = var
-        MM_services.update_mm_project_in_file(self)
+        MM_job_que.update_mm_project_in_file(self)
 
     def set_zip_payload_location(self, var):
         self.zip_payload_location = var
-        MM_services.update_mm_project_in_file(self)
+        MM_job_que.update_mm_project_in_file(self)
 
     def set_total_processing_time(self, var):
         self.total_processing_time = var
-        MM_services.update_mm_project_in_file(self)
+        MM_job_que.update_mm_project_in_file(self)
 
     def as_dict(self):
         return vars(self)

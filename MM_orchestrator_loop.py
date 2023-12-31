@@ -15,7 +15,7 @@ import requests
 
 import MM_file_handler
 import MM_processing_photogrammetry
-import MM_image_grouper
+import MM_ingest
 from MM_objects import MapmakerProject
 from MM_logger import initialize_logger
 from MM_objects import MapmakerProject

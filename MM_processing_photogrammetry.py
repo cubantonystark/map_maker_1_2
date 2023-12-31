@@ -1,22 +1,13 @@
-
-# Script: built off automaster.py
-
 import shutil
-import subprocess
 import sys
 import os
 import time
-import array as arr
 import statistics
 import itwincapturemodeler
 import random
 from MM_video import is_video
 #import pymeshlab
 import requests
-from numpy import array
-
-import MM_logger
-import xml.etree.ElementTree as ET
 from MM_objects import MapmakerProject
 
 ccmasterkernel = itwincapturemodeler
@@ -25,12 +16,11 @@ projectDir = os.getcwd()+'/ARTAK_MM/POST/Photogrammetry/'
 
 class ProcessingPhotogrammetry:
 
-    def __init__(self, file_name, logger, _cesium=False, mm_project=MapmakerProject()):
+    def __init__(self, logger, _cesium=False, mm_project=MapmakerProject()):
 
-        if ".zip" in file_name:
-            file_name = file_name.replace(".zip", "")
+        file_name = mm_project.name
         self.projecDirPath = projectDir + file_name + str(random.randint(1,1000))
-        self.photosDirPath = os.path.join(os.getcwd()+'/ARTAK_MM/DATA/Raw_Images/UNZIPPED/', file_name)
+        self.photosDirPath = mm_project.local_image_folder
         self.logger = logger
         self.logger.info("Initialized PG")
         self.cesium = _cesium
@@ -561,7 +551,4 @@ class ProcessingPhotogrammetry:
         else:
             pass
         return self.mm_project.status
-#supload("C:/ARTAK_MM/POST/Photogrammetry/Ztest5.zip388\Productions\Production_1/Data/Model/Preprocessed" + "/" + "Ztest5.zip" + ".zip")
-#upload("C:/ARTAK_MM/POST/Photogrammetry/2023-06-13_18-26-02921/Productions/Production_1/Data/Model/2023-06-13_18-2.zip")
-##a = processing_photogrammetry('Ztest.zip', MM__logger.initialize_logger())
-#a.do_photogrammetry()
+

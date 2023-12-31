@@ -89,7 +89,7 @@ for i in payload:
     print (i)
 print (len(payload))
 field_names = payload[0].keys()
-with open('results.csv', 'w') as csvfile:
+with open('sunseting/results.csv', 'w') as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames = field_names)
     writer.writeheader()
     writer.writerows(payload)

@@ -2,7 +2,6 @@
 import os
 from zipfile import ZipFile
 import shutil
-import MM_logger
 import MM_video
 
 
@@ -24,11 +23,29 @@ class MMfileHandler:
 		self.logger = logger
 
 	def unzip(self):
+		"""
+		Unzips file and if the file contains a video extract the frames from the video
 
+		Returns:
+		Destination path for the data after unzipping/extracting frames
+		"""
 		self.logger.info("Beginning unzip method. Filename = " + self.source_zip)
 		self.logger.info("Moving source file to in progress folder. Filename = " + self.source_zip)
 		shutil.move(self.source_path,  self.in_progress_path)
 		self.logger.info("Unzipping file from in progress folder." + self.source_zip)
+		count = 1
+		if os.path.exists(self.destination_path + "-V" + str(count)):
+			duplicate_file = True
+			while duplicate_file:
+				count += 1
+				if os.path.exists(self.destination_path + "-V" + str(count)):
+					duplicate_file = True
+				else:
+					self.destination_path = self.destination_path + "-V" + str(count)
+					duplicate_file = False
+		else:
+			self.destination_path = self.destination_path + "-V" + str(count)
+
 		with ZipFile(self.in_progress_path, 'r') as zObject:
 			# Extracting all the members of the zip
 			# into a specific location.
@@ -38,7 +55,6 @@ class MMfileHandler:
 		self.logger.info("Moving file from in progress folder to completed folder.Filename =" + self.source_zip)
 		shutil.move(self.in_progress_path, self.completed_path)
 		self.logger.info("Unzip Complete. Filename =" + self.source_zip)
-
 
 		video_found = False
 		video = ""
@@ -51,22 +67,17 @@ class MMfileHandler:
 					video = i
 		if video_found:
 			video_file_name = str(os.path.basename(i))
-
 			# remove .mp4 from filename
 			video_name = video_file_name.split(".")[0]
-
+			# cleanup filename
 			video_name_nospaces = video_name.replace(" ", "_")
 			video_name_nospaces_noperiods = video_name_nospaces.replace(".", "-")
 			# extract the frames from the video
-			video_name = MM_video.extract_frames(os.path.join(self.destination_path, video), os.path.join(os.getcwd(),
-																		  'ARTAK_MM/DATA/Raw_Images/UNZIPPED/',
-																		  video_name_nospaces_noperiods),
-												 frame_spacing=int(10))
+			video_name = MM_video.extract_frames(os.path.join(self.destination_path, video), self.destination_path, frame_spacing=int(10))
 			# add the path of the extracted frames to the folder paths array to be returned to mapmaker for processing
-			#os.remove(video)
 
 		try:
-			return video_name
+			return self.destination_path
 		except:
 			return self.source_zip.replace(".zip", "")
 

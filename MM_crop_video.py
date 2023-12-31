@@ -1,3 +1,17 @@
+# ******************************************************************************
+# Copyright (c) 2023 EolianVR, Inc. All rights reserved.
+# ******************************************************************************
+# Map Maker Python SDK - core script
+#
+# Script: MM_crop_video.py
+# Purpose :
+# Keywords:
+#
+# Script description:
+# -crops a video
+
+# ******************************************************************************
+
 from moviepy.editor import VideoFileClip
 import os
 # MK46-03.m4v 2B2.m4v
