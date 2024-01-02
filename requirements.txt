@@ -9,6 +9,7 @@ utm
 open3d
 playsound
 pybrowser
-win32gui
+pywin32
+opencv-python
 psutil
 pywebview
