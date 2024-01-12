@@ -49,9 +49,9 @@ except FileNotFoundError:
 
 '''
 We will create the work folders on first run. This code serves as a check in case the one of the working folders gets
-accidentaly deleted.
+accidentally deleted.
 '''
-dirs1 = ['ARTAK_MM/DATA/Raw_Images/UNZIPPED', 'ARTAK_MM/DATA/Raw_Images/ZIP/Completed',
+dirs1 = ['ARTAK_MM', 'ARTAK_MM/JOB-QUE-BENTLEY' 'ARTAK_MM/DATA/Raw_Images/UNZIPPED', 'ARTAK_MM/DATA/Raw_Images/ZIP/Completed',
          'ARTAK_MM/DATA/Raw_Images/ZIP/New', 'ARTAK_MM/DATA/Raw_Images/ZIP/Unzipping_in_progress',
          'ARTAK_MM/LOGS', 'ARTAK_MM/POST/Photogrammetry', 'ARTAK_MM/POST/Neural', 'ARTAK_MM/POST/Lidar',
          'ARTAK_MM/DATA/PointClouds']

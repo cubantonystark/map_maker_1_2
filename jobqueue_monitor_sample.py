@@ -18,7 +18,7 @@ import itwincapturemodeler
 
 
 # Note: replace paths with your references, or install SDK sample data in C:/CC_SDK_DATA
-jobQueuePath = "C:/Users/micha/Documents/Bentley/iTwin Capture Modeler/Jobs"
+jobQueuePath = os.path.join(os.getcwd(), 'ARTAK_MM/JOB-QUE-BENTLEY')
 
 
 ccmasterkernel = itwincapturemodeler
