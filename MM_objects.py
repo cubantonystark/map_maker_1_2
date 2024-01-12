@@ -10,8 +10,9 @@ class MapmakerProject:
                  processed_zip_path=None, status=None, logger=None, artak_server=None, manually_made_name=None,
                  manually_made_name_field=None, local_image_folder=None, session_project_number=None,
                  completed_file_path=None, map_type=None, zip_payload_location=None, total_processing_time=None,
-                 partition_key=None, quality=None, video_frame_extraction_rate=None):
+                 partition_key=None, quality=None, video_frame_extraction_rate=None, data_type=None):
         self.name = name
+        self.data_type = data_type
         self.time_first_image = time_first_image
         self.time_mm_start = time_mm_start
         self.time_processing_start = time_processing_start
@@ -34,6 +35,11 @@ class MapmakerProject:
         self.partition_key = partition_key
         self.quality = quality
         self.video_frame_extraction_rate = video_frame_extraction_rate
+
+
+    def set_type(self, var):
+        self.type = var
+        MM_job_que.update_mm_project_in_file(self)
 
 
     def set_local_image_folder(self, var):
@@ -114,6 +120,7 @@ def projects_from_dict(dictionary):
 def project_from_dict(dictionary):
     mm_project = MapmakerProject()
     mm_project.name = dictionary['name']
+    mm_project.data_type = dictionary['data_type']
     mm_project.time_first_image = dictionary['time_first_image']
     mm_project.time_mm_start = dictionary['time_mm_start']
     mm_project.time_processing_start = dictionary['time_processing_start']

@@ -24,28 +24,14 @@ import playsound
 
 
 # region Startup
-'''
+'''`
 This snippet hides the console in non compiled scripts. Done for aesthetics
 '''
 # this_program = win32gui.GetForegroundWindow()
 # win32gui.ShowWindow(this_program, win32con.SW_HIDE)
 import open3d as o3d
 import MM_ingest
-
-'''
-This should take care  of the 'job cannot be accessed by this engine' error
-allowing for a clean start.
-'''
-
-try:
-
-    user_path = os.path.expanduser('~')
-    cc_path = r"Documents/Bentley/ContextCapture Desktop/Jobs"
-    user_path = os.path.join(user_path, cc_path)
-    shutil.rmtree(user_path)
-
-except FileNotFoundError:
-    pass
+import MM_pc2mesh
 
 '''
 We will create the work folders on first run. This code serves as a check in case the one of the working folders gets
@@ -180,7 +166,7 @@ class App(customtkinter.CTk):
         self.browse_label_pc = customtkinter.CTkLabel(self.home_frame, text="Select PointCloud")
         self.browse_label_pc.grid(row=8, column=0, padx=20, pady=10)
 
-        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.gen_pc,
+        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.add_lidar_to_que,
                                                         state="normal")
         self.browse_button_pc.grid(row=8, column=1, padx=20, pady=10)
         # endregion
@@ -403,6 +389,14 @@ class App(customtkinter.CTk):
             except:
                 print("Ignoring JSON File")
 
+    def add_lidar_to_que(self):
+        fullpath = filedialog.askopenfile(filetypes=(("PointClouds", "*.ply;*.pts;*.e57"), ("All files", "*.*")))
+        fullpath = str(fullpath.name)
+        new_mm_project = MM_objects.MapmakerProject(local_image_folder=fullpath, data_type="LiDAR")
+        new_mm_project.name = "test"
+        new_mm_project.set_status("pending")
+
+
     def bool_to_string(self, bool):
         if bool:
             return "true"
@@ -435,7 +429,7 @@ class App(customtkinter.CTk):
     def frame_4_button_event(self):
         self.select_frame_by_name("frame_4")
 
-    def gen_pc(self):
+    def gen_pc(self, fullpath):
 
         global hr_proc, lr_proc
 
@@ -450,7 +444,14 @@ class App(customtkinter.CTk):
             with open('ARTAK_MM/LOGS/pc_type.log', 'w') as pc_type:
                 pc_type.write('hr')
 
-        subprocess.Popen(["python", "MM_pc2mesh.py"])
+        # new_mm_project = MM_objects.MapmakerProject()
+        # new_mm_project.name=("test")
+        # new_mm_project.set_type("LiDAR")
+        # new_mm_project.set_status("processing")
+        meshing = MM_pc2mesh.meshing()
+        meshing.get_PointCloud(fullpath)
+        # subprocess.Popen(["python", "MM_pc2mesh.py"])
+        return "done"
 
     def handle_sd_card_insertion(self, drive_letter):
         self.event_generate("<<SdCardInsertion>>", data=drive_letter)
@@ -515,7 +516,11 @@ class App(customtkinter.CTk):
                     each_project.set_status("processing")
                     each_project.session_project_number = self.job_count
                     progress_bar = self.on_project_started(each_project)
-                    self.trigger_photogrammetry(self.session_logger, each_project)
+                    if each_project.data_type == "LiDAR":
+                        print("lidar")
+                        self.gen_pc(_source_folder)
+                    else:
+                        self.trigger_photogrammetry(self.session_logger, each_project)
                     self.job_count += 1
                     self.session_logger.info("Started Project: " + each_project.name)
                     self.on_project_completed(progress_bar, each_project)
@@ -612,7 +617,6 @@ class App(customtkinter.CTk):
                 time.sleep(5)
 
     def process_files(self, folder_path="", drive_letter=""):
-
         if drive_letter == "":
             path = folder_path
         if folder_path == "":

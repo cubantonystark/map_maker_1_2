@@ -59,6 +59,17 @@ def remove_project_in_file(mm_project):
 def add_job_to_que(new_mm_project):
     update_dict_in_file(new_mm_project.as_dict())
 
+def clear_job_que():
+    try:
+        file = open(file_name, 'w')
+        file.writelines("da")
+        file.close()
+    except IOError as e:
+        print(f"An error occurred while reading the file: {e}")
+        return None
+    except json.JSONDecodeError as e:
+        print(f"An error occurred while decoding JSON: {e}")
+        return None
 
 def read_job_que_from_json_file():
     file_name = os.path.join(os.getcwd(), "job-que.txt")

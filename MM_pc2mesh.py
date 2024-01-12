@@ -23,6 +23,8 @@ logging.basicConfig(level=level, format='%(asctime)s \033[1;34;40m%(levelname)-8
                     datefmt='%H:%M:%S', handlers=handlers)
 
 mesh_depth = 12
+
+
 class meshing():
 
     def load_e57(self, e57path):
@@ -41,7 +43,7 @@ class meshing():
 
         return fullpath, mesh_depth
 
-    def get_PointCloud(self):
+    def get_PointCloud(self, fullpath):
 
         global path, filename, mesh_output_folder, simplified_output_folder, with_texture_output_folder, obj_file, separator, c, log_name, lat, lon, utm_easting, utm_northing, zone, log_name, log_folder, pc_folder, post_dest_folder, model_dest_folder, face_number, designator, folder_type, folder_suffix
 
@@ -49,9 +51,6 @@ class meshing():
         root.iconbitmap(default='gui_images/ARTAK_103_drk.ico')
         root.after(1, lambda: root.focus_force())
         root.withdraw()
-
-        fullpath = filedialog.askopenfile(filetypes=(("PointClouds", "*.ply;*.pts;*.e57"), ("All files", "*.*")))
-        fullpath = str(fullpath)
 
         with open('ARTAK_MM/LOGS/pc_type.log', 'r') as pc_type:
             pc = pc_type.read()
@@ -226,7 +225,7 @@ class meshing():
                 diag = boundingbox.diagonal()
                 t_hold = diag / 200
 
-                p = pymeshlab.Percentage(25)
+                p = pymeshlab.PercentageValue(25)
 
                 # logging.info('Refining.\r')
                 message = 'Refining'
@@ -295,7 +294,7 @@ class meshing():
                     boundingbox = ms.current_mesh().bounding_box()
                     diag = boundingbox.diagonal()
                     t_hold = diag / 200
-                    p = pymeshlab.Percentage(25)
+                    p = pymeshlab.PercentageValue(25)
                     # logging.info('Refining.\r')
                     message = 'Refining'
                     self.write_to_log(path, separator, message)
@@ -361,7 +360,7 @@ class meshing():
                         boundingbox = ms.current_mesh().bounding_box()
                         diag = boundingbox.diagonal()
                         t_hold = diag / 200
-                        p = pymeshlab.Percentage(10)
+                        p = pymeshlab.PercentageValue(10)
                         # logging.info('Refining.\r')
                         message = 'Refining'
                         self.write_to_log(path, separator, message)
@@ -537,7 +536,7 @@ class meshing():
                         border = 3,
                         method = 'Basic')
         
-        percentage = pymeshlab.Percentage(2)
+        percentage = pymeshlab.PercentageValue(2)
         
         newpath_texturized = with_texture_output_folder + separator + filename.replace('ply', 'obj').replace('pts','obj').replace('decimated_', '')
         
@@ -632,6 +631,123 @@ class meshing():
         with open(log_folder + log_name, "a+") as log:
             log.write(message + "\r")
         return
+
+    def get_PointCloud(self, fullpath):
+
+        global path, filename, mesh_output_folder, simplified_output_folder, with_texture_output_folder, obj_file, separator, c, log_name, lat, lon, utm_easting, utm_northing, zone, log_name, log_folder, pc_folder, post_dest_folder, model_dest_folder, face_number, designator, folder_type, folder_suffix
+
+        root = Tk()
+        root.iconbitmap(default='gui_images/ARTAK_103_drk.ico')
+        root.after(1, lambda: root.focus_force())
+        root.withdraw()
+
+        # fullpath = filedialog.askopenfile(filetypes=(("PointClouds", "*.ply;*.pts;*.e57"), ("All files", "*.*")))
+        # fullpath = str(fullpath)
+
+        with open('ARTAK_MM/LOGS/pc_type.log', 'r') as pc_type:
+            pc = pc_type.read()
+
+        if 'hr' in pc:
+            face_number = 3500000
+            designator = 'hr_'
+            folder_type = 'HighRes'
+            folder_suffix = '_hr'
+            texture_size = 20480
+
+        else:
+            face_number = 600000
+            designator = 'lr_'
+            folder_type = 'LowRes'
+            folder_suffix = '_lr'
+            texture_size = 8192
+
+        today = date.today()
+        now = datetime.now()
+        d = today.strftime("%d%m%Y")
+        ct = now.strftime("%H%M%S")
+
+        if platform.system == 'Windows':
+            separator = '\\'
+        else:
+            separator = '/'
+        # Define o3d data object to handle PointCloud
+        ply_point_cloud = o3d.data.PLYPointCloud()
+
+        lat = "0"
+        lon = "0"
+
+        # We will encode the lat and lon into utm compliant coordinates for the xyz file and retrieve the utm zone for the prj file
+
+        utm_easting, utm_northing, zone, zone_letter = utm.from_latlon(float(lat), float(lon))
+        utm_easting = "%.2f" % utm_easting
+        utm_northing = "%.2f" % utm_northing
+
+        # Separate source path from filename
+        path, filename = os.path.split(fullpath)
+        path = path.replace("<_io.TextIOWrapper name='", '')
+        filename = filename.replace("' mode='r' encoding='cp1252'>", '')
+
+        fullpath = path + separator + filename
+
+        if 'None' in fullpath:
+            quit()
+
+        with open("ARTAK_MM/LOGS/status.log", "w") as status:
+            pass
+
+        if '.e57' in fullpath:
+            fullpath, mesh_depth = self.load_e57(fullpath)
+
+        path, filename = os.path.split(fullpath)
+
+        logfilename = filename.replace('.ply', '').replace('.pts', '').replace('.obj', '').replace('.e57', '')
+        pc_folder = logfilename
+        log_name = designator + filename.replace('.ply', '').replace('.pts', '').replace('.obj', '').replace('.e57',
+                                                                                                             '') + "_" + str(
+            d) + "_" + str(ct) + ".log"
+
+        # Derive destination folders from source path
+        post_dest_folder = "ARTAK_MM/POST/Lidar" + separator + designator + pc_folder + separator + "Data"
+        model_dest_folder = "ARTAK_MM/POST/Lidar" + separator + designator + pc_folder + separator + "Data/Model"
+        mesh_output_folder = "ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder + separator + "mesh" + folder_suffix
+        simplified_output_folder = "ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder + separator + "simplified" + folder_suffix
+        with_texture_output_folder = "ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder + separator + "final" + folder_suffix
+        log_folder = "ARTAK_MM/LOGS/"
+
+        # Create directories within the source folder if they dont exist
+        if not os.path.exists(mesh_output_folder):
+            os.makedirs(mesh_output_folder)
+        if not os.path.exists(simplified_output_folder):
+            os.makedirs(simplified_output_folder, mode=777)
+        if not os.path.exists(with_texture_output_folder):
+            os.makedirs(with_texture_output_folder, mode=777)
+        if not os.path.exists(post_dest_folder):
+            os.makedirs(post_dest_folder, mode=777)
+        if not os.path.exists(model_dest_folder):
+            os.makedirs(model_dest_folder, mode=777)
+
+        if "lr_" in designator:
+            # Create xyz and prj based on lat and lon provided
+            prj_1 = 'PROJCS["WGS 84 / UTM zone '
+            prj_2 = '",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",-81],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH],AUTHORITY["EPSG","32617"]]'
+
+            with open(with_texture_output_folder + separator + logfilename + '.xyz', 'w') as xyz:
+                xyz.write(str(utm_easting + " " + str(utm_northing) + " " + "101.000"))
+
+            with open(with_texture_output_folder + separator + logfilename + '.prj', 'w') as prj:
+                prj.write(str(prj_1) + str(zone) + str(prj_2))
+
+        # logging.info('Loading PointCloud.\r')
+        message = 'Loading PointCloud. ' + str(fullpath)
+        self.write_to_log(path, separator, message)
+        pcd = o3d.io.read_point_cloud(fullpath)
+
+        # This will output the Point count
+        # logging.info(str(pcd)+"\r")
+        message = str(pcd)
+        self.write_to_log(path, separator, message)
+        self.downsample(pcd, texture_size)
+
 
 if __name__ == '__main__':
     meshing().get_PointCloud()

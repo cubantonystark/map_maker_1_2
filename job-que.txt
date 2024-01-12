@@ -1,1 +1,28 @@
-{}
+{
+    "test": {
+        "name": "test",
+        "data_type": "LiDAR",
+        "time_first_image": null,
+        "time_mm_start": null,
+        "time_processing_start": null,
+        "time_processing_complete": null,
+        "time_accepted_by_artak": null,
+        "total_images": null,
+        "image_folder": null,
+        "processed_zip_path": null,
+        "status": "processing",
+        "logger": "na",
+        "artak_server": null,
+        "manually_made_name": null,
+        "manually_made_field": null,
+        "local_image_folder": "C:/Users/micha/Downloads/exyn_PasoFinoBarn.ply",
+        "session_project_number": 0,
+        "completed_file_path": null,
+        "map_type": null,
+        "zip_payload_location": null,
+        "total_processing_time": null,
+        "partition_key": null,
+        "quality": null,
+        "video_frame_extraction_rate": null
+    }
+}
