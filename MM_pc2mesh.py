@@ -22,7 +22,7 @@ handlers = [logging.StreamHandler()]
 logging.basicConfig(level=level, format='%(asctime)s \033[1;34;40m%(levelname)-8s \033[1;37;40m%(message)s',
                     datefmt='%H:%M:%S', handlers=handlers)
 
-mesh_depth = 12
+mesh_depth = 11
 
 
 class meshing():
@@ -160,7 +160,7 @@ class meshing():
         # logging.info("Downsampling.\r")
         message = 'Downsampling.'
         self.write_to_log(path, separator, message)
-        downpcd = pcd.voxel_down_sample(voxel_size=0.02)
+        downpcd = pcd.voxel_down_sample(voxel_size=0.01)
         # logging.info(str(downpcd)+"\r")
         message = str(downpcd)
         self.write_to_log(path, separator, message)
@@ -196,7 +196,7 @@ class meshing():
         mesh_file_size = int(os.path.getsize(generated_mesh))
         
         if mesh_file_size > 6000000000:
-            mesh_depth = 11
+            mesh_depth = 10
             # logging.info("Mesh is not memory friedly. Retrying with safer parameters.\r")
             message = 'Mesh is not memory friedly. Retrying with safer parameters.'
             self.write_to_log(path, separator, message)
@@ -748,6 +748,3 @@ class meshing():
         self.write_to_log(path, separator, message)
         self.downsample(pcd, texture_size)
 
-
-if __name__ == '__main__':
-    meshing().get_PointCloud()

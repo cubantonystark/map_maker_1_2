@@ -60,9 +60,11 @@ def add_job_to_que(new_mm_project):
     update_dict_in_file(new_mm_project.as_dict())
 
 def clear_job_que():
+    file_name = os.path.join(os.getcwd(), "job-que.txt")
+
     try:
         file = open(file_name, 'w')
-        file.writelines("da")
+        file.writelines("{}")
         file.close()
     except IOError as e:
         print(f"An error occurred while reading the file: {e}")

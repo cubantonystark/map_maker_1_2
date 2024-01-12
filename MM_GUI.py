@@ -33,6 +33,7 @@ import open3d as o3d
 import MM_ingest
 import MM_pc2mesh
 
+MM_job_que.clear_job_que()
 '''
 We will create the work folders on first run. This code serves as a check in case the one of the working folders gets
 accidentally deleted.
@@ -393,7 +394,7 @@ class App(customtkinter.CTk):
         fullpath = filedialog.askopenfile(filetypes=(("PointClouds", "*.ply;*.pts;*.e57"), ("All files", "*.*")))
         fullpath = str(fullpath.name)
         new_mm_project = MM_objects.MapmakerProject(local_image_folder=fullpath, data_type="LiDAR")
-        new_mm_project.name = "test"
+        new_mm_project.name = fullpath.split("/")[len(fullpath.split("/"))-1].split(".")[0]
         new_mm_project.set_status("pending")
 
 
@@ -444,14 +445,9 @@ class App(customtkinter.CTk):
             with open('ARTAK_MM/LOGS/pc_type.log', 'w') as pc_type:
                 pc_type.write('hr')
 
-        # new_mm_project = MM_objects.MapmakerProject()
-        # new_mm_project.name=("test")
-        # new_mm_project.set_type("LiDAR")
-        # new_mm_project.set_status("processing")
+
         meshing = MM_pc2mesh.meshing()
         meshing.get_PointCloud(fullpath)
-        # subprocess.Popen(["python", "MM_pc2mesh.py"])
-        return "done"
 
     def handle_sd_card_insertion(self, drive_letter):
         self.event_generate("<<SdCardInsertion>>", data=drive_letter)
@@ -546,8 +542,11 @@ class App(customtkinter.CTk):
             progress_bar.set(1)
             progress_bar.stop()
        # mm_project.set_total_processing_time(mm_project.time_processing_complete - mm_project.time_processing_start)
-        if self.auto_open_var:
-            self.open_obj_new(path)
+        if mm_project.status == "Error":
+            pass
+        else:
+            if self.auto_open_var:
+                self.open_obj_new(path)
 
     def on_project_started(self, mm_project=MapmakerProject()):
         mm_project.set_status("processing")
