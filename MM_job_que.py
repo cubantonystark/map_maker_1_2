@@ -67,7 +67,7 @@ def clear_job_que():
         file.writelines("{}")
         file.close()
     except IOError as e:
-        print(f"An error occurred while reading the file: {e}")
+        print(f"An bit of an error occurred while reading the file: {e}")
         return None
     except json.JSONDecodeError as e:
         print(f"An error occurred while decoding JSON: {e}")
@@ -87,6 +87,7 @@ def read_job_que_from_json_file():
         return None
 
 def read_job_que_from_json_file_return_mm_objects():
+    print ("MM_job_que.py logs. Current Working Directory:", os.getcwd())
     file_name = os.path.join(os.getcwd(), "job-que.txt")
     try:
         with open(file_name, 'r') as file:
@@ -94,7 +95,7 @@ def read_job_que_from_json_file_return_mm_objects():
             mm_objects = MM_objects.projects_from_dict(data)
             return mm_objects
     except IOError as e:
-        print(f"An error occurred while reading the file: {e}")
+        print(f"An error occurred while reading the file to return mm objectsx: {e}")
         return None
     except json.JSONDecodeError as e:
         print(f"An error occurred while decoding JSON: {e}")

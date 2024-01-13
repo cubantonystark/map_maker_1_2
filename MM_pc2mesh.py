@@ -61,9 +61,9 @@ class meshing():
             folder_type = 'HighRes'
             folder_suffix = '_hr'
             texture_size = 20480
-            
+
         else:
-            face_number = 600000
+            face_number = 400000
             designator = 'lr_'
             folder_type = 'LowRes'
             folder_suffix = '_lr'
@@ -147,8 +147,10 @@ class meshing():
         # logging.info('Loading PointCloud.\r')
         message = 'Loading PointCloud. ' + str(fullpath)
         self.write_to_log(path, separator, message)
+        print("fixn to do o3d.io.read")
         pcd = o3d.io.read_point_cloud(fullpath)
-
+        print("done o3dioread")
+        print ("cwd: " + str(os.getcwd()))
         # This will output the Point count
         # logging.info(str(pcd)+"\r")
         message = str(pcd)
@@ -160,6 +162,10 @@ class meshing():
         # logging.info("Downsampling.\r")
         message = 'Downsampling.'
         self.write_to_log(path, separator, message)
+        message = "CWD: " + str(os.getcwd())
+        self.write_to_log(path, separator, message)
+
+
         downpcd = pcd.voxel_down_sample(voxel_size=0.01)
         # logging.info(str(downpcd)+"\r")
         message = str(downpcd)
@@ -173,10 +179,13 @@ class meshing():
         message = 'Computing Normals.'
         self.write_to_log(path, separator, message)
         downpcd.estimate_normals(search_param=o3d.geometry.KDTreeSearchParamHybrid(radius=0.1, max_nn=30))
-            
+
         # logging.info('Generating Mesh.\r')
         message = 'Generating Mesh.'
         self.write_to_log(path, separator, message)
+        message = "CWD: " + str(os.getcwd())
+        self.write_to_log(path, separator, message)
+
         mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(downpcd, depth=mesh_depth, width=0, scale=1.1,
                                                                          linear_fit=False)[0]
         generated_mesh = mesh_output_folder + separator + filename.replace('ply', 'obj').replace('pts', 'obj')
@@ -194,7 +203,7 @@ class meshing():
         message = 'Exporting Mesh'
         self.write_to_log(path, separator, message)
         mesh_file_size = int(os.path.getsize(generated_mesh))
-        
+
         if mesh_file_size > 6000000000:
             mesh_depth = 10
             # logging.info("Mesh is not memory friedly. Retrying with safer parameters.\r")
@@ -246,11 +255,11 @@ class meshing():
                     t_hold = 0.09
 
                 elif "drone_" and "ply" or "drone_" and ".pts" in filename:
-                    
+
                     t_hold = 3
-                    
+
                 else:
-                    t_hold = t_hold                
+                    t_hold = t_hold
 
                 # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
 
@@ -264,15 +273,15 @@ class meshing():
                 # logging.info("Exporting Mesh.")
                 message = 'Exporting Mesh.'
                 self.write_to_log(path, separator, message)
-                
+
                 newpath = simplified_output_folder + separator + filename.replace('ply', 'obj').replace('pts', 'obj')
-                
+
                 #Need to reorient faces coherently to avoid wrong normal orientation.
                 ms.apply_filter('compute_normal_by_function_per_vertex',
                                 x = '-nx',
                                 y = '-ny',
                                 z = '-nz',
-                                onselected = False)                   
+                                onselected = False)
 
                 ms.save_current_mesh(newpath,
                                      save_vertex_color=True,
@@ -314,11 +323,11 @@ class meshing():
                         t_hold = 0.095
 
                     elif "drone_" and "ply" or "drone_" and ".pts" in filename:
-                    
+
                         t_hold = 4.5
-                        
+
                     else:
-                        t_hold = t_hold                    
+                        t_hold = t_hold
 
                     # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
                     ms.apply_filter('compute_selection_by_edge_length',
@@ -332,14 +341,14 @@ class meshing():
                     message = 'Exporting Mesh.'
                     self.write_to_log(path, separator, message)
                     newpath = simplified_output_folder + separator + filename.replace('ply', 'obj').replace('pts', 'obj')
-                    
+
                     #Need to reorient faces coherently to avoid wrong normal orientation.
                     ms.apply_filter('compute_normal_by_function_per_vertex',
                                     x = '-nx',
                                     y = '-ny',
                                     z = '-nz',
-                                    onselected = False)                       
-                
+                                    onselected = False)
+
                     ms.save_current_mesh(newpath,
                                          save_vertex_color=True,
                                          save_vertex_coord=True,
@@ -350,9 +359,9 @@ class meshing():
                                          save_polygonal=True)
 
                 except pymeshlab.pmeshlab.PyMeshLabException:
-                    
+
                     try:
-                        
+
                         ms.load_new_mesh(generated_mesh)
                         # logging.info('Mesh not optimal. Retargeting parameters (2).\r')
                         message = 'Mesh not optimal. Retargeting parameters (2).'
@@ -371,20 +380,20 @@ class meshing():
                         # The selection process and removal of long faces will reate floaters, we will remove isolated faces
                         ms.apply_filter('meshing_remove_connected_component_by_diameter',
                                         mincomponentdiag=p)
-                        
+
                         if ".ply" in filename:
                             t_hold = t_hold
-    
+
                         elif ".pts" in filename:
                             t_hold = t_hold
-    
+
                         elif "drone_" and "ply" or "drone_" and ".pts" in filename:
-                    
+
                             t_hold = 4.75
-                            
+
                         else:
                             t_hold = t_hold
-    
+
                         # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
                         ms.apply_filter('compute_selection_by_edge_length',
                                         threshold=t_hold)
@@ -395,16 +404,16 @@ class meshing():
                         # logging.info("Exporting Mesh.")
                         message = 'Exporting Mesh.'
                         self.write_to_log(path, separator, message)
-                        
+
                         newpath = simplified_output_folder + separator + filename.replace('ply', 'obj').replace('pts', 'obj')
-                        
+
                         #Need to reorient faces coherently to avoid wrong normal orientation.
                         ms.apply_filter('compute_normal_by_function_per_vertex',
                                         x = '-nx',
                                         y = '-ny',
                                         z = '-nz',
-                                        onselected = False)                           
-                        
+                                        onselected = False)
+
                         ms.save_current_mesh(newpath,
                                              save_vertex_color=True,
                                              save_vertex_coord=True,
@@ -413,30 +422,30 @@ class meshing():
                                              save_wedge_texcoord=True,
                                              save_wedge_normal=True,
                                              save_polygonal=True)
-                        
+
                     except pymeshlab.pmeshlab.PyMeshLabException:
-                        
+
                         # Cleanup
                         try:
                             shutil.rmtree("ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
                             # Remove the status flag for MM_GUI progressbar
                         except FileNotFoundError:
                             pass
-                
+
                         with open(log_folder + "/status.log", "w") as status:
                             status.write("done")
                         time.sleep(2)
-                        os.remove(log_folder + "/status.log")                        
-                        
+                        os.remove(log_folder + "/status.log")
+
                         #Announce error and terminate.
-                        
+
                         messagebox.showerror('ARTAK 3D Map Maker', 'Could not compute Mesh from PointCloud. Aborting.')
                         # logging.info('Process complete.\r')
                         message = 'Could not compute Mesh from PointCloud. Aborting.'
                         self.write_to_log(path, separator, message)
-                        
-                        sys.exit()                   
-                    
+
+                        sys.exit()
+
             m = ms.current_mesh()
             v_number = m.vertex_number()
             f_number = m.face_number()
@@ -495,7 +504,7 @@ class meshing():
         # logging.info("End VC: "+str(v_number)+". End FC: "+str(f_number)+".\r")
         message = 'End VC: ' + str(v_number) + '. End FC: ' + str(f_number) + "."
         self.write_to_log(path, separator, message)
-        
+
         newpath1 = simplified_output_folder + separator + 'decimated_'+filename.replace('ply', 'obj').replace('pts', 'obj')
 
         ms.save_current_mesh(newpath1,
@@ -508,26 +517,26 @@ class meshing():
                              save_polygonal=False)
 
         self.add_texture_and_materials(newpath, newpath1, texture_size)
-        
+
     def add_texture_and_materials(self, newpath, newpath1, texture_size):
-        
+
         # This part creates the materials and texture file (.mtl and .png) by getting the texture coordinates from the vertex,
         # tranfering the vertex info to wedges and reating a trivialized texture coordinate from the per wedge info. In the end,
         # we will just extract the texture form the color present at that texture coordinate and thats how we get the texture info into a png
-        
+
         ms = pymeshlab.MeshSet()
-        
+
         # logging.info("Loading and Analyzing Mesh.\r")
         message = 'Analyzing Mesh.'
         self.write_to_log(path, separator, message)
-        
+
         # logging.info("Extracting Texture and Materials.\n")
         message = 'Generating Texture and Materials.'
         self.write_to_log(path, separator, message)
-        
+
         ms.load_new_mesh(newpath)
         ms.load_new_mesh(newpath1)
-            
+
         print("Parametrization with "+str(texture_size))
 
         ms.apply_filter('compute_texcoord_parametrization_triangle_trivial_per_wedge',
@@ -535,11 +544,11 @@ class meshing():
                         textdim = texture_size,
                         border = 3,
                         method = 'Basic')
-        
+
         percentage = pymeshlab.PercentageValue(2)
-        
+
         newpath_texturized = with_texture_output_folder + separator + filename.replace('ply', 'obj').replace('pts','obj').replace('decimated_', '')
-        
+
         model_path = model_dest_folder + separator + 'Model.obj'
 
         #Here we transfer the texture
@@ -553,7 +562,7 @@ class meshing():
                          texth = texture_size,
                          overwrite = False,
                          pullpush = True)
-        
+
         ms.save_current_mesh(newpath_texturized,
                              save_vertex_color = True,
                              save_vertex_coord = True,
@@ -561,8 +570,8 @@ class meshing():
                              save_face_color = True,
                              save_wedge_texcoord = True,
                              save_wedge_normal = True,
-                             save_polygonal = False)  
-        
+                             save_polygonal = False)
+
         ms.save_current_mesh(model_path,
                              save_vertex_color = True,
                              save_vertex_coord = True,
@@ -570,7 +579,7 @@ class meshing():
                              save_face_color = True,
                              save_wedge_texcoord = True,
                              save_wedge_normal = True,
-                             save_polygonal = False)         
+                             save_polygonal = False)
 
         # We need to compress the texture file
         img = Image.open(with_texture_output_folder + separator + 'texture.png')
@@ -594,21 +603,21 @@ class meshing():
             status.write("done")
         time.sleep(2)
         os.remove(log_folder + "/status.log")
-        
+
         messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction Complete.')
         # logging.info('Process complete.\r')
         message = 'Reconstruction Complete.'
         self.write_to_log(path, separator, message)
-        
+
         sys.exit()
 
     def compress_into_zip(self, with_texture_output_folder, newpath):
-        
+
         if 'lr_' in designator:
             extensions = ['.obj', '.obj.mtl', '.xyz', '.prj']
         else:
             extensions = ['.obj', '.obj.mtl', '.png']
-            
+
         compression = zipfile.ZIP_DEFLATED
         zip_file = with_texture_output_folder + separator + designator+ filename.replace('.obj', '').replace('.ply',
                                                                                                          '').replace(
@@ -618,15 +627,15 @@ class meshing():
                 try:
                     zf.write(with_texture_output_folder + separator + filename.replace('.obj', '').replace('.ply','').replace('.pts', '') + ext, filename.replace('.obj', '').replace('.ply', '').replace('.pts', '') + ext,
                              compress_type = compression, compresslevel = 9)
-  
+
                 except FileExistsError:
                     pass
                 except FileNotFoundError:
                     pass
-            zf.write(with_texture_output_folder + separator + 'texture.png', 'texture.png', compress_type = compression, compresslevel = 9) 
-        
+            zf.write(with_texture_output_folder + separator + 'texture.png', 'texture.png', compress_type = compression, compresslevel = 9)
+
         return
-    
+
     def write_to_log(self, path, separator, message):
         with open(log_folder + log_name, "a+") as log:
             log.write(message + "\r")

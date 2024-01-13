@@ -1,6 +1,6 @@
 {
-    "test": {
-        "name": "test",
+    "exyn_PasoFinoBarn": {
+        "name": "exyn_PasoFinoBarn",
         "data_type": "LiDAR",
         "time_first_image": null,
         "time_mm_start": null,

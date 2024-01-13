@@ -6,10 +6,11 @@ tkhtmlview
 pymeshlab
 open3d
 utm
-open3d
 playsound
 pybrowser
 pywin32
 opencv-python
 psutil
 pywebview
+flask-cors
+flask
