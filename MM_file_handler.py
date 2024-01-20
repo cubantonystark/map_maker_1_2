@@ -56,8 +56,13 @@ class MMfileHandler:
 		shutil.move(self.in_progress_path, self.completed_path)
 		self.logger.info("Unzip Complete. Filename =" + self.source_zip)
 
+		# handle different data types
+		# set variables
 		video_found = False
 		video = ""
+		lidar_found = False
+		lidar = ""
+		lidar_extensions = ['.ply', '.pts', '.e57']
 		video_extensions = ['.mpeg', '.mp4', '.ts', ".m4v"]  # Add more extensions if needed
 
 		for i in os.listdir(self.destination_path):
@@ -65,8 +70,14 @@ class MMfileHandler:
 				if each_extension in i:
 					video_found = True
 					video = i
+			for each_extension in lidar_extensions:
+				if each_extension in i:
+					lidar_found = True
+					lidar = i
+
+		# handle video
 		if video_found:
-			video_file_name = str(os.path.basename(i))
+			video_file_name = str(os.path.basename(video))
 			# remove .mp4 from filename
 			video_name = video_file_name.split(".")[0]
 			# cleanup filename
@@ -76,6 +87,10 @@ class MMfileHandler:
 			video_name = MM_video.extract_frames(os.path.join(self.destination_path, video), self.destination_path, frame_spacing=int(10))
 			# add the path of the extracted frames to the folder paths array to be returned to mapmaker for processing
 
+		# handle lidar
+		if lidar_found:
+			print ('lidar')
+			print ('lidar')
 		try:
 			return self.destination_path
 		except:

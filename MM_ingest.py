@@ -9,6 +9,7 @@ from MM_logger import initialize_logger
 import MM_job_que
 import time
 
+
 def get_image_files(folder):
     """
     Used to get a list of the image files in a folder (does not search child folders)
@@ -28,6 +29,17 @@ def get_image_files(folder):
                 image_files.append(os.path.join(root, file))
 
     return image_files
+
+
+def get_lidar_files(folder):
+    lidar_extensions = ['.pts', '.ply', '.e57']  # Add more extensions if needed
+    lidar_files = []
+
+    for i in os.listdir(folder):
+        for each_ext in lidar_extensions:
+            if each_ext in i:
+                lidar_files.append(os.path.join(folder, i))
+    return lidar_files
 
 
 def get_video_files(folder):
@@ -68,18 +80,46 @@ def handle_new_zip(file, _quality, _maptype, _video_frame_extraction_rate, _part
     folder = file.split(".")[0]
     new_path = os.path.join(os.getcwd(), 'ARTAK_MM/DATA/Raw_Images/UNZIPPED', folder)
     new_file_path = file_handler.unzip()
-    unique_folder_name = new_file_path.split("UNZIPPED/")[len(new_path.split("UNZIPPED/"))]
+
+    # handle different data types
+    # set variables
+    video_found = False
+    video = ""
+    lidar_found = False
+    lidar = ""
+    lidar_extensions = ['.ply', '.pts', '.e57']
+    video_extensions = ['.mpeg', '.mp4', '.ts', ".m4v"]  # Add more extensions if needed
+
+    for i in os.listdir(new_file_path):
+        for each_extension in video_extensions:
+            if each_extension in i:
+                video_found = True
+                video = i
+                video = os.path.join(new_file_path, i)
+        for each_extension in lidar_extensions:
+            if each_extension in i:
+                lidar_found = True
+                lidar = os.path.join(new_file_path, i)
+    data_type = "Imagery"
+    if lidar_found:
+        data_type = "LiDAR"
+        new_file_path = lidar
+    try:
+        unique_folder_name = new_file_path.split("UNZIPPED/")[len(new_path.split("UNZIPPED/"))]
+    except IndexError:
+        unique_folder_name = "nonamemade"
     print('Completed the UNZIP of file. Filename = ' + file)
     print('Unique Name = ' + unique_folder_name)
     print('New Path = ' + new_file_path)
     print('Starting photogrammetry processing = ' + file)
-    new_project = MapmakerProject(name=unique_folder_name, time_first_image='unknown',
+    new_project = MapmakerProject(name=unique_folder_name, time_first_image='unknown', data_type=data_type,
                                   time_mm_start=time.time(),
                                   local_image_folder=new_file_path, total_images=100,
                                   session_project_number=1, map_type=_maptype, status="pending", quality=_quality,
                                   video_frame_extraction_rate=_video_frame_extraction_rate, partition_key=_partition_key
                                   )
     MM_job_que.add_job_to_que(new_project)
+
 
 def ingest_data(source, logger=None, image_spacing=60, rerun=False, frame_spacing=30):
     """
@@ -95,7 +135,13 @@ def ingest_data(source, logger=None, image_spacing=60, rerun=False, frame_spacin
     Returns:
     List of folder paths which contain the ingested data
     """
-    exif_exists = False
+    results = ""
+    if os.path.isdir(source):
+        results = ingest_folder(source, logger=logger, image_spacing=image_spacing, rerun=rerun, frame_spacing=frame_spacing)
+    return results
+
+
+def ingest_folder(source, logger=None, image_spacing=60, rerun=False, frame_spacing=30):
     folder_name_paths = []
 
     # region handle videos
@@ -106,61 +152,31 @@ def ingest_data(source, logger=None, image_spacing=60, rerun=False, frame_spacin
 
     # for each video in the list
     for each_video in videos:
+        video_frames_path = ingest_video(each_video, logger, frame_spacing=frame_spacing)
         # get filename
-        video_file_name = str(os.path.basename(each_video))
-
-        # remove .mp4 from filename
-        video_name = video_file_name.split(".")[0]
-
-        # cleanup the filename
-        video_name_nospaces = video_name.replace(" ", "_")
-        video_name_nospaces_noperiods = video_name_nospaces.replace(".", "-")
-
-        # extract the frames from the video
-        logger.info("Video identified. Proceeding to copy video.")
-        dest_folder = os.path.join(os.getcwd(), 'ARTAK_MM/DATA/Raw_Images/UNZIPPED/' + video_name_nospaces_noperiods)
-        count = 1
-        saved = False
-        final_folder_name = ""
-        while not saved:
-
-            # if the destination folder already exists, increment the -V up one until successfully saving
-            if os.path.exists(dest_folder + "-V" + str(count)):
-                logger.info("Directory already exists. Sequencing up version.")
-                count += 1
-                try:
-                    destination_folder_versioned = dest_folder + "-V" + str(count)
-                    logger.info("Video destination folder versioned = " + destination_folder_versioned)
-                    os.makedirs(destination_folder_versioned)
-                    shutil.copy(each_video, os.path.join(destination_folder_versioned + "/" + os.path.basename(
-                        each_video)))
-                    extract_frames(input_video=destination_folder_versioned + "/" + os.path.basename(
-                        each_video),
-                                   output_folder=destination_folder_versioned,
-                                   logger=logger, frame_spacing=int(frame_spacing))
-                    folder_name_paths.append(destination_folder_versioned)
-                    saved = True
-
-                except FileExistsError:
-                    logger.info("Directory already exists. Sequencing up version.")
-
-            else:
-                os.makedirs(dest_folder + "-V" + str(count))
-                shutil.copy(each_video,
-                            os.path.join(dest_folder + "-V" + str(count) + "/" + os.path.basename(each_video)))
-                folder_name_paths.append(os.path.join(dest_folder + "-V" + str(count)))
-                saved = True
-
-        # add the path of the extracted frames to the folder paths array to be returned to mapmaker for processing
-    # endregion
-
+        folder_name_paths.append(video_frames_path)
     # region handle images
 
     # Handle exception if image spacing is incorrectly set by user as an empty string
     if image_spacing == "":
         image_spacing = 60
 
+    image_folder_paths = ingest_images(source, logger=logger, image_spacing=image_spacing, rerun=rerun)
+    for i in image_folder_paths:
+        folder_name_paths.append(i)
+
+    lidar_files = get_lidar_files(source)
+    for each_lidar in lidar_files:
+        folder_name = ingest_lidar(each_lidar, logger=logger)
+        folder_name_paths.append(folder_name)
+    return folder_name_paths
     # Define the path to the source folder containing the photos
+
+
+def ingest_images(source, logger=None, image_spacing=60, rerun=False):
+    folder_name_paths = []
+    exif_exists = False
+
     file_list = get_image_files(source)
 
     # Define the path to the destination folder where the photos will be moved
@@ -343,6 +359,92 @@ def ingest_data(source, logger=None, image_spacing=60, rerun=False, frame_spacin
     logger.info("Data ingested successfully. List of new folders: " + str(folder_name_paths))
 
     return folder_name_paths
+
+
+def ingest_lidar(source, logger=None):
+    lidar_file_name = str(os.path.basename(source))
+    print("Lidar found: " + lidar_file_name)
+    lidar_name = lidar_file_name.split(".")[0]
+    extension = lidar_file_name.split(".")[1]
+        # cleanup the filename
+    lidar_name_nospaces = lidar_name.replace(" ", "_")
+    lidar_name_nospaces_noperiods = lidar_name_nospaces.replace(".", "-")
+    logger.info("Lidar identified. Proceeding to copy lidar.")
+    dest_folder = os.path.join(os.getcwd(), 'ARTAK_MM/DATA/Raw_Images/UNZIPPED/' + lidar_name_nospaces_noperiods)
+    count = 1
+    saved = False
+    while not saved:
+            # if the destination folder already exists, increment the -V up one until successfully saving
+        if os.path.exists(dest_folder + "-V" + str(count)):
+            logger.info("Directory already exists. Sequencing up version.")
+            count += 1
+            try:
+                destination_folder_versioned = dest_folder + "-V" + str(count)
+                logger.info("Video destination folder versioned = " + destination_folder_versioned)
+                os.makedirs(destination_folder_versioned)
+                shutil.copy(source, os.path.join(destination_folder_versioned + "/" + lidar_name_nospaces_noperiods + "-V" + str(count)) + '.' + extension)
+                folder_name_path = destination_folder_versioned
+                saved = True
+                return folder_name_path
+
+            except FileExistsError:
+                logger.info("Directory already exists. Sequencing up version.")
+
+        else:
+            os.makedirs(dest_folder + "-V" + str(count))
+            shutil.copy(source,
+                            os.path.join(dest_folder + "-V" + str(count) + "/" + lidar_name_nospaces_noperiods + "-V" + str(count) + '.' + extension))
+            folder_name_path = os.path.join(dest_folder + "-V" + str(count))
+            saved = True
+            return folder_name_path
+        # add the path of the extracted     frames to the folder paths array to be returned to mapmaker for processing
+
+
+def ingest_video(video_path, logger, frame_spacing=30):
+    video_file_name = str(os.path.basename(video_path))
+
+        # remove .mp4 from filename
+    video_name = video_file_name.split(".")[0]
+
+        # cleanup the filename
+    video_name_nospaces = video_name.replace(" ", "_")
+    video_name_nospaces_noperiods = video_name_nospaces.replace(".", "-")
+        # extract the frames from the video
+    logger.info("Video identified. Proceeding to copy video.")
+    dest_folder = os.path.join(os.getcwd(), 'ARTAK_MM/DATA/Raw_Images/UNZIPPED/' + video_name_nospaces_noperiods)
+    count = 1
+    saved = False
+    while not saved:
+            # if the destination folder already exists, increment the -V up one until successfully saving
+        if os.path.exists(dest_folder + "-V" + str(count)):
+            logger.info("Directory already exists. Sequencing up version.")
+            count += 1
+            try:
+                destination_folder_versioned = dest_folder + "-V" + str(count)
+                logger.info("Video destination folder versioned = " + destination_folder_versioned)
+                os.makedirs(destination_folder_versioned)
+                shutil.copy(video_path, os.path.join(destination_folder_versioned + "/" + os.path.basename(
+                        video_path)))
+                extract_frames(input_video=destination_folder_versioned + "/" + os.path.basename(
+                        video_path),
+                                   output_folder=destination_folder_versioned,
+                                   logger=logger, frame_spacing=int(frame_spacing))
+                folder_name_path = destination_folder_versioned
+                saved = True
+                return folder_name_path
+
+            except FileExistsError:
+                logger.info("Directory already exists. Sequencing up version.")
+
+        else:
+            os.makedirs(dest_folder + "-V" + str(count))
+            shutil.copy(video_path,
+                            os.path.join(dest_folder + "-V" + str(count) + "/" + os.path.basename(video_path)))
+            folder_name_path = os.path.join(dest_folder + "-V" + str(count))
+            saved = True
+            return folder_name_path
+        # add the path of the extracted     frames to the folder paths array to be returned to mapmaker for processing
+    # endregion
 
 
 def sort_files_by_datetime(file_list):

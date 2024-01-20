@@ -56,6 +56,7 @@ class MapmakerProject:
 
     def set_time_processing_complete(self, var):
         self.time_processing_complete = var
+        self.set_total_processing_time(self.time_processing_complete - self.time_processing_start)
         MM_job_que.update_mm_project_in_file(self)
 
     def set_time_accepted_by_artak(self, var):
@@ -142,6 +143,7 @@ def project_from_dict(dictionary):
     mm_project.total_processing_time = dictionary['total_processing_time']
     mm_project.partition_key = dictionary['partition_key']
     mm_project.quality = dictionary['quality']
+    mm_project.video_frame_extraction_rate = dictionary['video_frame_extraction_rate']
     return mm_project
 
 

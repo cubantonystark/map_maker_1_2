@@ -26,7 +26,9 @@ mesh_depth = 11
 
 
 class meshing():
-
+    def __init__(self, _mm_project, logger):
+        self.mm_project = _mm_project
+        self.logger = logger
     def load_e57(self, e57path):
         mesh_depth= 11
         ms = pymeshlab.MeshSet()
@@ -44,7 +46,7 @@ class meshing():
         return fullpath, mesh_depth
 
     def get_PointCloud(self, fullpath):
-
+        self.logger.info("Method Called: get_PointCloud")
         global path, filename, mesh_output_folder, simplified_output_folder, with_texture_output_folder, obj_file, separator, c, log_name, lat, lon, utm_easting, utm_northing, zone, log_name, log_folder, pc_folder, post_dest_folder, model_dest_folder, face_number, designator, folder_type, folder_suffix
 
         root = Tk()
@@ -71,6 +73,7 @@ class meshing():
 
         today = date.today()
         now = datetime.now()
+        self.mm_project.set_time_processing_start(time.time())
         d = today.strftime("%d%m%Y")
         ct = now.strftime("%H%M%S")
 
@@ -145,14 +148,12 @@ class meshing():
                 prj.write(str(prj_1) + str(zone) + str(prj_2))
 
         # logging.info('Loading PointCloud.\r')
+        self.logger.info("Loading PointCloud")
         message = 'Loading PointCloud. ' + str(fullpath)
         self.write_to_log(path, separator, message)
-        print("fixn to do o3d.io.read")
+        self.logger.info("fixn to do o3d.io.read")
         pcd = o3d.io.read_point_cloud(fullpath)
-        print("done o3dioread")
-        print ("cwd: " + str(os.getcwd()))
-        # This will output the Point count
-        # logging.info(str(pcd)+"\r")
+        self.logger.info("done o3dioread")
         message = str(pcd)
         self.write_to_log(path, separator, message)
         self.downsample(pcd, texture_size)
@@ -160,15 +161,12 @@ class meshing():
     def downsample(self, pcd, texture_size):
         # We need to downsample the PointCloud to make it less dense and easier to work with
         # logging.info("Downsampling.\r")
-        message = 'Downsampling.'
-        self.write_to_log(path, separator, message)
-        message = "CWD: " + str(os.getcwd())
-        self.write_to_log(path, separator, message)
-
+        self.logger.info('Downsampling.')
 
         downpcd = pcd.voxel_down_sample(voxel_size=0.01)
         # logging.info(str(downpcd)+"\r")
         message = str(downpcd)
+        self.logger.info(message)
         self.write_to_log(path, separator, message)
         self.compute_normals_and_generate_mesh(downpcd, mesh_depth, texture_size)
 
@@ -177,13 +175,13 @@ class meshing():
         # Since some PointClouds don't include normals information (needed for texture and color extraction) we will have to calculate it.
         # logging.info("Computing Normals.\r")
         message = 'Computing Normals.'
+        self.logger.info(message)
         self.write_to_log(path, separator, message)
         downpcd.estimate_normals(search_param=o3d.geometry.KDTreeSearchParamHybrid(radius=0.1, max_nn=30))
 
         # logging.info('Generating Mesh.\r')
         message = 'Generating Mesh.'
-        self.write_to_log(path, separator, message)
-        message = "CWD: " + str(os.getcwd())
+        self.logger.info(message)
         self.write_to_log(path, separator, message)
 
         mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(downpcd, depth=mesh_depth, width=0, scale=1.1,
@@ -201,6 +199,7 @@ class meshing():
                                    print_progress=False)
 
         message = 'Exporting Mesh'
+        self.logger.info(message)
         self.write_to_log(path, separator, message)
         mesh_file_size = int(os.path.getsize(generated_mesh))
 
@@ -209,6 +208,7 @@ class meshing():
             # logging.info("Mesh is not memory friedly. Retrying with safer parameters.\r")
             message = 'Mesh is not memory friedly. Retrying with safer parameters.'
             self.write_to_log(path, separator, message)
+            self.logger.info(message)
             self.compute_normals_and_generate_mesh(downpcd, mesh_depth, texture_size)
 
         else:
@@ -221,6 +221,7 @@ class meshing():
             ms = pymeshlab.MeshSet()
             # logging.info("Loading and Analyzing Mesh.\r")
             message = 'Analyzing Mesh.'
+            self.logger.info(message)
             self.write_to_log(path, separator, message)
             ms.load_new_mesh(generated_mesh)
 
@@ -238,6 +239,7 @@ class meshing():
 
                 # logging.info('Refining.\r')
                 message = 'Refining'
+                self.logger.info(message)
                 self.write_to_log(path, separator, message)
                 # We will select faces that are long based on the bounding box calculation and then remove them
                 ms.apply_filter('compute_selection_by_edge_length',
@@ -272,6 +274,7 @@ class meshing():
                                 mincomponentdiag=p)
                 # logging.info("Exporting Mesh.")
                 message = 'Exporting Mesh.'
+                self.logger.info(message)
                 self.write_to_log(path, separator, message)
 
                 newpath = simplified_output_folder + separator + filename.replace('ply', 'obj').replace('pts', 'obj')
@@ -299,6 +302,7 @@ class meshing():
                     ms.load_new_mesh(generated_mesh)
                     # logging.info('Mesh not optimal. Retargeting parameters (1).\r')
                     message = 'Mesh not optimal. Retargeting parameters (1).'
+                    self.logger.info(message)
                     self.write_to_log(path, separator, message)
                     boundingbox = ms.current_mesh().bounding_box()
                     diag = boundingbox.diagonal()
@@ -306,6 +310,7 @@ class meshing():
                     p = pymeshlab.PercentageValue(25)
                     # logging.info('Refining.\r')
                     message = 'Refining'
+                    self.logger.info(message)
                     self.write_to_log(path, separator, message)
                     # We will select faces that are long based on the bounding box calculation and then remove them
                     ms.apply_filter('compute_selection_by_edge_length',
@@ -339,6 +344,7 @@ class meshing():
                                     mincomponentdiag=p)
 
                     message = 'Exporting Mesh.'
+                    self.logger.info(message)
                     self.write_to_log(path, separator, message)
                     newpath = simplified_output_folder + separator + filename.replace('ply', 'obj').replace('pts', 'obj')
 
@@ -365,6 +371,7 @@ class meshing():
                         ms.load_new_mesh(generated_mesh)
                         # logging.info('Mesh not optimal. Retargeting parameters (2).\r')
                         message = 'Mesh not optimal. Retargeting parameters (2).'
+                        self.logger.info(message)
                         self.write_to_log(path, separator, message)
                         boundingbox = ms.current_mesh().bounding_box()
                         diag = boundingbox.diagonal()
@@ -372,6 +379,7 @@ class meshing():
                         p = pymeshlab.PercentageValue(10)
                         # logging.info('Refining.\r')
                         message = 'Refining'
+                        self.logger.info(message)
                         self.write_to_log(path, separator, message)
                         # We will select faces that are long based on the bounding box calculation and then remove them
                         ms.apply_filter('compute_selection_by_edge_length',
@@ -403,6 +411,7 @@ class meshing():
                                         mincomponentdiag=p)
                         # logging.info("Exporting Mesh.")
                         message = 'Exporting Mesh.'
+                        self.logger.info(message)
                         self.write_to_log(path, separator, message)
 
                         newpath = simplified_output_folder + separator + filename.replace('ply', 'obj').replace('pts', 'obj')
@@ -442,6 +451,7 @@ class meshing():
                         messagebox.showerror('ARTAK 3D Map Maker', 'Could not compute Mesh from PointCloud. Aborting.')
                         # logging.info('Process complete.\r')
                         message = 'Could not compute Mesh from PointCloud. Aborting.'
+                        self.logger.info(message)
                         self.write_to_log(path, separator, message)
 
                         sys.exit()
@@ -451,12 +461,14 @@ class meshing():
             f_number = m.face_number()
             # logging.info("Initial VC: "+str(v_number)+". Initial FC: "+str(f_number)+".\r")
             message = 'Initial VC: ' + str(v_number) + '. Initial FC: ' + str(f_number) + "."
+            self.logger.info(message)
             self.write_to_log(path, separator, message)
             # Let's take a look at the mesh file to see how big it is. We are constrained to about 120Mb in this case, therefore we
             # will have to decimate if the file is bigger than that number.
 
             #if f_number > 6500000:  # Decimate over 6500000 faces (approx.650Mb)
             if f_number > face_number:  # Decimate over 6500000 faces (approx.950Mb)
+                self.logger.info(message)
                 self.decimation(ms, newpath, f_number, texture_size)
 
             else:
@@ -465,6 +477,7 @@ class meshing():
         except MemoryError:
             # logging.info('Error. Not enough Memory to run the process. Quitting.\r')
             message = 'Error. Not enough Memory to run the process. Quitting.'
+            self.logger.info(message)
             self.write_to_log(path, separator, message)
             quit()
 
@@ -482,6 +495,7 @@ class meshing():
             target_faces = int(f_number / 1.5)
             # logging.info("Target: "+str(int(target_faces))+" F. Iter. "+str(c)+".\r")
             message = "Target: " + str(int(target_faces)) + " F. Iter. " + str(c) + "."
+            self.logger.info(message)
             self.write_to_log(path, separator, message)
             ms.apply_filter('meshing_decimation_quadric_edge_collapse',
                             targetfacenum=int(target_faces), targetperc=0,
@@ -494,6 +508,7 @@ class meshing():
             ratio = (abs(target_faces / f_number) - 1.1) * 10  # Efficiency ratio. resulting amt faces vs target amt of faces
             # logging.info("Achieved: "+str(f_number)+" F. Ratio ==> "+"%.2f" % abs(ratio)+":1.00.\r")
             message = 'Achieved: ' + str(f_number) + ' F. Ratio ==> ' + '%.2f' % abs(ratio) + ':1.00.'
+            self.logger.info(message)
             self.write_to_log(path, separator, message)
             c += 1
 
@@ -503,6 +518,7 @@ class meshing():
 
         # logging.info("End VC: "+str(v_number)+". End FC: "+str(f_number)+".\r")
         message = 'End VC: ' + str(v_number) + '. End FC: ' + str(f_number) + "."
+        self.logger.info(message)
         self.write_to_log(path, separator, message)
 
         newpath1 = simplified_output_folder + separator + 'decimated_'+filename.replace('ply', 'obj').replace('pts', 'obj')
@@ -528,10 +544,12 @@ class meshing():
 
         # logging.info("Loading and Analyzing Mesh.\r")
         message = 'Analyzing Mesh.'
+        self.logger.info(message)
         self.write_to_log(path, separator, message)
 
         # logging.info("Extracting Texture and Materials.\n")
         message = 'Generating Texture and Materials.'
+        self.logger.info(message)
         self.write_to_log(path, separator, message)
 
         ms.load_new_mesh(newpath)
@@ -607,9 +625,13 @@ class meshing():
         messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction Complete.')
         # logging.info('Process complete.\r')
         message = 'Reconstruction Complete.'
+        self.logger.info(message)
         self.write_to_log(path, separator, message)
-
-        sys.exit()
+     #   self.mm_project.set_completed_file_path(model_path)
+        self.mm_project.set_completed_file_path(os.path.join(os.getcwd(), model_path))
+        self.mm_project.set_zip_payload_location(os.path.join(os.getcwd(), 'ARTAK_MM/POST/Lidar/lr_' +
+                                                 self.mm_project.name + "/Data/lr_" + self.mm_project.name + ".zip"))
+       # sys.exit()
 
     def compress_into_zip(self, with_texture_output_folder, newpath):
 
@@ -627,133 +649,16 @@ class meshing():
                 try:
                     zf.write(with_texture_output_folder + separator + filename.replace('.obj', '').replace('.ply','').replace('.pts', '') + ext, filename.replace('.obj', '').replace('.ply', '').replace('.pts', '') + ext,
                              compress_type = compression, compresslevel = 9)
-
                 except FileExistsError:
                     pass
                 except FileNotFoundError:
                     pass
             zf.write(with_texture_output_folder + separator + 'texture.png', 'texture.png', compress_type = compression, compresslevel = 9)
-
+        message = "Compression complete. Compressed_file: " + str(zip_file)
+        self.logger.info(message)
         return
 
     def write_to_log(self, path, separator, message):
         with open(log_folder + log_name, "a+") as log:
             log.write(message + "\r")
         return
-
-    def get_PointCloud(self, fullpath):
-
-        global path, filename, mesh_output_folder, simplified_output_folder, with_texture_output_folder, obj_file, separator, c, log_name, lat, lon, utm_easting, utm_northing, zone, log_name, log_folder, pc_folder, post_dest_folder, model_dest_folder, face_number, designator, folder_type, folder_suffix
-
-        root = Tk()
-        root.iconbitmap(default='gui_images/ARTAK_103_drk.ico')
-        root.after(1, lambda: root.focus_force())
-        root.withdraw()
-
-        # fullpath = filedialog.askopenfile(filetypes=(("PointClouds", "*.ply;*.pts;*.e57"), ("All files", "*.*")))
-        # fullpath = str(fullpath)
-
-        with open('ARTAK_MM/LOGS/pc_type.log', 'r') as pc_type:
-            pc = pc_type.read()
-
-        if 'hr' in pc:
-            face_number = 3500000
-            designator = 'hr_'
-            folder_type = 'HighRes'
-            folder_suffix = '_hr'
-            texture_size = 20480
-
-        else:
-            face_number = 600000
-            designator = 'lr_'
-            folder_type = 'LowRes'
-            folder_suffix = '_lr'
-            texture_size = 8192
-
-        today = date.today()
-        now = datetime.now()
-        d = today.strftime("%d%m%Y")
-        ct = now.strftime("%H%M%S")
-
-        if platform.system == 'Windows':
-            separator = '\\'
-        else:
-            separator = '/'
-        # Define o3d data object to handle PointCloud
-        ply_point_cloud = o3d.data.PLYPointCloud()
-
-        lat = "0"
-        lon = "0"
-
-        # We will encode the lat and lon into utm compliant coordinates for the xyz file and retrieve the utm zone for the prj file
-
-        utm_easting, utm_northing, zone, zone_letter = utm.from_latlon(float(lat), float(lon))
-        utm_easting = "%.2f" % utm_easting
-        utm_northing = "%.2f" % utm_northing
-
-        # Separate source path from filename
-        path, filename = os.path.split(fullpath)
-        path = path.replace("<_io.TextIOWrapper name='", '')
-        filename = filename.replace("' mode='r' encoding='cp1252'>", '')
-
-        fullpath = path + separator + filename
-
-        if 'None' in fullpath:
-            quit()
-
-        with open("ARTAK_MM/LOGS/status.log", "w") as status:
-            pass
-
-        if '.e57' in fullpath:
-            fullpath, mesh_depth = self.load_e57(fullpath)
-
-        path, filename = os.path.split(fullpath)
-
-        logfilename = filename.replace('.ply', '').replace('.pts', '').replace('.obj', '').replace('.e57', '')
-        pc_folder = logfilename
-        log_name = designator + filename.replace('.ply', '').replace('.pts', '').replace('.obj', '').replace('.e57',
-                                                                                                             '') + "_" + str(
-            d) + "_" + str(ct) + ".log"
-
-        # Derive destination folders from source path
-        post_dest_folder = "ARTAK_MM/POST/Lidar" + separator + designator + pc_folder + separator + "Data"
-        model_dest_folder = "ARTAK_MM/POST/Lidar" + separator + designator + pc_folder + separator + "Data/Model"
-        mesh_output_folder = "ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder + separator + "mesh" + folder_suffix
-        simplified_output_folder = "ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder + separator + "simplified" + folder_suffix
-        with_texture_output_folder = "ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder + separator + "final" + folder_suffix
-        log_folder = "ARTAK_MM/LOGS/"
-
-        # Create directories within the source folder if they dont exist
-        if not os.path.exists(mesh_output_folder):
-            os.makedirs(mesh_output_folder)
-        if not os.path.exists(simplified_output_folder):
-            os.makedirs(simplified_output_folder, mode=777)
-        if not os.path.exists(with_texture_output_folder):
-            os.makedirs(with_texture_output_folder, mode=777)
-        if not os.path.exists(post_dest_folder):
-            os.makedirs(post_dest_folder, mode=777)
-        if not os.path.exists(model_dest_folder):
-            os.makedirs(model_dest_folder, mode=777)
-
-        if "lr_" in designator:
-            # Create xyz and prj based on lat and lon provided
-            prj_1 = 'PROJCS["WGS 84 / UTM zone '
-            prj_2 = '",GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]],PROJECTION["Transverse_Mercator"],PARAMETER["latitude_of_origin",0],PARAMETER["central_meridian",-81],PARAMETER["scale_factor",0.9996],PARAMETER["false_easting",500000],PARAMETER["false_northing",0],UNIT["metre",1,AUTHORITY["EPSG","9001"]],AXIS["Easting",EAST],AXIS["Northing",NORTH],AUTHORITY["EPSG","32617"]]'
-
-            with open(with_texture_output_folder + separator + logfilename + '.xyz', 'w') as xyz:
-                xyz.write(str(utm_easting + " " + str(utm_northing) + " " + "101.000"))
-
-            with open(with_texture_output_folder + separator + logfilename + '.prj', 'w') as prj:
-                prj.write(str(prj_1) + str(zone) + str(prj_2))
-
-        # logging.info('Loading PointCloud.\r')
-        message = 'Loading PointCloud. ' + str(fullpath)
-        self.write_to_log(path, separator, message)
-        pcd = o3d.io.read_point_cloud(fullpath)
-
-        # This will output the Point count
-        # logging.info(str(pcd)+"\r")
-        message = str(pcd)
-        self.write_to_log(path, separator, message)
-        self.downsample(pcd, texture_size)
-

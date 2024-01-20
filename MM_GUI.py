@@ -8,6 +8,7 @@ import os, shutil
 from MM_video import *
 import sys, time, threading, win32file, subprocess, pymeshlab
 import MM_ingest
+import MM_video
 import MM_objects
 import MM_processing_photogrammetry
 import MM_logger
@@ -18,6 +19,7 @@ import tkinter as tk
 import jobqueue_monitor_sample
 from pathlib import Path
 import playsound
+import MM_file_handler
 
 ## App.process_files: called after folder selected,
 ## App.main_loop: looks for pending jobs in the job-que
@@ -32,7 +34,7 @@ This snippet hides the console in non compiled scripts. Done for aesthetics
 import open3d as o3d
 import MM_ingest
 import MM_pc2mesh
-
+import MM_upload_to_artak_mk1
 MM_job_que.clear_job_que()
 '''
 We will create the work folders on first run. This code serves as a check in case the one of the working folders gets
@@ -158,16 +160,16 @@ class App(customtkinter.CTk):
 
         self.home_frame_large_image_label = customtkinter.CTkLabel(self.home_frame, text="",
                                                                    image=self.large_test_image)
-        self.browse_label = customtkinter.CTkLabel(self.home_frame, text="Select Image/Video")
+        self.browse_label = customtkinter.CTkLabel(self.home_frame, text="Select Folder")
         self.browse_label.grid(row=6, column=0, padx=20, pady=10)
 
         self.browse_button = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.browse_directory)
         self.browse_button.grid(row=6, column=1, padx=20, pady=10)
 
-        self.browse_label_pc = customtkinter.CTkLabel(self.home_frame, text="Select PointCloud")
+        self.browse_label_pc = customtkinter.CTkLabel(self.home_frame, text="Select File")
         self.browse_label_pc.grid(row=8, column=0, padx=20, pady=10)
 
-        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.add_lidar_to_que,
+        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.select_file,
                                                         state="normal")
         self.browse_button_pc.grid(row=8, column=1, padx=20, pady=10)
         # endregion
@@ -390,12 +392,59 @@ class App(customtkinter.CTk):
             except:
                 print("Ignoring JSON File")
 
-    def add_lidar_to_que(self):
-        fullpath = filedialog.askopenfile(filetypes=(("PointClouds", "*.ply;*.pts;*.e57"), ("All files", "*.*")))
+    def select_file(self):
+        fullpath = filedialog.askopenfile(filetypes=(("PointClouds", "*.ply;*.pts;*.e57"),
+                                                     ("Videos", "*.mp4;*.m4v;*.mov"),
+                                                     ("All files", "*.*")))
         fullpath = str(fullpath.name)
-        new_mm_project = MM_objects.MapmakerProject(local_image_folder=fullpath, data_type="LiDAR")
-        new_mm_project.name = fullpath.split("/")[len(fullpath.split("/"))-1].split(".")[0]
-        new_mm_project.set_status("pending")
+        artak_server = self.server_var.get()
+
+        video_found = False
+        video = ""
+        video_extensions = ['.mpeg', '.mp4', '.ts', ".m4v"]  # Add more extensions if needed
+
+        for each_extension in video_extensions:
+            if each_extension in fullpath.lower():
+                video_found = True
+                video = fullpath
+        if video_found:
+            # extract the frames from the video
+            time_between_frames = self.time_between_frames_var.get()
+            if time_between_frames == "":
+                time_between_frames = 10
+            fullpath = MM_ingest.ingest_video(video, self.session_logger, frame_spacing=time_between_frames)
+            data_type = 'Imagery'
+            new_project = MapmakerProject(name=fullpath.split("/")[len(fullpath.split("/")) - 1].split(".")[0],
+                                          time_first_image='unknown', data_type=data_type,
+                                          time_mm_start=time.time(), local_image_folder=fullpath,
+                                          logger="logger",
+                                          artak_server=artak_server,
+                                          map_type="OBJ",
+                                          quality=self.quality.get(),
+                                          video_frame_extraction_rate=time_between_frames
+                                          )
+
+        else:
+            fullpath = MM_ingest.ingest_lidar(fullpath, self.session_logger)
+            data_type = 'LiDAR'
+            new_project = MapmakerProject(name=fullpath.split("/")[len(fullpath.split("/")) - 1].split(".")[0],
+                                          time_first_image='unknown', data_type=data_type,
+                                          time_mm_start=time.time(), local_image_folder=fullpath,
+                                          logger="logger",
+                                          artak_server=artak_server,
+                                          map_type="OBJ",
+                                          quality=self.quality.get(),
+                                          )
+
+        # if self.local_server_ip_var.get() != "":
+        #     artak_server = self.local_server_ip_var.get()
+        #     artak_server = self.cleanup_manually_entered_server_address(artak_server)
+        # new_mm_project = MM_objects.MapmakerProject(local_image_folder=fullpath, data_type=data_type,
+        #                                            map_type=self.map_type_var.get(), quality=self.quality.get()
+        #                                            )
+        # new_mm_project.name = fullpath.split("/")[len(fullpath.split("/"))-1].split(".")[0]
+        new_project.set_status("pending")
+
 
 
     def bool_to_string(self, bool):
@@ -430,7 +479,7 @@ class App(customtkinter.CTk):
     def frame_4_button_event(self):
         self.select_frame_by_name("frame_4")
 
-    def gen_pc(self, fullpath):
+    def gen_pc(self, fullpath, _mm_project):
 
         global hr_proc, lr_proc
 
@@ -446,7 +495,7 @@ class App(customtkinter.CTk):
                 pc_type.write('hr')
 
 
-        meshing = MM_pc2mesh.meshing()
+        meshing = MM_pc2mesh.meshing(_mm_project, self.session_logger)
         meshing.get_PointCloud(fullpath)
 
     def handle_sd_card_insertion(self, drive_letter):
@@ -513,19 +562,25 @@ class App(customtkinter.CTk):
                     each_project.session_project_number = self.job_count
                     progress_bar = self.on_project_started(each_project)
                     if each_project.data_type == "LiDAR":
-                        print("lidar")
-                        self.gen_pc(_source_folder)
+                        _file = os.path.join(_source_folder, os.listdir(_source_folder)[0])
+                        self.gen_pc(_file, each_project)
+                        MM_upload_to_artak_mk1.upload(each_project.zip_payload_location)
                     else:
                         self.trigger_photogrammetry(self.session_logger, each_project)
+                        MM_upload_to_artak_mk1.upload(each_project.zip_payload_location)
+
                     self.job_count += 1
-                    self.session_logger.info("Started Project: " + each_project.name)
+                    self.session_logger.info("Finished Project: " + each_project.name)
                     self.on_project_completed(progress_bar, each_project)
             time.sleep(5)
 
     def on_project_completed(self, progress_bar, mm_project=MapmakerProject()):
         # play_sound_processing_complete()
+        mm_project.set_time_processing_complete(time.time())
+
         path = mm_project.completed_file_path
         session_project_number = mm_project.session_project_number
+        mm_project.set_status("Completed")
         if mm_project.status == "Error":
             progress_bar.configure(mode="determinate", progress_color="red")
             progress_bar.set(1)
@@ -621,8 +676,6 @@ class App(customtkinter.CTk):
         if folder_path == "":
             path = drive_letter + ":\\"
         try:
-            files = get_image_files(path)
-
             # get gui variables to use when ingesting and later processing
             image_spacing = self.time_between_images_var.get()
             rerun = self.rerun_failed_jobs_var.get()
@@ -635,7 +688,7 @@ class App(customtkinter.CTk):
                 rerun = False
             frame_extraction_rate = self.time_between_frames_var.get()
             if frame_extraction_rate == "":
-                frame_extraction_rate = "20"
+                frame_extraction_rate = "10"
 
             # ingest the data and get a list of the folders (full paths) in which the ingested data is now located
             folder_name_list = MM_ingest.ingest_data(path, logger=self.session_logger,
@@ -646,18 +699,20 @@ class App(customtkinter.CTk):
             if self.local_server_ip_var.get() != "":
                 artak_server = self.local_server_ip_var.get()
                 artak_server = self.cleanup_manually_entered_server_address(artak_server)
-            if delete_after == "Y":
-                for f in files:
-                    os.remove(path + f)
+
+            # check for lidar
+
             if map_type == "OBJ":
                 for each_folder in folder_name_list:
-
+                    if len(MM_ingest.get_lidar_files(each_folder)) > 0:
+                        data_type = "LiDAR"
+                    else:
+                        data_type = 'Imagery'
                     # get the final parent folder name from the path
                     folder_name = each_folder.split("/")[len(each_folder.split("/"))-1]
                     file_count = len(os.listdir(each_folder))
                     self.job_count = self.job_count + 1
-
-                    new_project = MapmakerProject(name=folder_name, time_first_image='unknown',
+                    new_project = MapmakerProject(name=folder_name, time_first_image='unknown', data_type=data_type,
                                                   time_mm_start=time.time(), local_image_folder=each_folder,
                                                   image_folder=each_folder, total_images=file_count, logger="logger",
                                                   artak_server=artak_server,

@@ -516,13 +516,13 @@ class ProcessingPhotogrammetry:
 
                 self.logger.info("Attempting to upload the file " + a + " to " + str(self.artak_server))
 
-                response = self.upload(a, url=self.artak_server)
-                self.logger.info(response.status_code)
-                if response.status_code == 200:
-                    self.mm_project.set_time_accepted_by_artak(time.time())
-                    self.mm_project.set_status("complete")
-                else:
-                    self.mm_project.set_status("error")
+                # response = self.upload(a, url=self.artak_server)
+                # self.logger.info(response.status_code)
+                # if response.status_code == 200:
+                #     self.mm_project.set_time_accepted_by_artak(time.time())
+                #     self.mm_project.set_status("complete")
+                # else:
+                #     self.mm_project.set_status("error")
                 self.logger.info(self.mm_project)
             except ArithmeticError:
                 self.logger.info("Uncaught exception attempting to upload file. File = " + str(a) + "URL = " + self.artak_server)

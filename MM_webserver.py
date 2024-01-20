@@ -63,7 +63,9 @@ def upload_file():
     if file:
         path = os.path.join(target_folder, file.filename)
         file.save(path)
-        handle_new_zip(file.filename, quality, mapType, frameRate, mapPartitionKey)
+        if ".zip" in file.filename:
+            handle_new_zip(file.filename, quality, mapType, frameRate, mapPartitionKey)
+
         return jsonify({'message': 'File and data received successfully'}), 200
 
 
