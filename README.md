@@ -5,8 +5,8 @@
 ## Base Requirements
 
 - Windos Subsystem for Linux (WSL), Ubuntu 22.04<br>
-- NVIDIA RTX20, RTX30 or RTX40 GPU with at least 8 Gb VRAM</ul>
-- At least 16Gb RAM
+- NVIDIA RTX20, RTX30 or RTX40 GPU with at least 8 Gb VRAM
+- At least 16Gb RAM</ul>
 
 ## Installation
 
