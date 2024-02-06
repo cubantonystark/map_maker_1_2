@@ -75,11 +75,11 @@ class meshing():
             texture_size = 20480
 
         else:
-            face_number = 400000
+            face_number = 100000
             designator = 'lr_'
             folder_type = 'LowRes'
             folder_suffix = '_lr'
-            texture_size = 4096
+            texture_size = 8192
 
         today = date.today()
         now = datetime.now()
@@ -630,18 +630,18 @@ class meshing():
                          pullpush = True)
 
         ms.save_current_mesh(newpath_texturized,
-                             save_vertex_color = True,
-                             save_vertex_coord = True,
-                             save_vertex_normal = True,
+                             save_vertex_color = False,
+                             save_vertex_coord = False,
+                             save_vertex_normal = False,
                              save_face_color = True,
                              save_wedge_texcoord = True,
                              save_wedge_normal = True,
                              save_polygonal = False)
 
         ms.save_current_mesh(model_path,
-                             save_vertex_color = True,
-                             save_vertex_coord = True,
-                             save_vertex_normal = True,
+                             save_vertex_color = False,
+                             save_vertex_coord = False,
+                             save_vertex_normal = False,
                              save_face_color = True,
                              save_wedge_texcoord = True,
                              save_wedge_normal = True,
