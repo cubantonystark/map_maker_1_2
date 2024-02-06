@@ -87,7 +87,7 @@ def read_job_que_from_json_file():
         return None
 
 def read_job_que_from_json_file_return_mm_objects():
-    print ("MM_job_que.py logs. Current Working Directory:", os.getcwd())
+    #print ("MM_job_que.py logs. Current Working Directory:", os.getcwd())
     file_name = os.path.join(os.getcwd(), "job-que.txt")
     try:
         with open(file_name, 'r') as file:

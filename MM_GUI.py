@@ -18,7 +18,7 @@ import customtkinter
 import tkinter as tk
 import jobqueue_monitor_sample
 from pathlib import Path
-import playsound
+#import playsound
 import MM_file_handler
 
 ## App.process_files: called after folder selected,
@@ -26,16 +26,22 @@ import MM_file_handler
 
 
 # region Startup
-'''`
-This snippet hides the console in non compiled scripts. Done for aesthetics
 '''
-# this_program = win32gui.GetForegroundWindow()
-# win32gui.ShowWindow(this_program, win32con.SW_HIDE)
+#This snippet hides the console in non compiled scripts. Done for aesthetics
+
+this_program = win32gui.GetForegroundWindow()
+win32gui.ShowWindow(this_program, win32con.SW_HIDE)
+'''
+
 import open3d as o3d
 import MM_ingest
 import MM_pc2mesh
 import MM_upload_to_artak_mk1
 MM_job_que.clear_job_que()
+
+cmd = 'taskkill /im wsl.exe /F'
+os.system(cmd)
+
 '''
 We will create the work folders on first run. This code serves as a check in case the one of the working folders gets
 accidentally deleted.
@@ -393,59 +399,63 @@ class App(customtkinter.CTk):
                 print("Ignoring JSON File")
 
     def select_file(self):
-        fullpath = filedialog.askopenfile(filetypes=(("PointClouds", "*.ply;*.pts;*.e57"),
-                                                     ("Videos", "*.mp4;*.m4v;*.mov"),
+        fullpath = filedialog.askopenfile(filetypes=(("PointClouds", "*.ply; *.pts; *.e57"),
+                                                     ("Videos", "*.mp4; *.m4v ;*.mov"),
                                                      ("All files", "*.*")))
-        fullpath = str(fullpath.name)
-        artak_server = self.server_var.get()
+        if fullpath is not None:
+            fullpath = str(fullpath.name)
+            fullpath1 = fullpath
+            artak_server = self.server_var.get()
 
-        video_found = False
-        video = ""
-        video_extensions = ['.mpeg', '.mp4', '.ts', ".m4v"]  # Add more extensions if needed
+            video_found = False
+            video = ""
+            video_extensions = ['.mpeg', '.mp4', '.ts', ".m4v"]  # Add more extensions if needed
 
-        for each_extension in video_extensions:
-            if each_extension in fullpath.lower():
-                video_found = True
-                video = fullpath
-        if video_found:
-            # extract the frames from the video
-            time_between_frames = self.time_between_frames_var.get()
-            if time_between_frames == "":
-                time_between_frames = 10
-            fullpath = MM_ingest.ingest_video(video, self.session_logger, frame_spacing=time_between_frames)
-            data_type = 'Imagery'
-            new_project = MapmakerProject(name=fullpath.split("/")[len(fullpath.split("/")) - 1].split(".")[0],
-                                          time_first_image='unknown', data_type=data_type,
-                                          time_mm_start=time.time(), local_image_folder=fullpath,
-                                          logger="logger",
-                                          artak_server=artak_server,
-                                          map_type="OBJ",
-                                          quality=self.quality.get(),
-                                          video_frame_extraction_rate=time_between_frames
-                                          )
+            for each_extension in video_extensions:
+                if each_extension in fullpath.lower():
+                    video_found = True
+                    video = fullpath
+            if video_found:
+                # extract the frames from the video
+                time_between_frames = self.time_between_frames_var.get()
+                if time_between_frames == "":
+                    time_between_frames = 10
+                fullpath = MM_ingest.ingest_video(video, self.session_logger, frame_spacing=time_between_frames)
+                data_type = 'Imagery'
+                new_project = MapmakerProject(name=fullpath.split("/")[len(fullpath.split("/")) - 1].split(".")[0],
+                                              time_first_image='unknown', data_type=data_type,
+                                              time_mm_start=time.time(), local_image_folder=fullpath,
+                                              logger="logger",
+                                              artak_server=artak_server,
+                                              map_type="OBJ",
+                                              quality=self.quality.get(),
+                                              video_frame_extraction_rate=time_between_frames
+                                              )
+
+            else:
+                fullpath = MM_ingest.ingest_lidar(fullpath, self.session_logger)
+                data_type = 'LiDAR'
+                new_project = MapmakerProject(name=fullpath.split("/")[len(fullpath.split("/")) - 1].split(".")[0],
+                                              time_first_image='unknown', data_type=data_type,
+                                              time_mm_start=time.time(), local_image_folder=fullpath,
+                                              logger="logger",
+                                              artak_server=artak_server,
+                                              map_type="OBJ",
+                                              quality=self.quality.get(),
+                                              )
+
+            # if self.local_server_ip_var.get() != "":
+            #     artak_server = self.local_server_ip_var.get()
+            #     artak_server = self.cleanup_manually_entered_server_address(artak_server)
+            # new_mm_project = MM_objects.MapmakerProject(local_image_folder=fullpath, data_type=data_type,
+            #                                            map_type=self.map_type_var.get(), quality=self.quality.get()
+            #                                            )
+            # new_mm_project.name = fullpath.split("/")[len(fullpath.split("/"))-1].split(".")[0]
+            new_project.set_status("pending")
 
         else:
-            fullpath = MM_ingest.ingest_lidar(fullpath, self.session_logger)
-            data_type = 'LiDAR'
-            new_project = MapmakerProject(name=fullpath.split("/")[len(fullpath.split("/")) - 1].split(".")[0],
-                                          time_first_image='unknown', data_type=data_type,
-                                          time_mm_start=time.time(), local_image_folder=fullpath,
-                                          logger="logger",
-                                          artak_server=artak_server,
-                                          map_type="OBJ",
-                                          quality=self.quality.get(),
-                                          )
 
-        # if self.local_server_ip_var.get() != "":
-        #     artak_server = self.local_server_ip_var.get()
-        #     artak_server = self.cleanup_manually_entered_server_address(artak_server)
-        # new_mm_project = MM_objects.MapmakerProject(local_image_folder=fullpath, data_type=data_type,
-        #                                            map_type=self.map_type_var.get(), quality=self.quality.get()
-        #                                            )
-        # new_mm_project.name = fullpath.split("/")[len(fullpath.split("/"))-1].split(".")[0]
-        new_project.set_status("pending")
-
-
+            pass
 
     def bool_to_string(self, bool):
         if bool:
@@ -483,6 +493,8 @@ class App(customtkinter.CTk):
 
         global hr_proc, lr_proc
 
+        os.system('taskkill /im iTwinCaptureModelerEngine.exe /F')
+
         value = self.mesh_from_pointcloud_type_var.get()
 
         if 'leg' in value:
@@ -494,9 +506,10 @@ class App(customtkinter.CTk):
             with open('ARTAK_MM/LOGS/pc_type.log', 'w') as pc_type:
                 pc_type.write('hr')
 
-
         meshing = MM_pc2mesh.meshing(_mm_project, self.session_logger)
         meshing.get_PointCloud(fullpath)
+
+        threading.Thread(target=app.run_photogrammetry_executable, name='t100').start()
 
     def handle_sd_card_insertion(self, drive_letter):
         self.event_generate("<<SdCardInsertion>>", data=drive_letter)
@@ -515,10 +528,13 @@ class App(customtkinter.CTk):
         while True:
 
             try:
+
                 with open(os.getcwd() + "/ARTAK_MM/LOGS/kill.mm", "r"):
                     pass
                 print("Killing Project Monitor")
                 sys.exit()
+
+                pass
 
             except FileNotFoundError:
 
@@ -566,6 +582,7 @@ class App(customtkinter.CTk):
                         self.gen_pc(_file, each_project)
                         MM_upload_to_artak_mk1.upload(each_project.zip_payload_location)
                     else:
+                        _file = os.path.join(_source_folder, os.listdir(_source_folder)[0])
                         self.trigger_photogrammetry(self.session_logger, each_project)
                         MM_upload_to_artak_mk1.upload(each_project.zip_payload_location)
 
@@ -655,20 +672,21 @@ class App(customtkinter.CTk):
     def photogrammetry_engine_job_que_monitor(self):
         while True:
 
-            try:
+            if os.path.exists(os.getcwd() + "/ARTAK_MM/LOGS/kill.mm"):
 
-                with open(os.getcwd() + "/ARTAK_MM/LOGS/kill.mm", "r"):
-                    pass
+                pass
+
                 print("Killing Job Queue Monitor")
                 sys.exit()
 
-            except FileNotFoundError:
+            else:
 
                 que_dict = jobqueue_monitor_sample.main()
                 self.output_text3.delete("1.0", tk.END)
                 for each_job in que_dict:
                     self.output_text3.insert(tk.END, str(each_job) + "\n")
-                time.sleep(5)
+
+            time.sleep(5)
 
     def process_files(self, folder_path="", drive_letter=""):
         if drive_letter == "":
@@ -1015,11 +1033,11 @@ def get_image_files(folder):
 if __name__ == "__main__":
     cleanup_pc_nr_logs()
     app = App()
- #   threading.Thread(target=app.sd_card_monitor).start()
+    threading.Thread(target=app.sd_card_monitor).start()
     threading.Thread(target=app.photogrammetry_engine_job_que_monitor, name='t1').start()
     threading.Thread(target=app.mm_project_monitor, name='t2').start()
     threading.Thread(target=app.main_processing_loop, name='t6').start()
-    app.run_photogrammetry_executable()
+    threading.Thread(target=app.run_photogrammetry_executable, name='t100').start()
     subprocess.Popen(["python", os.getcwd() + "/MM_webserver.py"])
     app.mainloop()
 
