@@ -41,14 +41,21 @@ def upload_to_artak_server(file_dict: dict, data: dict, url):
 
 # method to upload a file to the server
 def upload(the_file, url="https://esp.eastus2.cloudapp.azure.com/"):
-    print("Sending the file =" + the_file)
-    file_zip = open(the_file, "rb")
-    payload = {"file": file_zip}
-    params = {"type": "maps"}
-    print("url : " + url)
-    response = upload_to_artak_server(file_dict=payload, data=params, url=url)
-    print(response)
-    return response
+
+    if the_file is None:
+        pass
+
+    else:
+
+        print(the_file)
+        print("Sending the file =" + the_file)
+        file_zip = open(the_file, "rb")
+        payload = {"file": file_zip}
+        params = {"type": "maps"}
+        print("url : " + url)
+        response = upload_to_artak_server(file_dict=payload, data=params, url=url)
+        print(response)
+        return response
 
 # example usage
 
