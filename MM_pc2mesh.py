@@ -177,8 +177,8 @@ class meshing():
             os.remove(log_folder + "/status.log")
 
             messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction Complete.')
-            # logging.info('Process complete.\r')
             message = 'Reconstruction Complete.'
+            self.logger.info(message)
             model_path = model_dest_folder
             logging.info("File to upload: ",self.mm_project.name + model_path + self.mm_project.name + ".zip")
             self.logger.info(message)
@@ -187,7 +187,8 @@ class meshing():
             self.mm_project.set_completed_file_path(os.path.join(os.getcwd(), model_path))
             self.mm_project.set_zip_payload_location(os.path.join(os.getcwd(), model_path))
             #self.mm_project.name + model_path + self.mm_project.name + ".zip"
-            sys.exit()
+            return
+            #sys.exit()
 
         else:
 
@@ -505,8 +506,8 @@ class meshing():
                         logging.info('Process complete.\r')
                         message = 'Could not compute Mesh from PointCloud. Aborting.'
                         self.write_to_log(path, separator, message)
-
-                        sys.exit()
+                        return
+                        #sys.exit()
 
             m = ms.current_mesh()
             v_number = m.vertex_number()
@@ -680,7 +681,8 @@ class meshing():
         self.mm_project.set_completed_file_path(os.path.join(os.getcwd(), model_path))
         self.mm_project.set_zip_payload_location(os.path.join(os.getcwd(), model_path))
         #self.mm_project.name + model_path + self.mm_project.name + ".zip"
-        sys.exit()
+        #sys.exit()
+        return
 
     def compress_into_zip(self, with_texture_output_folder, newpath):
 

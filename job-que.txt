@@ -1,1 +1,28 @@
-{}
+{
+    "exyn_R_Comms_Rodeo-V1": {
+        "name": "exyn_R_Comms_Rodeo-V1",
+        "data_type": "LiDAR",
+        "time_first_image": "unknown",
+        "time_mm_start": 1707264221.7669814,
+        "time_processing_start": 1707264226.458466,
+        "time_processing_complete": null,
+        "time_accepted_by_artak": null,
+        "total_images": null,
+        "image_folder": null,
+        "processed_zip_path": null,
+        "status": "processing",
+        "logger": "na",
+        "artak_server": "https://esp.eastus2.cloudapp.azure.com/",
+        "manually_made_name": "",
+        "manually_made_field": null,
+        "local_image_folder": "D:\\Projects\\map_maker_1_2\\ARTAK_MM/DATA/Raw_Images/UNZIPPED/exyn_R_Comms_Rodeo-V1",
+        "session_project_number": 0,
+        "completed_file_path": "D:\\Projects\\map_maker_1_2\\ARTAK_MM/POST/Lidar/exyn_R_Comms_Rodeo-V1/Data/Model",
+        "map_type": "OBJ",
+        "zip_payload_location": "D:\\Projects\\map_maker_1_2\\ARTAK_MM/POST/Lidar/exyn_R_Comms_Rodeo-V1/Data/Model",
+        "total_processing_time": null,
+        "partition_key": null,
+        "quality": "Speed",
+        "video_frame_extraction_rate": null
+    }
+}
