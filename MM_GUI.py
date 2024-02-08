@@ -27,10 +27,11 @@ import MM_file_handler
 
 # region Startup
 '''
-#This snippet hides the console in non compiled scripts. Done for aesthetics
+This snippet hides the console in non compiled scripts. Done for aesthetics
 
 this_program = win32gui.GetForegroundWindow()
 win32gui.ShowWindow(this_program, win32con.SW_HIDE)
+
 '''
 
 import open3d as o3d

@@ -52,8 +52,8 @@ class meshing():
 
     def attempt_nksr(self, filename, fullpath, mesh_output_folder):
 
-        shutil.copy(fullpath, '\\\wsl.localhost\\Ubuntu\\home\\reynel\\mapmaker_nksr\\pointclouds\\'+filename)
-        cmd = 'wsl --user reynel --cd /home/reynel/mapmaker_nksr'
+        shutil.copy(fullpath, '\\\wsl.localhost\\Ubuntu\\home\\mapmaker\\fsrpc_mapmaker\\pointclouds\\'+filename)
+        cmd = 'wsl --user mapmaker --cd /home/mapmaker/fsrpc_mapmaker'
         os.system(cmd)
         return
 
@@ -152,6 +152,9 @@ class meshing():
         if not os.path.exists(model_dest_folder):
             os.makedirs(model_dest_folder, mode=777)
 
+        self.logger.info("Attempting GPU accelerated Reconstruction")
+        self.logger.info("Loading PointCloud")
+
         self.attempt_nksr(filename, fullpath, mesh_output_folder)
 
         cmd = 'taskkill /im wsl.exe /F'
@@ -165,8 +168,6 @@ class meshing():
         os.remove(log_folder + "/gpu_status.txt")
 
         if 'gpu_success' in stat:
-
-            print("Folder: ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
 
             try:
 
@@ -185,7 +186,7 @@ class meshing():
             message = 'Reconstruction Complete.'
             self.logger.info(message)
             model_path = model_dest_folder
-            logging.info("File to upload: ",self.mm_project.name + model_path + self.mm_project.name + ".zip")
+            self.logger.info("File to upload: ",self.mm_project.name + model_path + self.mm_project.name + ".zip")
             self.logger.info(message)
             self.write_to_log(path, separator, message)
             self.mm_project.set_completed_file_path(model_path)
@@ -197,6 +198,7 @@ class meshing():
 
         else:
 
+            self.logger.info("This PointCloud is not suitable for GPU Reconstruction. Switching to CPU.")
             if "lr_" in designator:
                 # Create xyz and prj based on lat and lon provided
                 prj_1 = 'PROJCS["WGS 84 / UTM zone '
@@ -217,7 +219,7 @@ class meshing():
                 pass
 
             # logging.info('Loading PointCloud.\r')
-            self.logger.info("Loading PointCloud")
+            #self.logger.info("Loading PointCloud")
             message = 'Loading PointCloud. ' + str(fullpath)
             self.write_to_log(path, separator, message)
             self.logger.info("fixn to do o3d.io.read")
@@ -230,8 +232,9 @@ class meshing():
     def downsample(self, pcd, texture_size):
         # We need to downsample the PointCloud to make it less dense and easier to work with
         # logging.info("Downsampling.\r")
+        message = str(pcd)
+        self.logger.info(message)
         self.logger.info('Downsampling.')
-
         downpcd = pcd.voxel_down_sample(voxel_size=0.01)
         # logging.info(str(downpcd)+"\r")
         message = str(downpcd)
