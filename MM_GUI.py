@@ -1,3 +1,5 @@
+import os
+
 cmd = 'taskkill /im wsl.exe /F'
 os.system(cmd)
 
@@ -35,7 +37,7 @@ from MM_job_que import *
 import random
 from datetime import datetime
 from PIL import Image
-import os, shutil
+import shutil
 from MM_video import *
 import sys, time, threading, win32file, subprocess, pymeshlab
 import MM_ingest
