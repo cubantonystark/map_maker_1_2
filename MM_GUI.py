@@ -1,3 +1,5 @@
+# We have to create folders earlier.
+
 import os
 
 cmd = 'taskkill /im wsl.exe /F'
