@@ -7,7 +7,9 @@ All rights reserved.
 
 import open3d as o3d
 
-o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel.Error)
+o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel.Debug)
+o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel.Debug)
+
 import pymeshlab
 from datetime import date, datetime
 from PIL import Image
@@ -22,6 +24,8 @@ format = '%(message)s'
 handlers = [logging.StreamHandler()]
 logging.basicConfig(level=level, format='%(asctime)s \033[1;34;40m%(levelname)-8s \033[1;37;40m%(message)s',
                     datefmt='%H:%M:%S', handlers=handlers)
+
+o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel.Error)
 
 mesh_depth = 12
 
@@ -48,8 +52,8 @@ class meshing():
 
     def attempt_nksr(self, filename, fullpath, mesh_output_folder):
 
-        shutil.copy(fullpath, '\\\wsl.localhost\\Ubuntu\\home\\reynel\\mapmaker_nksr\\pointclouds\\'+filename)
-        cmd = 'wsl --user reynel --cd /home/reynel/mapmaker_nksr'
+        shutil.copy(fullpath, '\\\wsl.localhost\\Ubuntu\\home\\mapmaker\\fsrpc_mapmaker\\pointclouds\\'+filename)
+        cmd = 'wsl --user mapmaker --cd /home/mapmaker/fsrpc_mapmaker'
         os.system(cmd)
         return
 
@@ -148,6 +152,9 @@ class meshing():
         if not os.path.exists(model_dest_folder):
             os.makedirs(model_dest_folder, mode=777)
 
+        self.logger.info("Attempting GPU accelerated Reconstruction")
+        self.logger.info("Loading PointCloud")
+
         self.attempt_nksr(filename, fullpath, mesh_output_folder)
 
         cmd = 'taskkill /im wsl.exe /F'
@@ -167,7 +174,6 @@ class meshing():
                 # Remove the status flag for MM_GUI progressbar
                 shutil.rmtree("ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
 
-
             except FileNotFoundError:
                 pass
 
@@ -177,20 +183,22 @@ class meshing():
             os.remove(log_folder + "/status.log")
 
             messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction Complete.')
-            # logging.info('Process complete.\r')
             message = 'Reconstruction Complete.'
+            self.logger.info(message)
             model_path = model_dest_folder
-            logging.info("File to upload: ",self.mm_project.name + model_path + self.mm_project.name + ".zip")
+            self.logger.info("File to upload: ",self.mm_project.name + model_path + self.mm_project.name + ".zip")
             self.logger.info(message)
             self.write_to_log(path, separator, message)
             self.mm_project.set_completed_file_path(model_path)
             self.mm_project.set_completed_file_path(os.path.join(os.getcwd(), model_path))
             self.mm_project.set_zip_payload_location(os.path.join(os.getcwd(), model_path))
             #self.mm_project.name + model_path + self.mm_project.name + ".zip"
-            sys.exit()
+            return
+            #sys.exit()
 
         else:
 
+            self.logger.info("This PointCloud is not suitable for GPU Reconstruction. Switching to CPU.")
             if "lr_" in designator:
                 # Create xyz and prj based on lat and lon provided
                 prj_1 = 'PROJCS["WGS 84 / UTM zone '
@@ -211,7 +219,7 @@ class meshing():
                 pass
 
             # logging.info('Loading PointCloud.\r')
-            self.logger.info("Loading PointCloud")
+            #self.logger.info("Loading PointCloud")
             message = 'Loading PointCloud. ' + str(fullpath)
             self.write_to_log(path, separator, message)
             self.logger.info("fixn to do o3d.io.read")
@@ -224,8 +232,9 @@ class meshing():
     def downsample(self, pcd, texture_size):
         # We need to downsample the PointCloud to make it less dense and easier to work with
         # logging.info("Downsampling.\r")
+        message = str(pcd)
+        self.logger.info(message)
         self.logger.info('Downsampling.')
-
         downpcd = pcd.voxel_down_sample(voxel_size=0.01)
         # logging.info(str(downpcd)+"\r")
         message = str(downpcd)
@@ -488,6 +497,9 @@ class meshing():
                     except pymeshlab.pmeshlab.PyMeshLabException:
 
                         # Cleanup
+
+                        print("Folder: ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
+
                         try:
                             shutil.rmtree("ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
                             # Remove the status flag for MM_GUI progressbar
@@ -505,8 +517,8 @@ class meshing():
                         logging.info('Process complete.\r')
                         message = 'Could not compute Mesh from PointCloud. Aborting.'
                         self.write_to_log(path, separator, message)
-
-                        sys.exit()
+                        return
+                        #sys.exit()
 
             m = ms.current_mesh()
             v_number = m.vertex_number()
@@ -659,6 +671,7 @@ class meshing():
             shutil.copy(file, post_dest_folder)
 
         # Cleanup
+        print("Folder: ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
         try:
             shutil.rmtree("ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
             # Remove the status flag for MM_GUI progressbar
@@ -680,7 +693,8 @@ class meshing():
         self.mm_project.set_completed_file_path(os.path.join(os.getcwd(), model_path))
         self.mm_project.set_zip_payload_location(os.path.join(os.getcwd(), model_path))
         #self.mm_project.name + model_path + self.mm_project.name + ".zip"
-        sys.exit()
+        #sys.exit()
+        return
 
     def compress_into_zip(self, with_texture_output_folder, newpath):
 
