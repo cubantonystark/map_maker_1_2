@@ -72,7 +72,6 @@ sd_drive = ""
 
 # endregion
 
-
 # region Classes
 
 class App(customtkinter.CTk):
