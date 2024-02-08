@@ -1,3 +1,34 @@
+cmd = 'taskkill /im wsl.exe /F'
+os.system(cmd)
+
+'''
+We will create the work folders on first run. This code serves as a check in case the one of the working folders gets
+accidentally deleted.
+'''
+dirs1 = ['ARTAK_MM', 'ARTAK_MM/JOB-QUE-BENTLEY' 'ARTAK_MM/DATA/Raw_Images/UNZIPPED', 'ARTAK_MM/DATA/Raw_Images/ZIP/Completed',
+         'ARTAK_MM/DATA/Raw_Images/ZIP/New', 'ARTAK_MM/DATA/Raw_Images/ZIP/Unzipping_in_progress',
+         'ARTAK_MM/LOGS', 'ARTAK_MM/POST/Photogrammetry', 'ARTAK_MM/POST/Neural', 'ARTAK_MM/POST/Lidar',
+         'ARTAK_MM/DATA/PointClouds']
+
+# cleanup any straggler status file in case of disgraceful exit of either recon script
+
+if os.path.exists("ARTAK_MM/LOGS/status.log"):
+    os.remove("ARTAK_MM/LOGS/status.log")
+
+for dir in dirs1:
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
+    else:
+        continue
+
+'''
+#This snippet hides the console in non compiled scripts. Done for aesthetics
+
+this_program = win32gui.GetForegroundWindow()
+win32gui.ShowWindow(this_program, win32con.SW_HIDE)
+'''
+
 import win32gui, win32con
 import MM_job_que
 from MM_job_que import *
@@ -24,44 +55,13 @@ import MM_file_handler
 ## App.process_files: called after folder selected,
 ## App.main_loop: looks for pending jobs in the job-que
 
-
 # region Startup
-'''
-#This snippet hides the console in non compiled scripts. Done for aesthetics
-
-this_program = win32gui.GetForegroundWindow()
-win32gui.ShowWindow(this_program, win32con.SW_HIDE)
-'''
 
 import open3d as o3d
 import MM_ingest
 import MM_pc2mesh
 import MM_upload_to_artak_mk1
 MM_job_que.clear_job_que()
-
-cmd = 'taskkill /im wsl.exe /F'
-os.system(cmd)
-
-'''
-We will create the work folders on first run. This code serves as a check in case the one of the working folders gets
-accidentally deleted.
-'''
-dirs1 = ['ARTAK_MM', 'ARTAK_MM/JOB-QUE-BENTLEY' 'ARTAK_MM/DATA/Raw_Images/UNZIPPED', 'ARTAK_MM/DATA/Raw_Images/ZIP/Completed',
-         'ARTAK_MM/DATA/Raw_Images/ZIP/New', 'ARTAK_MM/DATA/Raw_Images/ZIP/Unzipping_in_progress',
-         'ARTAK_MM/LOGS', 'ARTAK_MM/POST/Photogrammetry', 'ARTAK_MM/POST/Neural', 'ARTAK_MM/POST/Lidar',
-         'ARTAK_MM/DATA/PointClouds']
-
-# cleanup any straggler status file in case of disgraceful exit of either recon script
-
-if os.path.exists("ARTAK_MM/LOGS/status.log"):
-    os.remove("ARTAK_MM/LOGS/status.log")
-
-for dir in dirs1:
-    if not os.path.exists(dir):
-        os.makedirs(dir)
-
-    else:
-        continue
 
 sys.setrecursionlimit(1999999999)
 
