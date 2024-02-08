@@ -7,7 +7,9 @@ All rights reserved.
 
 import open3d as o3d
 
-o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel.Error)
+o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel.Debug)
+o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel.Debug)
+
 import pymeshlab
 from datetime import date, datetime
 from PIL import Image
@@ -22,6 +24,8 @@ format = '%(message)s'
 handlers = [logging.StreamHandler()]
 logging.basicConfig(level=level, format='%(asctime)s \033[1;34;40m%(levelname)-8s \033[1;37;40m%(message)s',
                     datefmt='%H:%M:%S', handlers=handlers)
+
+o3d.utility.set_verbosity_level(o3d.utility.VerbosityLevel.Error)
 
 mesh_depth = 12
 
@@ -162,11 +166,12 @@ class meshing():
 
         if 'gpu_success' in stat:
 
+            print("Folder: ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
+
             try:
 
                 # Remove the status flag for MM_GUI progressbar
                 shutil.rmtree("ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
-
 
             except FileNotFoundError:
                 pass
@@ -489,6 +494,9 @@ class meshing():
                     except pymeshlab.pmeshlab.PyMeshLabException:
 
                         # Cleanup
+
+                        print("Folder: ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
+
                         try:
                             shutil.rmtree("ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
                             # Remove the status flag for MM_GUI progressbar
@@ -660,6 +668,7 @@ class meshing():
             shutil.copy(file, post_dest_folder)
 
         # Cleanup
+        print("Folder: ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
         try:
             shutil.rmtree("ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
             # Remove the status flag for MM_GUI progressbar
