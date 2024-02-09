@@ -123,6 +123,7 @@ class meshing():
 
         if '.e57' in fullpath:
 
+            self.logger.info("Converting to PLY")
             fullpath, mesh_depth = self.load_e57(fullpath)
 
         path, filename = os.path.split(fullpath)
