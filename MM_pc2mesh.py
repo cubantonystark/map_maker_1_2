@@ -35,7 +35,8 @@ class meshing():
         self.mm_project = _mm_project
         self.logger = logger
     def load_e57(self, e57path):
-        mesh_depth= 11
+
+        mesh_depth= 12
         ms = pymeshlab.MeshSet()
         ms.load_new_mesh(e57path)
         fullpath = e57path.replace("e57", "ply")
@@ -52,12 +53,12 @@ class meshing():
 
     def attempt_nksr(self, filename, fullpath, mesh_output_folder):
 
-        shutil.copy(fullpath, '\\\wsl.localhost\\Ubuntu\\home\\mapmaker\\fsrpc_mapmaker\\pointclouds\\'+filename)
+        shutil.copy(fullpath, '\\\wsl.localhost\\Ubuntu-22.04\\home\\mapmaker\\fsrpc_mapmaker\\pointclouds\\'+filename)
         cmd = 'wsl --user mapmaker --cd /home/mapmaker/fsrpc_mapmaker'
         os.system(cmd)
         return
 
-    def get_PointCloud(self, fullpath):
+    def get_PointCloud(self, fullpath, gpu):
 
         self.logger.info("Method Called: get_PointCloud")
 
@@ -153,53 +154,64 @@ class meshing():
         if not os.path.exists(model_dest_folder):
             os.makedirs(model_dest_folder, mode=777)
 
-        self.logger.info("Attempting GPU accelerated Reconstruction")
-        self.logger.info("Loading PointCloud")
+        try:
 
-        self.attempt_nksr(filename, fullpath, mesh_output_folder)
+            with open(log_folder + "gpu_status.txt") as msg:
 
-        cmd = 'taskkill /im wsl.exe /F'
-        os.system(cmd)
+                stat = msg.readline()
+                stat = stat.strip()
 
-        with open(log_folder + "gpu_status.txt") as msg:
+            os.remove(log_folder + "/gpu_status.txt")
 
-            stat = msg.readline()
-            stat = stat.strip()
+        except FileNotFoundError:
 
-        os.remove(log_folder + "/gpu_status.txt")
+            stat = ""
 
-        if 'gpu_success' in stat:
+        if gpu == 'y':
 
-            try:
+            self.logger.info("Attempting GPU accelerated Reconstruction")
+            self.logger.info("Loading PointCloud")
 
-                # Remove the status flag for MM_GUI progressbar
-                shutil.rmtree("ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
+            self.attempt_nksr(filename, fullpath, mesh_output_folder)
 
-            except FileNotFoundError:
-                pass
+            cmd = 'taskkill /im wsl.exe /F'
+            os.system(cmd)
 
-            with open(log_folder + "/status.log", "w") as status:
-                status.write("done")
-            time.sleep(2)
-            os.remove(log_folder + "/status.log")
+            if 'gpu_success' in stat:
 
-            messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction Complete.')
-            message = 'Reconstruction Complete.'
-            self.logger.info(message)
-            model_path = model_dest_folder
-            self.logger.info("File to upload: ",self.mm_project.name + model_path + self.mm_project.name + ".zip")
-            self.logger.info(message)
-            self.write_to_log(path, separator, message)
-            self.mm_project.set_completed_file_path(model_path)
-            self.mm_project.set_completed_file_path(os.path.join(os.getcwd(), model_path))
-            self.mm_project.set_zip_payload_location(os.path.join(os.getcwd(), model_path))
-            #self.mm_project.name + model_path + self.mm_project.name + ".zip"
-            return
-            #sys.exit()
+                try:
+
+                    # Remove the status flag for MM_GUI progressbar
+                    shutil.rmtree("ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
+
+                except FileNotFoundError:
+                    pass
+
+                with open(log_folder + "/status.log", "w") as status:
+                    status.write("done")
+                time.sleep(2)
+                os.remove(log_folder + "/status.log")
+
+                messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction Complete.')
+                message = 'Reconstruction Complete.'
+                self.logger.info(message)
+                model_path = model_dest_folder
+                self.logger.info("File to upload: ",self.mm_project.name + model_path + self.mm_project.name + ".zip")
+                self.logger.info(message)
+                self.write_to_log(path, separator, message)
+                self.mm_project.set_completed_file_path(model_path)
+                self.mm_project.set_completed_file_path(os.path.join(os.getcwd(), model_path))
+                self.mm_project.set_zip_payload_location(os.path.join(os.getcwd(), model_path))
+                #self.mm_project.name + model_path + self.mm_project.name + ".zip"
+                return
+                #sys.exit()
 
         else:
 
-            self.logger.info("This PointCloud is not suitable for GPU Reconstruction. Switching to CPU.")
+            if 'gpu_fail' in stat:
+
+                self.logger.info("This PointCloud is not suitable for GPU Reconstruction. Switching to CPU.")
+
             if "lr_" in designator:
                 # Create xyz and prj based on lat and lon provided
                 prj_1 = 'PROJCS["WGS 84 / UTM zone '
