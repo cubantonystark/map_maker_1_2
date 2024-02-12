@@ -1,10 +1,10 @@
 {
-    "exyn_ft_dade_garrison-V1": {
-        "name": "exyn_ft_dade_garrison-V1",
+    "leica_fdny-V1": {
+        "name": "leica_fdny-V1",
         "data_type": "LiDAR",
         "time_first_image": "unknown",
-        "time_mm_start": 1707370970.91425,
-        "time_processing_start": 1707370972.687468,
+        "time_mm_start": 1707760565.1699388,
+        "time_processing_start": 1707760565.4211395,
         "time_processing_complete": null,
         "time_accepted_by_artak": null,
         "total_images": null,
@@ -15,7 +15,7 @@
         "artak_server": "https://esp.eastus2.cloudapp.azure.com/",
         "manually_made_name": "",
         "manually_made_field": null,
-        "local_image_folder": "D:\\Projects\\map_maker_1_2\\ARTAK_MM/DATA/Raw_Images/UNZIPPED/exyn_ft_dade_garrison-V1",
+        "local_image_folder": "D:\\Projects\\map_maker_1_2\\ARTAK_MM/DATA/Raw_Images/UNZIPPED/leica_fdny-V1",
         "session_project_number": 0,
         "completed_file_path": null,
         "map_type": "OBJ",

@@ -161,6 +161,7 @@ class MapmakerSettings:
         self.app_screen_mode = ""
         self.delete_after_transfer = ""
         self.auto_open_upon_completion = ""
+        self.use_gpu = ""
 
     def save(self):
         mm_settings = {'mm_settings': vars(self)}

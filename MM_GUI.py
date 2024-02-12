@@ -89,7 +89,7 @@ class App(customtkinter.CTk):
         self.job_count = 0
         self.iconbitmap(default='gui_images/EolianIcon.ico')
         self.title("EOLIAN MAP MAKER")
-        self.geometry("1400x720")
+        self.geometry("1400x740")
         self.protocol('WM_DELETE_WINDOW', self.terminate)
 
         # set grid layout 1x2
@@ -175,11 +175,11 @@ class App(customtkinter.CTk):
         self.browse_button.grid(row=6, column=1, padx=20, pady=10)
 
         self.browse_label_pc = customtkinter.CTkLabel(self.home_frame, text="Select File")
-        self.browse_label_pc.grid(row=8, column=0, padx=20, pady=10)
+        self.browse_label_pc.grid(row=10, column=0, padx=20, pady=10)
 
         self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.select_file,
                                                         state="normal")
-        self.browse_button_pc.grid(row=8, column=1, padx=20, pady=10)
+        self.browse_button_pc.grid(row=10, column=1, padx=20, pady=10)
         # endregion
 
         # region settings frame
@@ -203,8 +203,10 @@ class App(customtkinter.CTk):
                                                                    variable=self.auto_process_sd_var,
                                                                    value=False)
         self.no_auto_process_button.grid(row=6, column=2, padx=20, pady=10)
+
         self.home_frame_button_4 = customtkinter.CTkLabel(self.fourth_frame, text="Mesh from PointCloud")
         self.home_frame_button_4.grid(row=7, column=0, padx=20, pady=10)
+
         self.button_frame = customtkinter.CTkFrame(self)
         self.mesh_from_pointcloud_type_var = customtkinter.StringVar()
         self.mesh_from_pointcloud_type_var.set(app_settings['mesh_from_pointcloud_type'])
@@ -219,7 +221,26 @@ class App(customtkinter.CTk):
                                                                 value="leg")
         self.tiles_radio_button2.grid(row=7, column=2, padx=20, pady=10)
 
-        ###
+        ### USE GPU
+
+        self.home_frame_button_5 = customtkinter.CTkLabel(self.fourth_frame, text="Use GPU for PointCloud Surface Reconstruction")
+        self.home_frame_button_5.grid(row=8, column=0, padx=20, pady=10)
+
+        self.button_frame = customtkinter.CTkFrame(self)
+        self.use_gpu_var = customtkinter.StringVar()
+        self.use_gpu_var.set(app_settings['use_gpu'])
+
+        self.gpu_y_radio_button = customtkinter.CTkRadioButton(self.fourth_frame, text="Y",
+                                                             variable=self.use_gpu_var,
+                                                             value="y")
+        self.gpu_y_radio_button.grid(row=8, column=1, padx=20, pady=10)
+
+        self.gpu_n_radio_button3 = customtkinter.CTkRadioButton(self.fourth_frame, text="N",
+                                                                variable=self.use_gpu_var,
+                                                                value="n")
+        self.gpu_n_radio_button3.grid(row=8, column=2, padx=20, pady=10)
+
+        ### /USe GPU
 
         self.home_frame_server = customtkinter.CTkLabel(self.fourth_frame, text="Select ARTAK Server:")
         self.home_frame_server.grid(row=0, column=0, padx=20, pady=10)
@@ -246,9 +267,9 @@ class App(customtkinter.CTk):
 
         self.auto_open_var.set(self.string_to_bool(app_settings["auto_open_upon_completion"]))
         self.auto_open_text = customtkinter.CTkLabel(self.fourth_frame, text="Auto-open upon completion?")
-        self.auto_open_text.grid(row=11, column=0, padx=20, pady=10)
+        self.auto_open_text.grid(row=12, column=0, padx=20, pady=10)
         self.auto_open_switch = customtkinter.CTkSwitch(self.fourth_frame, text="Yes", variable=self.auto_open_var)
-        self.auto_open_switch.grid(row=11, column=1, padx=20, pady=10)
+        self.auto_open_switch.grid(row=12, column=1, padx=20, pady=10)
         self.map_type_var = customtkinter.StringVar()
         self.map_type_var.set(app_settings["map_type"])
 
@@ -295,15 +316,15 @@ class App(customtkinter.CTk):
         self.local_server_ip_var = app_settings["local_server_ip"]
         self.local_server_label = customtkinter.CTkLabel(self.fourth_frame, text="Custom Server Domain Name or IP Address")
         self.local_server_ip_var = customtkinter.CTkEntry(self.fourth_frame, placeholder_text=app_settings["local_server_ip"])
-        self.local_server_label.grid(row=12, column=0, padx=20, pady=10, sticky="ew")
-        self.local_server_ip_var.grid(row=12, column=1, padx=20, pady=10, sticky="ew")
+        self.local_server_label.grid(row=14, column=0, padx=20, pady=10, sticky="ew")
+        self.local_server_ip_var.grid(row=14, column=1, padx=20, pady=10, sticky="ew")
 
 
         self.time_between_images = customtkinter.CTkLabel(self.fourth_frame, text="Max time between image groups")
         self.time_between_images_var = customtkinter.CTkEntry(self.fourth_frame, placeholder_text=app_settings["max_interval_between_images"])
         self.time_between_images_var.setvar(app_settings["max_interval_between_images"])
-        self.time_between_images.grid(row=13, column=0, padx=20, pady=10, sticky="ew")
-        self.time_between_images_var.grid(row=13, column=1, padx=20, pady=10, sticky="ew")
+        self.time_between_images.grid(row=14, column=0, padx=20, pady=10, sticky="ew")
+        self.time_between_images_var.grid(row=14, column=1, padx=20, pady=10, sticky="ew")
 
         self.time_between_frames = customtkinter.CTkLabel(self.fourth_frame, text="Video Frame Extraction Rate (in frames)")
         self.time_between_frames_var = customtkinter.CTkEntry(self.fourth_frame, placeholder_text="20")
@@ -314,26 +335,26 @@ class App(customtkinter.CTk):
         self.partition_key = customtkinter.CTkLabel(self.fourth_frame, text="Map Partition Key")
         self.partition_key_var = customtkinter.CTkEntry(self.fourth_frame, placeholder_text="None")
         self.partition_key_var.setvar("")
-        self.partition_key.grid(row=14, column=0, padx=20, pady=10, sticky="ew")
-        self.partition_key_var.grid(row=14, column=1, padx=20, pady=10, sticky="ew")
+        self.partition_key.grid(row=19, column=0, padx=20, pady=10, sticky="ew")
+        self.partition_key_var.grid(row=19, column=1, padx=20, pady=10, sticky="ew")
 
         self.rerun_failed_jobs_var = customtkinter.StringVar()
         self.rerun_failed_jobs = customtkinter.CTkLabel(self.fourth_frame, text="Rerun Failed Jobs")
-        self.rerun_failed_jobs.grid(row=10, column=0, padx=20, pady=10, sticky="ew")
+        self.rerun_failed_jobs.grid(row=11, column=0, padx=20, pady=10, sticky="ew")
         self.rerun_radio_button_y = customtkinter.CTkRadioButton(self.fourth_frame, text="Y",
                                                                  variable=self.rerun_failed_jobs_var,
                                                                  value="Y")
-        self.rerun_radio_button_y.grid(row=10, column=1, padx=20, pady=10)
+        self.rerun_radio_button_y.grid(row=11, column=1, padx=20, pady=10)
 
         self.rerun_radio_button_n = customtkinter.CTkRadioButton(self.fourth_frame, text="N",
                                                                  variable=self.rerun_failed_jobs_var,
                                                                  value="N")
-        self.rerun_radio_button_n.grid(row=10, column=2, padx=20, pady=10)
+        self.rerun_radio_button_n.grid(row=11, column=2, padx=20, pady=10)
         self.rerun_failed_jobs_var.set(app_settings["rerun_failed_jobs"])
         # todo fix delete button which currently doesnt have permission to delete
         self.save_settings_button = customtkinter.CTkButton(self.fourth_frame, text="Save Settings",
                                                           command=self.save_settings, state="normal")
-        self.save_settings_button.grid(row=16, column=1, padx=20, pady=10)
+        self.save_settings_button.grid(row=23, column=1, padx=20, pady=10)
 
         # endregion
 
@@ -499,6 +520,8 @@ class App(customtkinter.CTk):
 
         value = self.mesh_from_pointcloud_type_var.get()
 
+        gpu = self.use_gpu_var.get()
+
         if 'leg' in value:
 
             with open('ARTAK_MM/LOGS/pc_type.log', 'w') as pc_type:
@@ -509,7 +532,7 @@ class App(customtkinter.CTk):
                 pc_type.write('hr')
 
         meshing = MM_pc2mesh.meshing(_mm_project, self.session_logger)
-        meshing.get_PointCloud(fullpath)
+        meshing.get_PointCloud(fullpath, gpu)
 
         threading.Thread(target=app.run_photogrammetry_executable, name='t100').start()
 
@@ -811,6 +834,7 @@ class App(customtkinter.CTk):
         settings.mesh_from_pointcloud_type = self.mesh_from_pointcloud_type_var.get()
         settings.delete_after_transfer = self.delete_after_transfer_var.get()
         settings.auto_open_upon_completion = self.bool_to_string(self.auto_open_var.get())
+        settings.use_gpu = self.use_gpu_var.get()
         settings.save()
 
     def sd_card_monitor(self):
