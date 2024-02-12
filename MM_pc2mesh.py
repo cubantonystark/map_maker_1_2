@@ -36,7 +36,7 @@ class meshing():
         self.logger = logger
     def load_e57(self, e57path):
 
-        mesh_depth= 12
+        mesh_depth= 11
         ms = pymeshlab.MeshSet()
         ms.load_new_mesh(e57path)
         fullpath = e57path.replace("e57", "ply")
@@ -248,7 +248,7 @@ class meshing():
         message = str(pcd)
         self.logger.info(message)
         self.logger.info('Downsampling.')
-        downpcd = pcd.voxel_down_sample(voxel_size=0.01)
+        downpcd = pcd.voxel_down_sample(voxel_size=0.02)
         # logging.info(str(downpcd)+"\r")
         message = str(downpcd)
         self.logger.info(message)
@@ -341,7 +341,7 @@ class meshing():
 
                 elif "drone_" and "ply" or "drone_" and ".pts" in filename:
 
-                    t_hold = 3
+                    t_hold = 0.1
 
                 else:
                     t_hold = t_hold
@@ -411,7 +411,7 @@ class meshing():
                         t_hold = 4.5
 
                     else:
-                        t_hold = t_hold
+                        t_hold = 0.2
 
                     # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
                     ms.apply_filter('compute_selection_by_edge_length',
@@ -467,16 +467,16 @@ class meshing():
                                         mincomponentdiag=p)
 
                         if ".ply" in filename:
-                            t_hold = t_hold
+                            t_hold = 0.3
 
                         elif ".pts" in filename:
-                            t_hold = t_hold
+                            t_hold = 0.099
 
                         elif "drone_" and "ply" or "drone_" and ".pts" in filename:
                             t_hold = 4.75
 
                         else:
-                            t_hold = t_hold
+                            t_hold = 0.3
 
                         # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
                         ms.apply_filter('compute_selection_by_edge_length',
