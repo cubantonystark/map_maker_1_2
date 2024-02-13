@@ -204,7 +204,6 @@ class meshing():
                 self.mm_project.set_zip_payload_location(os.path.join(os.getcwd(), model_path))
                 #self.mm_project.name + model_path + self.mm_project.name + ".zip"
                 return
-                #sys.exit()
 
         else:
 
@@ -317,6 +316,7 @@ class meshing():
 
                 boundingbox = ms.current_mesh().bounding_box()
                 diag = boundingbox.diagonal()
+
                 t_hold = diag / 200
 
                 p = pymeshlab.PercentageValue(25)
@@ -342,7 +342,7 @@ class meshing():
                 else:
                     t_hold = 0.1
 
-                    # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
+                # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
 
                 ms.apply_filter('compute_selection_by_edge_length',
                                 threshold=t_hold)
@@ -374,13 +374,17 @@ class meshing():
                     # logging.info('Mesh not optimal. Retargeting parameters (1).\r')
                     message = 'Mesh not optimal. Retargeting parameters (1).'
                     self.write_to_log(path, separator, message)
+
                     boundingbox = ms.current_mesh().bounding_box()
                     diag = boundingbox.diagonal()
                     t_hold = diag / 200
-                    p = pymeshlab.PercentageValue(25)
+
+                    p = pymeshlab.PercentageValue(10)
+
                     # logging.info('Refining.\r')
                     message = 'Refining'
                     self.write_to_log(path, separator, message)
+
                     # We will select faces that are long based on the bounding box calculation and then remove them
                     ms.apply_filter('compute_selection_by_edge_length',
                                     threshold=t_hold)
@@ -391,13 +395,13 @@ class meshing():
                                     mincomponentdiag=p)
 
                     if ".ply" in filename:
-                        t_hold = 0.2
+                        t_hold = 0.3
 
                     elif ".pts" in filename:
                         t_hold = 0.095
 
                     else:
-                        t_hold = 0.2
+                        t_hold = 0.3
 
                     # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
                     ms.apply_filter('compute_selection_by_edge_length',
@@ -406,7 +410,7 @@ class meshing():
 
                     # Then we remove any isolated faces (floaters) that might still be laying around
                     ms.apply_filter('meshing_remove_connected_component_by_diameter',
-                                    mincomponentdiag=p)
+                                    mincomponentdiag = p)
 
                     message = 'Exporting Mesh.'
                     self.write_to_log(path, separator, message)
@@ -447,13 +451,13 @@ class meshing():
                                         mincomponentdiag=p)
 
                         if ".ply" in filename:
-                            t_hold = 0.3
+                            t_hold = 0.6
 
                         elif ".pts" in filename:
                             t_hold = 0.099
 
                         else:
-                            t_hold = 0.3
+                            t_hold = 0.6
 
                         # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
                         ms.apply_filter('compute_selection_by_edge_length',
@@ -676,7 +680,6 @@ class meshing():
         self.mm_project.set_completed_file_path(os.path.join(os.getcwd(), model_path))
         self.mm_project.set_zip_payload_location(os.path.join(os.getcwd(), model_path))
         #self.mm_project.name + model_path + self.mm_project.name + ".zip"
-        #sys.exit()
         return
 
     def compress_into_zip(self, with_texture_output_folder, newpath):
