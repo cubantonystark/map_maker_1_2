@@ -411,7 +411,7 @@ class meshing():
 
                     # Then we remove any isolated faces (floaters) that might still be laying around
                     ms.apply_filter('meshing_remove_connected_component_by_diameter',
-                                    mincomponentdiag=p)
+                                    mincomponentdiag = p)
 
                     message = 'Exporting Mesh.'
                     self.write_to_log(path, separator, message)
