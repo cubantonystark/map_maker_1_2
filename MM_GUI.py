@@ -532,7 +532,8 @@ class App(customtkinter.CTk):
                 pc_type.write('hr')
 
         meshing = MM_pc2mesh.meshing(_mm_project, self.session_logger)
-        meshing.get_PointCloud(fullpath, gpu)
+
+        threading.Thread(target = lambda: meshing.get_PointCloud(fullpath, gpu), name='t110').start()
 
         threading.Thread(target=app.run_photogrammetry_executable, name='t100').start()
 
