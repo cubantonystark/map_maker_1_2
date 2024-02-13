@@ -343,11 +343,8 @@ class meshing():
                     t_hold = 0.1
 
                 # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
-
-                ms.apply_filter('compute_selection_by_edge_length',
-                                threshold=t_hold)
+                ms.apply_filter('compute_selection_by_edge_length',                        threshold=t_hold)
                 ms.apply_filter('meshing_remove_selected_faces')
-
                 # Then we remove any isolated faces (floaters) that might still be laying around
                 ms.apply_filter('meshing_remove_connected_component_by_diameter',
                                 mincomponentdiag=p)
@@ -371,7 +368,7 @@ class meshing():
                 try:
 
                     ms.load_new_mesh(generated_mesh)
-                    # logging.info('Mesh not optimal. Retargeting parameters (1).\r')
+                    logging.info('Mesh not optimal. Retargeting parameters (1).\r')
                     message = 'Mesh not optimal. Retargeting parameters (1).'
                     self.write_to_log(path, separator, message)
 
@@ -431,7 +428,7 @@ class meshing():
                     try:
 
                         ms.load_new_mesh(generated_mesh)
-                        # logging.info('Mesh not optimal. Retargeting parameters (2).\r')
+                        logging.info('Mesh not optimal. Retargeting parameters (2).\r')
                         message = 'Mesh not optimal. Retargeting parameters (2).'
                         self.write_to_log(path, separator, message)
                         boundingbox = ms.current_mesh().bounding_box()
@@ -450,14 +447,8 @@ class meshing():
                         ms.apply_filter('meshing_remove_connected_component_by_diameter',
                                         mincomponentdiag=p)
 
-                        if ".ply" in filename:
-                            t_hold = 0.6
-
-                        elif ".pts" in filename:
+                        if ".pts" in filename:
                             t_hold = 0.099
-
-                        else:
-                            t_hold = 0.6
 
                         # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
                         ms.apply_filter('compute_selection_by_edge_length',
@@ -472,7 +463,6 @@ class meshing():
 
                         newpath = simplified_output_folder + separator + filename.replace('ply', 'obj').replace('pts',
                                                                                                                 'obj')
-
                         ms.save_current_mesh(newpath,
                                              save_vertex_color=True,
                                              save_vertex_coord=True,
