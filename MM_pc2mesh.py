@@ -204,7 +204,6 @@ class meshing():
                 self.mm_project.set_zip_payload_location(os.path.join(os.getcwd(), model_path))
                 #self.mm_project.name + model_path + self.mm_project.name + ".zip"
                 return
-                #sys.exit()
 
         else:
 
@@ -681,7 +680,6 @@ class meshing():
         self.mm_project.set_completed_file_path(os.path.join(os.getcwd(), model_path))
         self.mm_project.set_zip_payload_location(os.path.join(os.getcwd(), model_path))
         #self.mm_project.name + model_path + self.mm_project.name + ".zip"
-        #sys.exit()
         return
 
     def compress_into_zip(self, with_texture_output_folder, newpath):
