@@ -658,15 +658,16 @@ class meshing():
         os.remove(log_folder + "/status.log")
 
         messagebox.showinfo('ARTAK 3D Map Maker', 'Reconstruction Complete.')
-        # logging.info('Process complete.\r')
         message = 'Reconstruction Complete.'
+        self.logger.info(message)
         model_path = model_dest_folder
+        self.logger.info("File to upload: ", self.mm_project.name + model_path + self.mm_project.name + ".zip")
         self.logger.info(message)
         self.write_to_log(path, separator, message)
         self.mm_project.set_completed_file_path(model_path)
         self.mm_project.set_completed_file_path(os.path.join(os.getcwd(), model_path))
         self.mm_project.set_zip_payload_location(os.path.join(os.getcwd(), model_path))
-        #self.mm_project.name + model_path + self.mm_project.name + ".zip"
+        # self.mm_project.name + model_path + self.mm_project.name + ".zip"
         return
 
     def compress_into_zip(self, with_texture_output_folder, newpath):
