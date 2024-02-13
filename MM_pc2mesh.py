@@ -476,20 +476,17 @@ class meshing():
 
                         # Cleanup
                         print("Folder: ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
-                        '''
                         try:
                             shutil.rmtree("ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
-                            # Remove the status flag for MM_GUI progressbar
+                        # Remove the status flag for MM_GUI progressbar
                         except FileNotFoundError:
                             pass
-                        '''
                         with open(log_folder + "/status.log", "w") as status:
                             status.write("done")
 
-                        #os.remove(log_folder + "/status.log")
+                        os.remove(log_folder + "/status.log")
 
                         # Announce error and terminate.
-
                         messagebox.showerror('ARTAK 3D Map Maker', 'Could not compute Mesh from PointCloud. Aborting.')
                         logging.info('Process complete.\r')
                         message = 'Could not compute Mesh from PointCloud. Aborting.'
