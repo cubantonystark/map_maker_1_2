@@ -339,12 +339,8 @@ class meshing():
                 elif ".pts" in filename:
                     t_hold = 0.09
 
-                elif "drone_" and "ply" or "drone_" and ".pts" in filename:
-
-                    t_hold = 0.1
-
                 else:
-                    t_hold = t_hold
+                    t_hold = 0.1
 
                     # Since there will still be some long faces, we will mark them and remove them, this time applying a 0.06 thershold. This is
 
@@ -360,13 +356,6 @@ class meshing():
                 self.write_to_log(path, separator, message)
 
                 newpath = simplified_output_folder + separator + filename.replace('ply', 'obj').replace('pts', 'obj')
-
-                # Need to reorient faces coherently to avoid wrong normal orientation.
-                ms.apply_filter('compute_normal_by_function_per_vertex',
-                                x='-nx',
-                                y='-ny',
-                                z='-nz',
-                                onselected=False)
 
                 ms.save_current_mesh(newpath,
                                      save_vertex_color=True,
@@ -397,7 +386,7 @@ class meshing():
                                     threshold=t_hold)
                     ms.apply_filter('meshing_remove_selected_faces')
 
-                    # The selection process and removal of long faces will reate floaters, we will remove isolated faces
+                    # The selection process and removal of long faces will create floaters, we will remove isolated faces
                     ms.apply_filter('meshing_remove_connected_component_by_diameter',
                                     mincomponentdiag=p)
 
@@ -406,9 +395,6 @@ class meshing():
 
                     elif ".pts" in filename:
                         t_hold = 0.095
-
-                    elif "drone_" and "ply" or "drone_" and ".pts" in filename:
-                        t_hold = 4.5
 
                     else:
                         t_hold = 0.2
@@ -426,13 +412,6 @@ class meshing():
                     self.write_to_log(path, separator, message)
                     newpath = simplified_output_folder + separator + filename.replace('ply', 'obj').replace('pts',
                                                                                                             'obj')
-
-                    # Need to reorient faces coherently to avoid wrong normal orientation.
-                    ms.apply_filter('compute_normal_by_function_per_vertex',
-                                    x='-nx',
-                                    y='-ny',
-                                    z='-nz',
-                                    onselected=False)
 
                     ms.save_current_mesh(newpath,
                                          save_vertex_color=True,
@@ -462,6 +441,7 @@ class meshing():
                         ms.apply_filter('compute_selection_by_edge_length',
                                         threshold=t_hold)
                         ms.apply_filter('meshing_remove_selected_faces')
+
                         # The selection process and removal of long faces will reate floaters, we will remove isolated faces
                         ms.apply_filter('meshing_remove_connected_component_by_diameter',
                                         mincomponentdiag=p)
@@ -471,9 +451,6 @@ class meshing():
 
                         elif ".pts" in filename:
                             t_hold = 0.099
-
-                        elif "drone_" and "ply" or "drone_" and ".pts" in filename:
-                            t_hold = 4.75
 
                         else:
                             t_hold = 0.3
@@ -491,12 +468,6 @@ class meshing():
 
                         newpath = simplified_output_folder + separator + filename.replace('ply', 'obj').replace('pts',
                                                                                                                 'obj')
-                        # Need to reorient faces coherently to avoid wrong normal orientation.
-                        ms.apply_filter('compute_normal_by_function_per_vertex',
-                                        x='-nx',
-                                        y='-ny',
-                                        z='-nz',
-                                        onselected=False)
 
                         ms.save_current_mesh(newpath,
                                              save_vertex_color=True,
@@ -531,7 +502,6 @@ class meshing():
                         message = 'Could not compute Mesh from PointCloud. Aborting.'
                         self.write_to_log(path, separator, message)
                         return
-                        #sys.exit()
 
             m = ms.current_mesh()
             v_number = m.vertex_number()
