@@ -485,19 +485,18 @@ class meshing():
                     except pymeshlab.pmeshlab.PyMeshLabException:
 
                         # Cleanup
-
                         print("Folder: ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
-
+                        '''
                         try:
                             shutil.rmtree("ARTAK_MM/DATA/PointClouds/" + folder_type + separator + pc_folder)
                             # Remove the status flag for MM_GUI progressbar
                         except FileNotFoundError:
                             pass
-
+                        '''
                         with open(log_folder + "/status.log", "w") as status:
                             status.write("done")
-                        time.sleep(2)
-                        os.remove(log_folder + "/status.log")
+
+                        #os.remove(log_folder + "/status.log")
 
                         # Announce error and terminate.
 
@@ -513,6 +512,7 @@ class meshing():
             logging.info("Initial VC: "+str(v_number)+". Initial FC: "+str(f_number)+".\r")
             message = 'Initial VC: ' + str(v_number) + '. Initial FC: ' + str(f_number) + "."
             self.write_to_log(path, separator, message)
+
             # Let's take a look at the mesh file to see how big it is. We are constrained to about 120Mb in this case, therefore we
             # will have to decimate if the file is bigger than that number.
 
