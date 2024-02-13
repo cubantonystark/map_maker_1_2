@@ -230,7 +230,7 @@ class meshing():
             except FileNotFoundError:
                 pass
 
-            # logging.info('Loading PointCloud.\r')
+            #logging.info('Loading PointCloud.\r')
             #self.logger.info("Loading PointCloud")
             message = 'Loading PointCloud. ' + str(fullpath)
             self.write_to_log(path, separator, message)
@@ -247,7 +247,7 @@ class meshing():
         message = str(pcd)
         self.logger.info(message)
         self.logger.info('Downsampling.')
-        downpcd = pcd.voxel_down_sample(voxel_size=0.02)
+        downpcd = pcd.voxel_down_sample(voxel_size = 0.02)
         # logging.info(str(downpcd)+"\r")
         message = str(downpcd)
         self.logger.info(message)
