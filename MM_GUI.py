@@ -334,7 +334,7 @@ class App(customtkinter.CTk):
 
         self.partition_key = customtkinter.CTkLabel(self.fourth_frame, text="Map Partition Key")
         self.partition_key_var = customtkinter.CTkEntry(self.fourth_frame, placeholder_text="None")
-        self.partition_key_var.setvar("")
+        self.partition_key_var.setvar("lab")
         self.partition_key.grid(row=19, column=0, padx=20, pady=10, sticky="ew")
         self.partition_key_var.grid(row=19, column=1, padx=20, pady=10, sticky="ew")
 
@@ -354,7 +354,8 @@ class App(customtkinter.CTk):
 
         # region auto-sort setting
         self.auto_sort_var = customtkinter.BooleanVar()
-        self.auto_sort_var.set(False)
+        self.auto_sort_var.set(app_settings["sort_images"])
+
         self.auto_sort_text = customtkinter.CTkLabel(self.fourth_frame, text="Separate Images by Time?")
         self.auto_sort_text.grid(row=17, column=0, padx=20, pady=10)
         self.auto_sort_switch = customtkinter.CTkSwitch(self.fourth_frame, text="Yes", variable=self.auto_sort_var)
@@ -434,8 +435,8 @@ class App(customtkinter.CTk):
                 print("Ignoring JSON File")
 
     def select_file(self):
-        fullpath = filedialog.askopenfile(filetypes=(("PointClouds", "*.ply; *.pts; *.e57"),
-                                                     ("Videos", "*.mp4; *.m4v ;*.mov; *.ts; *.mpeg"),
+        fullpath = filedialog.askopenfile(filetypes=(("Videos", "*.mp4; *.m4v; *.mov; *.ts; *.mpeg"),
+                                                     ("PointClouds", "*.ply; *.pts; *.e57"),
                                                      ("All files", "*.*")))
         if fullpath is not None:
             fullpath = str(fullpath.name)
@@ -464,7 +465,8 @@ class App(customtkinter.CTk):
                                               artak_server=artak_server,
                                               map_type="OBJ",
                                               quality=self.quality.get(),
-                                              video_frame_extraction_rate=time_between_frames
+                                              video_frame_extraction_rate=time_between_frames,
+                                              partition_key=self.partition_key_var.get()
                                               )
 
             else:
@@ -477,6 +479,7 @@ class App(customtkinter.CTk):
                                               artak_server=artak_server,
                                               map_type="OBJ",
                                               quality=self.quality.get(),
+                                              partition_key=self.partition_key_var.get()
                                               )
 
             # if self.local_server_ip_var.get() != "":
@@ -618,11 +621,9 @@ class App(customtkinter.CTk):
                     if each_project.data_type == "LiDAR":
                         _file = os.path.join(_source_folder, os.listdir(_source_folder)[0])
                         self.gen_pc(_file, each_project)
-                        MM_upload_to_artak_mk1.upload(each_project.zip_payload_location)
                     else:
                         _file = os.path.join(_source_folder, os.listdir(_source_folder)[0])
                         self.trigger_photogrammetry(self.session_logger, each_project)
-                        MM_upload_to_artak_mk1.upload(each_project.zip_payload_location)
 
                     self.job_count += 1
                     self.session_logger.info("Finished Project: " + each_project.name)
@@ -635,12 +636,14 @@ class App(customtkinter.CTk):
 
         path = mm_project.completed_file_path
         session_project_number = mm_project.session_project_number
-        mm_project.set_status("Completed")
+        MM_upload_to_artak_mk1.upload(mm_project.zip_payload_location, partition_key=mm_project.partition_key)
+
         if mm_project.status == "Error":
             progress_bar.configure(mode="determinate", progress_color="red")
             progress_bar.set(1)
             progress_bar.stop()
         else:
+            mm_project.set_status("Completed")
             project2_open_map_icon = customtkinter.CTkButton(self.home_frame,
                                                              text="Open Map",
                                                              command=lambda: threading.Thread(name='t10',
@@ -651,6 +654,7 @@ class App(customtkinter.CTk):
             progress_bar.configure(mode="determinate", progress_color="green")
             progress_bar.set(1)
             progress_bar.stop()
+           # MM_job_que.remove_project_in_file(mm_project)
        # mm_project.set_total_processing_time(mm_project.time_processing_complete - mm_project.time_processing_start)
         if mm_project.status == "Error":
             pass
@@ -777,7 +781,8 @@ class App(customtkinter.CTk):
                                                   image_folder=each_folder, total_images=file_count, logger="logger",
                                                   artak_server=artak_server,
                                                   map_type="OBJ",
-                                                  quality=self.quality.get(), status="pending"
+                                                  quality=self.quality.get(), status="pending",
+                                                  partition_key=self.partition_key_var.get()
                                                   )
                     # add project to job que
                     add_job_to_que(new_project)
@@ -792,7 +797,8 @@ class App(customtkinter.CTk):
                                                   time_mm_start=time.time(),
                                                   image_folder=each_folder, total_images=file_count, logger=logger,
                                                   artak_server=artak_server,
-                                                  session_project_number=session_project_number, map_type="TILES"
+                                                  session_project_number=session_project_number, map_type="TILES",
+                                                  partition_key=self.partition_key_var.get()
                                                   )
                     self.list_of_projects.append(new_project)
                     print(new_project.as_dict())
@@ -852,6 +858,7 @@ class App(customtkinter.CTk):
         settings.delete_after_transfer = self.delete_after_transfer_var.get()
         settings.auto_open_upon_completion = self.bool_to_string(self.auto_open_var.get())
         settings.use_gpu = self.use_gpu_var.get()
+        settings.sort_images = self.auto_sort_var.get()
         settings.save()
 
     def sd_card_monitor(self):
