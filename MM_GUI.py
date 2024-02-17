@@ -177,7 +177,7 @@ class App(customtkinter.CTk):
         self.browse_label_pc = customtkinter.CTkLabel(self.home_frame, text="Select File")
         self.browse_label_pc.grid(row=10, column=0, padx=20, pady=10)
 
-        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.select_file,
+        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.process_file,
                                                         state="normal")
         self.browse_button_pc.grid(row=10, column=1, padx=20, pady=10)
         # endregion
@@ -351,10 +351,22 @@ class App(customtkinter.CTk):
                                                                  value="N")
         self.rerun_radio_button_n.grid(row=11, column=2, padx=20, pady=10)
         self.rerun_failed_jobs_var.set(app_settings["rerun_failed_jobs"])
+
+        # region auto-sort setting
+        self.auto_sort_var = customtkinter.BooleanVar()
+        self.auto_sort_var.set(False)
+        self.auto_sort_text = customtkinter.CTkLabel(self.fourth_frame, text="Separate Images by Time?")
+        self.auto_sort_text.grid(row=17, column=0, padx=20, pady=10)
+        self.auto_sort_switch = customtkinter.CTkSwitch(self.fourth_frame, text="Yes", variable=self.auto_sort_var)
+        self.auto_sort_switch.grid(row=17, column=1, padx=20, pady=10)
+
+        # endregion
+
         # todo fix delete button which currently doesnt have permission to delete
         self.save_settings_button = customtkinter.CTkButton(self.fourth_frame, text="Save Settings",
                                                           command=self.save_settings, state="normal")
         self.save_settings_button.grid(row=23, column=1, padx=20, pady=10)
+
 
         # endregion
 
@@ -423,7 +435,7 @@ class App(customtkinter.CTk):
 
     def select_file(self):
         fullpath = filedialog.askopenfile(filetypes=(("PointClouds", "*.ply; *.pts; *.e57"),
-                                                     ("Videos", "*.mp4; *.m4v ;*.mov"),
+                                                     ("Videos", "*.mp4; *.m4v ;*.mov; *.ts; *.mpeg"),
                                                      ("All files", "*.*")))
         if fullpath is not None:
             fullpath = str(fullpath.name)
@@ -432,7 +444,7 @@ class App(customtkinter.CTk):
 
             video_found = False
             video = ""
-            video_extensions = ['.mpeg', '.mp4', '.ts', ".m4v"]  # Add more extensions if needed
+            video_extensions = ['.mpeg', '.mp4', '.ts', ".m4v", ".mov"]  # Add more extensions if needed
 
             for each_extension in video_extensions:
                 if each_extension in fullpath.lower():
@@ -714,6 +726,9 @@ class App(customtkinter.CTk):
 
             time.sleep(5)
 
+    def process_file(self):
+        threading.Thread(name='t6', target=self.select_file).start()
+
     def process_files(self, folder_path="", drive_letter=""):
         if drive_letter == "":
             path = folder_path
@@ -735,8 +750,9 @@ class App(customtkinter.CTk):
                 frame_extraction_rate = "10"
 
             # ingest the data and get a list of the folders (full paths) in which the ingested data is now located
+
             folder_name_list = MM_ingest.ingest_data(path, logger=self.session_logger,
-                                                     image_spacing=image_spacing, rerun=rerun, frame_spacing=frame_extraction_rate)
+                                                     image_spacing=image_spacing, rerun=rerun, frame_spacing=frame_extraction_rate, sort=self.auto_sort_var.get())
             print("Folder name list: " + str(folder_name_list))
             print("Processing Triggered. Map type: " + map_type + " " + "Delete After = " + delete_after)
             print(folder_name_list)
