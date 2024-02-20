@@ -334,7 +334,8 @@ class meshing():
                 # if this is a generated file from exyn sensors, then we need to use 'safe' values different from the leica ones.
 
                 if ".ply" in filename:
-                    t_hold = 0.1
+                    self.logger.info("its ply")
+                    t_hold = 0.06
 
                 elif ".pts" in filename:
                     t_hold = 0.09
@@ -392,7 +393,7 @@ class meshing():
                                     mincomponentdiag=p)
 
                     if ".ply" in filename:
-                        t_hold = 0.3
+                        t_hold = 0.1
 
                     elif ".pts" in filename:
                         t_hold = 0.095
