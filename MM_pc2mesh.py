@@ -330,7 +330,7 @@ class meshing():
                 ms.apply_filter('meshing_remove_selected_faces')
                 # The selection process and removal of long faces will create floaters, we will remove isolated faces
                 ms.apply_filter('meshing_remove_connected_component_by_diameter',
-                                mincomponentdiag=p)
+                                mincomponentdiag = p)
                 # if this is a generated file from exyn sensors, then we need to use 'safe' values different from the leica ones.
 
                 if ".ply" in filename:
