@@ -6,7 +6,7 @@ import statistics
 import itwincapturemodeler
 import random
 from MM_video import is_video
-#import pymeshlab
+import pymeshlab
 import requests
 from MM_objects import MapmakerProject
 
@@ -440,6 +440,12 @@ class ProcessingPhotogrammetry:
             #     metadata[child.tag] = child.text
             # path to the input OBJ file
             input_file = os.path.join(production.getDestination(), "Data/Model/Model.obj")
+
+            if not self.exif_data_exists:
+                ms = pymeshlab.MeshSet()
+                ms.load_new_mesh(input_file)
+                ms.compute_matrix_from_scaling_or_normalization(axisx=40.000000, axisy=1.000000, axisz=1.000000)
+                ms.save_current_mesh(input_file)
 
             # path to the output folder
             output_folder = os.path.join(production.getDestination(), "Data/Model/")

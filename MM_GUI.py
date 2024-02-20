@@ -177,7 +177,7 @@ class App(customtkinter.CTk):
         self.browse_label_pc = customtkinter.CTkLabel(self.home_frame, text="Select File")
         self.browse_label_pc.grid(row=10, column=0, padx=20, pady=10)
 
-        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.select_file,
+        self.browse_button_pc = customtkinter.CTkButton(self.home_frame, text="Browse", command=self.process_file,
                                                         state="normal")
         self.browse_button_pc.grid(row=10, column=1, padx=20, pady=10)
         # endregion
@@ -334,7 +334,7 @@ class App(customtkinter.CTk):
 
         self.partition_key = customtkinter.CTkLabel(self.fourth_frame, text="Map Partition Key")
         self.partition_key_var = customtkinter.CTkEntry(self.fourth_frame, placeholder_text="None")
-        self.partition_key_var.setvar("")
+        self.partition_key_var.setvar("lab")
         self.partition_key.grid(row=19, column=0, padx=20, pady=10, sticky="ew")
         self.partition_key_var.grid(row=19, column=1, padx=20, pady=10, sticky="ew")
 
@@ -351,10 +351,23 @@ class App(customtkinter.CTk):
                                                                  value="N")
         self.rerun_radio_button_n.grid(row=11, column=2, padx=20, pady=10)
         self.rerun_failed_jobs_var.set(app_settings["rerun_failed_jobs"])
+
+        # region auto-sort setting
+        self.auto_sort_var = customtkinter.BooleanVar()
+        self.auto_sort_var.set(app_settings["sort_images"])
+
+        self.auto_sort_text = customtkinter.CTkLabel(self.fourth_frame, text="Separate Images by Time?")
+        self.auto_sort_text.grid(row=17, column=0, padx=20, pady=10)
+        self.auto_sort_switch = customtkinter.CTkSwitch(self.fourth_frame, text="Yes", variable=self.auto_sort_var)
+        self.auto_sort_switch.grid(row=17, column=1, padx=20, pady=10)
+
+        # endregion
+
         # todo fix delete button which currently doesnt have permission to delete
         self.save_settings_button = customtkinter.CTkButton(self.fourth_frame, text="Save Settings",
                                                           command=self.save_settings, state="normal")
         self.save_settings_button.grid(row=23, column=1, padx=20, pady=10)
+
 
         # endregion
 
@@ -422,8 +435,8 @@ class App(customtkinter.CTk):
                 print("Ignoring JSON File")
 
     def select_file(self):
-        fullpath = filedialog.askopenfile(filetypes=(("PointClouds", "*.ply; *.pts; *.e57"),
-                                                     ("Videos", "*.mp4; *.m4v ;*.mov"),
+        fullpath = filedialog.askopenfile(filetypes=(("Videos", "*.mp4; *.m4v; *.mov; *.ts; *.mpeg"),
+                                                     ("PointClouds", "*.ply; *.pts; *.e57"),
                                                      ("All files", "*.*")))
         if fullpath is not None:
             fullpath = str(fullpath.name)
@@ -432,7 +445,7 @@ class App(customtkinter.CTk):
 
             video_found = False
             video = ""
-            video_extensions = ['.mpeg', '.mp4', '.ts', ".m4v"]  # Add more extensions if needed
+            video_extensions = ['.mpeg', '.mp4', '.ts', ".m4v", ".mov"]  # Add more extensions if needed
 
             for each_extension in video_extensions:
                 if each_extension in fullpath.lower():
@@ -452,7 +465,8 @@ class App(customtkinter.CTk):
                                               artak_server=artak_server,
                                               map_type="OBJ",
                                               quality=self.quality.get(),
-                                              video_frame_extraction_rate=time_between_frames
+                                              video_frame_extraction_rate=time_between_frames,
+                                              partition_key=self.partition_key_var.get()
                                               )
 
             else:
@@ -465,6 +479,7 @@ class App(customtkinter.CTk):
                                               artak_server=artak_server,
                                               map_type="OBJ",
                                               quality=self.quality.get(),
+                                              partition_key=self.partition_key_var.get()
                                               )
 
             # if self.local_server_ip_var.get() != "":
@@ -606,11 +621,9 @@ class App(customtkinter.CTk):
                     if each_project.data_type == "LiDAR":
                         _file = os.path.join(_source_folder, os.listdir(_source_folder)[0])
                         self.gen_pc(_file, each_project)
-                        MM_upload_to_artak_mk1.upload(each_project.zip_payload_location)
                     else:
                         _file = os.path.join(_source_folder, os.listdir(_source_folder)[0])
                         self.trigger_photogrammetry(self.session_logger, each_project)
-                        MM_upload_to_artak_mk1.upload(each_project.zip_payload_location)
 
                     self.job_count += 1
                     self.session_logger.info("Finished Project: " + each_project.name)
@@ -623,12 +636,14 @@ class App(customtkinter.CTk):
 
         path = mm_project.completed_file_path
         session_project_number = mm_project.session_project_number
-        mm_project.set_status("Completed")
+        MM_upload_to_artak_mk1.upload(mm_project.zip_payload_location, partition_key=mm_project.partition_key)
+
         if mm_project.status == "Error":
             progress_bar.configure(mode="determinate", progress_color="red")
             progress_bar.set(1)
             progress_bar.stop()
         else:
+            mm_project.set_status("Completed")
             project2_open_map_icon = customtkinter.CTkButton(self.home_frame,
                                                              text="Open Map",
                                                              command=lambda: threading.Thread(name='t10',
@@ -639,6 +654,7 @@ class App(customtkinter.CTk):
             progress_bar.configure(mode="determinate", progress_color="green")
             progress_bar.set(1)
             progress_bar.stop()
+           # MM_job_que.remove_project_in_file(mm_project)
        # mm_project.set_total_processing_time(mm_project.time_processing_complete - mm_project.time_processing_start)
         if mm_project.status == "Error":
             pass
@@ -714,6 +730,9 @@ class App(customtkinter.CTk):
 
             time.sleep(5)
 
+    def process_file(self):
+        threading.Thread(name='t6', target=self.select_file).start()
+
     def process_files(self, folder_path="", drive_letter=""):
         if drive_letter == "":
             path = folder_path
@@ -735,8 +754,9 @@ class App(customtkinter.CTk):
                 frame_extraction_rate = "10"
 
             # ingest the data and get a list of the folders (full paths) in which the ingested data is now located
+
             folder_name_list = MM_ingest.ingest_data(path, logger=self.session_logger,
-                                                     image_spacing=image_spacing, rerun=rerun, frame_spacing=frame_extraction_rate)
+                                                     image_spacing=image_spacing, rerun=rerun, frame_spacing=frame_extraction_rate, sort=self.auto_sort_var.get())
             print("Folder name list: " + str(folder_name_list))
             print("Processing Triggered. Map type: " + map_type + " " + "Delete After = " + delete_after)
             print(folder_name_list)
@@ -761,7 +781,8 @@ class App(customtkinter.CTk):
                                                   image_folder=each_folder, total_images=file_count, logger="logger",
                                                   artak_server=artak_server,
                                                   map_type="OBJ",
-                                                  quality=self.quality.get(), status="pending"
+                                                  quality=self.quality.get(), status="pending",
+                                                  partition_key=self.partition_key_var.get()
                                                   )
                     # add project to job que
                     add_job_to_que(new_project)
@@ -776,7 +797,8 @@ class App(customtkinter.CTk):
                                                   time_mm_start=time.time(),
                                                   image_folder=each_folder, total_images=file_count, logger=logger,
                                                   artak_server=artak_server,
-                                                  session_project_number=session_project_number, map_type="TILES"
+                                                  session_project_number=session_project_number, map_type="TILES",
+                                                  partition_key=self.partition_key_var.get()
                                                   )
                     self.list_of_projects.append(new_project)
                     print(new_project.as_dict())
@@ -836,6 +858,7 @@ class App(customtkinter.CTk):
         settings.delete_after_transfer = self.delete_after_transfer_var.get()
         settings.auto_open_upon_completion = self.bool_to_string(self.auto_open_var.get())
         settings.use_gpu = self.use_gpu_var.get()
+        settings.sort_images = self.auto_sort_var.get()
         settings.save()
 
     def sd_card_monitor(self):

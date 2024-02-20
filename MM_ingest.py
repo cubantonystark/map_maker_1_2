@@ -121,7 +121,7 @@ def handle_new_zip(file, _quality, _maptype, _video_frame_extraction_rate, _part
     MM_job_que.add_job_to_que(new_project)
 
 
-def ingest_data(source, logger=None, image_spacing=60, rerun=False, frame_spacing=30):
+def ingest_data(source, logger=None, image_spacing=60, rerun=False, frame_spacing=30, sort=False):
     """
     Sole method for ingesting local data into MapMaker
 
@@ -137,11 +137,11 @@ def ingest_data(source, logger=None, image_spacing=60, rerun=False, frame_spacin
     """
     results = ""
     if os.path.isdir(source):
-        results = ingest_folder(source, logger=logger, image_spacing=image_spacing, rerun=rerun, frame_spacing=frame_spacing)
+        results = ingest_folder(source, logger=logger, image_spacing=image_spacing, rerun=rerun, frame_spacing=frame_spacing, sort=sort)
     return results
 
 
-def ingest_folder(source, logger=None, image_spacing=60, rerun=False, frame_spacing=30):
+def ingest_folder(source, logger=None, image_spacing=60, rerun=False, frame_spacing=30, sort=False):
     folder_name_paths = []
 
     # region handle videos
@@ -161,7 +161,7 @@ def ingest_folder(source, logger=None, image_spacing=60, rerun=False, frame_spac
     if image_spacing == "":
         image_spacing = 60
 
-    image_folder_paths = ingest_images(source, logger=logger, image_spacing=image_spacing, rerun=rerun)
+    image_folder_paths = ingest_images(source, logger=logger, image_spacing=image_spacing, rerun=rerun, sort=sort)
     for i in image_folder_paths:
         folder_name_paths.append(i)
 
@@ -173,7 +173,7 @@ def ingest_folder(source, logger=None, image_spacing=60, rerun=False, frame_spac
     # Define the path to the source folder containing the photos
 
 
-def ingest_images(source, logger=None, image_spacing=60, rerun=False):
+def ingest_images(source, logger=None, image_spacing=60, rerun=False, sort=False):
     folder_name_paths = []
     exif_exists = False
 
@@ -189,175 +189,199 @@ def ingest_images(source, logger=None, image_spacing=60, rerun=False):
 
     # Sort the files by creation time from the EXIF data
     file_list = sort_files_by_datetime(file_list)
+    # except:
+    #     file_list = file_list
     image_spacing = int(image_spacing)
 
+    if not sort:
+        count = 0
+        for i in file_list:
+            if count == 0:
+                folder_name = os.path.basename(i).split('.')[0]
+                version_set = False
+                version = 1
+                while not version_set:
+                    if os.path.exists(destination_folder + '/' + folder_name + "-V" + str(version)):
+                        version += 1
+                    else:
+                        os.makedirs(destination_folder + '/' + folder_name + "-V" + str(version))
+                        folder_name = folder_name + "-V" + str(version)
+                        version_set = True
+
+                count = count + 1
+            file = i
+            dest = destination_folder + '/' + folder_name
+            folder_name_paths.append(dest)
+
+            shutil.copy(file, dest)
     # Create a list of lists containing the file names of photos taken within the time interval
-    grouped_files = []
-    for i in range(len(file_list)):
-        if i == 0:
-            grouped_files.append([file_list[i]])
-        else:
-            try:
-                prev_time = datetime.strptime(Image.open(os.path.join(file_list[i - 1]))._getexif()[36867],
-                                              '%Y:%m:%d %H:%M:%S')
-                curr_time = datetime.strptime(Image.open(os.path.join(file_list[i]))._getexif()[36867],
-                                              '%Y:%m:%d %H:%M:%S')
-                exif_exists = True
-                if (curr_time - prev_time).total_seconds() <= image_spacing:
-                    grouped_files[-1].append(file_list[i])
-                else:
-                    grouped_files.append([file_list[i]])
-            except:
+    if sort:
+        grouped_files = []
+
+        for i in range(len(file_list)):
+            if i == 0:
                 grouped_files.append([file_list[i]])
-    logger.info(len(grouped_files))
+            else:
+                try:
+                    prev_time = datetime.strptime(Image.open(os.path.join(file_list[i - 1]))._getexif()[36867],
+                                                  '%Y:%m:%d %H:%M:%S')
+                    curr_time = datetime.strptime(Image.open(os.path.join(file_list[i]))._getexif()[36867],
+                                                  '%Y:%m:%d %H:%M:%S')
+                    exif_exists = True
+                    if (curr_time - prev_time).total_seconds() <= image_spacing:
+                        grouped_files[len(grouped_files)-1].append(file_list[i])
+                    else:
+                        grouped_files.append([file_list[i]])
+                except TypeError:
+                    print ('error')
 
-    # Move the photos into new folders based on the time interval and create a JSON file for each folder
-    for i, files in enumerate(grouped_files):
-        try:
-            folder_name = datetime.strptime(Image.open(os.path.join(files[0]))._getexif()[36867],
-                                            '%Y:%m:%d %H:%M:%S').strftime('%Y-%m-%d_%H-%M-%S')
-        except:
-            folder_name = "VIDEO"
-        logger.info("Folder name = " + folder_name)
-        stop_process = False
-        try:
-            if exif_exists:
-                logger.info("EXIF exists")
-                folder_path = os.path.join(destination_folder, folder_name)
+        for i, files in enumerate(grouped_files):
+            try:
+                folder_name = datetime.strptime(Image.open(os.path.join(files[0]))._getexif()[36867],
+                                                '%Y:%m:%d %H:%M:%S').strftime('%Y-%m-%d_%H-%M-%S')
+            except:
+                folder_name = os.path.basename(files[0])
+            logger.info("Folder name = " + folder_name)
+            stop_process = False
+            try:
+                if exif_exists:
+                    logger.info("EXIF exists")
+                    folder_path = os.path.join(destination_folder, folder_name)
 
-                og_path = folder_path
-                count = 1
-                finished = False
-                while not finished:
-                    path = og_path + "-V" + str(count)
-                    logger.info("OGPath = " + og_path)
-                    logger.info("Path = " + path)
-                    if os.path.exists(path):
-                        logger.info("Directory already exists. Sequencing up version.")
-                        count += 1
-                        try:
+                    og_path = folder_path
+                    count = 1
+                    finished = False
+                    while not finished:
+                        path = og_path + "-V" + str(count)
+                        logger.info("OGPath = " + og_path)
+                        logger.info("Path = " + path)
+                        if os.path.exists(path):
+                            logger.info("Directory already exists. Sequencing up version.")
+                            count += 1
+                            try:
+                                destination_folder_versioned = og_path + "-V" + str(count)
+                                logger.info("Destination folder versioned = " + destination_folder_versioned)
+                                os.makedirs(destination_folder_versioned)
+                                folder_path = destination_folder_versioned
+                                folder_name = folder_name + "-V" + str(count)
+                                finished = True
+                            except:
+                                print("Directory already exists. Sequencing up version")
+                        else:
                             destination_folder_versioned = og_path + "-V" + str(count)
-                            logger.info("Destination folder versioned = " + destination_folder_versioned)
                             os.makedirs(destination_folder_versioned)
                             folder_path = destination_folder_versioned
                             folder_name = folder_name + "-V" + str(count)
                             finished = True
-                        except:
-                            print("Directory already exists. Sequencing up version")
-                    else:
-                        destination_folder_versioned = og_path + "-V" + str(count)
-                        os.makedirs(destination_folder_versioned)
-                        folder_path = destination_folder_versioned
-                        folder_name = folder_name + "-V" + str(count)
-                        finished = True
 
-                logger.info("Attempting to make directory " + str(folder_path))
-                logger.info("Successfully made directory " + str(folder_path))
+                    logger.info("Attempting to make directory " + str(folder_path))
+                    logger.info("Successfully made directory " + str(folder_path))
+            # except Exception as e:
+            #     logger.error(e)
 
-                num_files = len(files)
-                photo_data = []
-                for file in files:
-                    logger.info(file)
-                    image = Image.open(os.path.join(file))
-                    exif_data = image._getexif()
-                    creation_time = datetime.strptime(exif_data[36867], '%Y:%m:%d %H:%M:%S')
-                    gps_data = None
-                    if exif_data.get(34853):
-                        gps_data = {
-                            'latitude': eval(str(exif_data[34853][2])),
-                            'longitude': eval(str(exif_data[34853][4]))
-                        }
-                    photo_data.append({'filename': file, 'creation_time': str(creation_time), 'gps': gps_data})
-                    source_path = os.path.join(file)
-                    file = file.split("\\")
-                    splits = len(file)
-                    file = file[splits - 1]
-                    logger.info("File = " + file)
-                    destination_path = os.path.join(destination_folder, folder_name, file)
-                    logger.info("attempting to copy " + source_path + " + to " + destination_path)
-                    shutil.copy(source_path, destination_path)
-                    logger.info("copied " + source_path + " + to " + destination_path)
-                folder_name_paths.append(os.path.join(destination_folder, folder_name))
+                    num_files = len(files)
+                    photo_data = []
+                    for file in files:
+                        logger.info(file)
+                        image = Image.open(os.path.join(file))
+                        exif_data = image._getexif()
+                        creation_time = datetime.strptime(exif_data[36867], '%Y:%m:%d %H:%M:%S')
+                        gps_data = None
+                        if exif_data.get(34853):
+                            gps_data = {
+                                'latitude': eval(str(exif_data[34853][2])),
+                                'longitude': eval(str(exif_data[34853][4]))
+                            }
+                        photo_data.append({'filename': file, 'creation_time': str(creation_time), 'gps': gps_data})
+                        source_path = os.path.join(file)
+                        file = file.split("\\")
+                        splits = len(file)
+                        file = file[splits - 1]
+                        logger.info("File = " + file)
+                        destination_path = os.path.join(destination_folder, folder_name, file)
+                        logger.info("attempting to copy " + source_path + " + to " + destination_path)
+                        shutil.copy(source_path, destination_path)
+                        logger.info("copied " + source_path + " + to " + destination_path)
+                    folder_name_paths.append(os.path.join(destination_folder, folder_name))
 
-                metadata = {'total_photos': num_files, 'photos': photo_data}
-                metadata_file = os.path.join(folder_path, 'metadata.json')
-                # with open(metadata_file, 'w') as f:
-                #    json.dump(dict(metadata), f, indent=4)
-            else:
-                logger.info("exif non-existent")
+                    metadata = {'total_photos': num_files, 'photos': photo_data}
+                    metadata_file = os.path.join(folder_path, 'metadata.json')
+                    # with open(metadata_file, 'w') as f:
+                    #    json.dump(dict(metadata), f, indent=4)
+                else:
+                    logger.info("exif non-existent")
 
-        except FileExistsError:
-            logger.warning("Files already processed")
-            if rerun:
-                logger.info("Rerun = True. Rerunning")
-                if " " in folder_name:
-                    folder_name = folder_name.replace(" ", "_")
-                if "." in folder_name:
-                    folder_name = folder_name.replace(".", "-")
-                folder_name = folder_name + str(random.randint(1, 5000))
-                folder_path = os.path.join(destination_folder, folder_name)
-
-                logger.info("Attempting to make directory = " + folder_path)
-                os.makedirs(folder_path)
-                logger.info("Successfully made directory = " + folder_path)
-                num_files = len(files)
-                photo_data = []
-                for file in files:
-                    logger.info(file)
-                    image = Image.open(os.path.join(file))
-                    exif_data = image._getexif()
-                    creation_time = datetime.strptime(exif_data[36867], '%Y:%m:%d %H:%M:%S')
-                    gps_data = None
-                    if exif_data.get(34853):
-                        gps_data = {
-                            'latitude': eval(str(exif_data[34853][2])),
-                            'longitude': eval(str(exif_data[34853][4]))
-                        }
-                    photo_data.append({'filename': file, 'creation_time': str(creation_time), 'gps': gps_data})
-                    source_path = os.path.join(file)
-                    file = file.split("\\")
-                    splits = len(file)
-                    file = file[splits - 1]
-                    logger.info("File = " + file)
-                    destination_path = os.path.join(destination_folder, folder_name, file)
-                    logger.info("attempting to copy " + source_path + " + to " + destination_path)
-                    shutil.copy(source_path, destination_path)
-                    logger.info("copied " + source_path + " + to " + destination_path)
-                folder_name_paths.append(os.path.join(destination_folder, folder_name))
-
-            else:
-                logger.info("Rerun = False. Not re-running.")
-                stop_process = True
-                pass
-
-    # now handle the case in which there is no exif data
-    if not exif_exists and len(file_list) > 0:
-
-        logger.info("exif does not non-existent")
-        # folder_name = "VIDEO"
-        # logger.info ("Folder name = " + folder_name)
-        # folder_name_paths.append(folder_name)
-        # folder_path = os.path.join(destination_folder, folder_name)
-        # print (folder_path)
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
-        for each_file in file_list:
-            each_file_name = os.path.basename(each_file)
-            if " " in each_file_name:
-                each_file_name = folder_name.replace(" ", "_")
-            if "." in each_file_name:
-                each_file_name = folder_name.replace(".", "-")
-            logger.info(each_file_name)
-            logger.info("file = " + each_file_name)
-            logger.info("File = " + each_file_name)
-            destination_path = os.path.join(folder_path, each_file_name)
-            logger.info("attempting to copy " + each_file + " + to " + destination_path)
-            shutil.copy(each_file, destination_path)
-            logger.info("copied " + each_file + " + to " + destination_path)
-    # endregion
-
-    logger.info("Data ingested successfully. List of new folders: " + str(folder_name_paths))
-
+            except FileExistsError:
+                logger.warning("Files already processed")
+    #             if rerun:
+    #                 logger.info("Rerun = True. Rerunning")
+    #                 if " " in folder_name:
+    #                     folder_name = folder_name.replace(" ", "_")
+    #                 if "." in folder_name:
+    #                     folder_name = folder_name.replace(".", "-")
+    #                 folder_name = folder_name + str(random.randint(1, 5000))
+    #                 folder_path = os.path.join(destination_folder, folder_name)
+    #
+    #                 logger.info("Attempting to make directory = " + folder_path)
+    #                 os.makedirs(folder_path)
+    #                 logger.info("Successfully made directory = " + folder_path)
+    #                 num_files = len(files)
+    #                 photo_data = []
+    #                 for file in files:
+    #                     logger.info(file)
+    #                     image = Image.open(os.path.join(file))
+    #                     exif_data = image._getexif()
+    #                     creation_time = datetime.strptime(exif_data[36867], '%Y:%m:%d %H:%M:%S')
+    #                     gps_data = None
+    #                     if exif_data.get(34853):
+    #                         gps_data = {
+    #                             'latitude': eval(str(exif_data[34853][2])),
+    #                             'longitude': eval(str(exif_data[34853][4]))
+    #                         }
+    #                     photo_data.append({'filename': file, 'creation_time': str(creation_time), 'gps': gps_data})
+    #                     source_path = os.path.join(file)
+    #                     file = file.split("\\")
+    #                     splits = len(file)
+    #                     file = file[splits - 1]
+    #                     logger.info("File = " + file)
+    #                     destination_path = os.path.join(destination_folder, folder_name, file)
+    #                     logger.info("attempting to copy " + source_path + " + to " + destination_path)
+    #                     shutil.copy(source_path, destination_path)
+    #                     logger.info("copied " + source_path + " + to " + destination_path)
+    #                 folder_name_paths.append(os.path.join(destination_folder, folder_name))
+    #
+    #             else:
+    #                 logger.info("Rerun = False. Not re-running.")
+    #                 stop_process = True
+    #                 pass
+    #
+    #     # now handle the case in which there is no exif data
+    #     if not exif_exists and len(file_list) > 0:
+    #
+    #         logger.info("exif does not non-existent")
+    #         # folder_name = "VIDEO"
+    #         # logger.info ("Folder name = " + folder_name)
+    #         # folder_name_paths.append(folder_name)
+    #         folder_path = os.path.join(destination_folder, "test")
+    #         # print (folder_path)
+    #         if not os.path.exists(folder_path):
+    #             os.makedirs(folder_path)
+    #         for each_file in file_list:
+    #             each_file_name = os.path.basename(each_file)
+    #             if " " in each_file_name:
+    #                 each_file_name = folder_name.replace(" ", "_")
+    #             if "." in each_file_name:
+    #                 each_file_name = folder_name.replace(".", "-")
+    #             logger.info(each_file_name)
+    #             logger.info("file = " + each_file_name)
+    #             logger.info("File = " + each_file_name)
+    #             destination_path = os.path.join(folder_path, each_file_name)
+    #             logger.info("attempting to copy " + each_file + " + to " + destination_path)
+    #             shutil.copy(each_file, destination_path)
+    #             logger.info("copied " + each_file + " + to " + destination_path)
+    # # # endregion
+    #
+    # logger.info("Data ingested successfully. List of new folders: " + str(folder_name_paths))
     return folder_name_paths
 
 
@@ -440,6 +464,12 @@ def ingest_video(video_path, logger, frame_spacing=30):
             os.makedirs(dest_folder + "-V" + str(count))
             shutil.copy(video_path,
                             os.path.join(dest_folder + "-V" + str(count) + "/" + os.path.basename(video_path)))
+            destination_folder_versioned = dest_folder + "-V" + str(count)
+            extract_frames(input_video=destination_folder_versioned + "/" + os.path.basename(
+                video_path),
+                           output_folder=destination_folder_versioned,
+                           logger=logger, frame_spacing=int(frame_spacing))
+
             folder_name_path = os.path.join(dest_folder + "-V" + str(count))
             saved = True
             return folder_name_path

@@ -162,6 +162,7 @@ class MapmakerSettings:
         self.delete_after_transfer = ""
         self.auto_open_upon_completion = ""
         self.use_gpu = ""
+        self.sort_images = ""
 
     def save(self):
         mm_settings = {'mm_settings': vars(self)}
